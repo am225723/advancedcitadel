@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
 import CarModel from '@/components/CarModel';
+import { allGarageParts } from '@/lib/garage_parts';
 
 const VirtualGarage = () => {
   const { user, updateCarColor, loading } = useUser();
@@ -35,13 +36,10 @@ const VirtualGarage = () => {
     { label: 'Top Speed', value: '155 mph (limited)' }
   ];
 
-  const modifications = [
-    { name: 'HKS Turbo Kit', category: 'Performance', boost: '+50 HP' },
-    { name: 'Brembo Brake Kit', category: 'Braking', boost: 'Enhanced Stopping' },
-    { name: 'Coilover Suspension', category: 'Handling', boost: 'Improved Cornering' },
-    { name: 'Titanium Exhaust', category: 'Performance', boost: '+15 HP' },
-    { name: 'Carbon Fiber Hood', category: 'Weight Reduction', boost: '-20 lbs' }
-  ];
+  // Filter the master list of parts to show only what the user has unlocked.
+  const modifications = allGarageParts.filter(part =>
+    user?.unlocked_parts?.includes(part.name)
+  );
 
   const applyColor = () => {
     updateCarColor(selectedColor);

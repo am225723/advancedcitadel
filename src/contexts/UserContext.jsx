@@ -109,8 +109,32 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const unlockPart = async (partName) => {
+    if (!user) return;
+
+    // Ensure unlocked_parts is an array, even if it's null/undefined in the DB
+    const currentParts = Array.isArray(user.unlocked_parts) ? user.unlocked_parts : [];
+
+    // Avoid adding duplicate parts
+    if (currentParts.includes(partName)) {
+      console.log(`Part "${partName}" is already unlocked.`);
+      return;
+    }
+
+    const newParts = [...currentParts, partName];
+
+    const { error } = await supabase
+      .from('user_profiles')
+      .update({ unlocked_parts: newParts, updated_at: new Date().toISOString() })
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Error unlocking part:', error);
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, loading, addXP, updateCarColor }}>
+    <UserContext.Provider value={{ user, loading, addXP, updateCarColor, unlockPart }}>
       {children}
     </UserContext.Provider>
   );
