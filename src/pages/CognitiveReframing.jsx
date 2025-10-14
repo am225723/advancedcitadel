@@ -19,7 +19,7 @@ const CognitiveReframing = () => {
   // CHANGE: State now holds the entire analysis object, not just an array of reframes.
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { addXP } = useUser();
+  const { user, addXP, unlockPart, recordExerciseType } = useUser();
   const { session } = useAuth();
 
   const handleReframe = async () => {
@@ -48,6 +48,17 @@ const CognitiveReframing = () => {
       // CHANGE: Set the entire returned data object to the new state variable
       setAnalysis(data);
       addXP(20);
+      recordExerciseType('Reforge');
+
+      // Check for Brembo Brake Kit unlock after 10 Reforge exercises
+      if (user && user.completed_exercises === 9) { // 9 because addXP increments it to 10
+        unlockPart('Brembo Brake Kit');
+        toast({
+          title: "Part Unlocked! 🔧",
+          description: "You've earned the Brembo Brake Kit for gaining control over your thoughts!",
+        });
+      }
+
       toast({ title: "Thought Reframed! ✨", description: "+20 XP earned for mental flexibility." });
     } catch (error) {
       toast({ variant: "destructive", title: "AI Error", description: `Failed to get reframes. ${error.message}` });
