@@ -24,7 +24,7 @@ const AIJournal = () => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [analysisLoading, setAnalysisLoading] = useState(null);
-  const { user, addXP, unlockPart, recordExerciseType } = useUser();
+  const { user, addXP, unlockPart, recordExerciseType, updateJournalStreak } = useUser();
   const { session } = useAuth();
 
   useEffect(() => {
@@ -43,10 +43,10 @@ const AIJournal = () => {
       if (error) throw error;
       setEntries(data || []);
     } catch (error) {
-      toast({ 
-        variant: "destructive", 
-        title: "Error", 
-        description: `Failed to fetch entries: ${error.message}` 
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to fetch entries: ${error.message}`
       });
     } finally {
       setLoading(false);
@@ -55,10 +55,10 @@ const AIJournal = () => {
 
   const handleSaveEntry = async () => {
     if (!title.trim() || !entry.trim()) {
-      toast({ 
-        variant: "destructive", 
-        title: "Validation Error", 
-        description: "Title and entry content are required." 
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Title and entry content are required."
       });
       return;
     }
@@ -79,32 +79,24 @@ const AIJournal = () => {
 
       if (error) throw error;
 
-      toast({ 
-        title: "Entry Saved!", 
-        description: "Your journal entry has been saved. +10 XP earned." 
+      toast({
+        title: "Entry Saved!",
+        description: "Your journal entry has been saved. +10 XP earned."
       });
       
       addXP(10);
       recordExerciseType('Journal');
-
-      // Check for Carbon Fiber Hood unlock after 30 journal entries
-      if (entries.length === 29) { // 29 because the new entry makes it 30
-        unlockPart('Carbon Fiber Hood');
-        toast({
-          title: "Part Unlocked! 🔧",
-          description: "You've earned the Carbon Fiber Hood for your journaling consistency!",
-        });
-      }
+      updateJournalStreak();
 
       setTitle('');
       setEntry('');
       setTags('');
       fetchEntries();
     } catch (error) {
-      toast({ 
-        variant: "destructive", 
-        title: "Error", 
-        description: `Failed to save entry: ${error.message}` 
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to save entry: ${error.message}`
       });
     } finally {
       setLoading(false);
@@ -120,16 +112,16 @@ const AIJournal = () => {
 
       if (error) throw error;
 
-      toast({ 
-        title: "Entry Deleted", 
-        description: "Journal entry has been removed." 
+      toast({
+        title: "Entry Deleted",
+        description: "Journal entry has been removed."
       });
       fetchEntries();
     } catch (error) {
-      toast({ 
-        variant: "destructive", 
-        title: "Error", 
-        description: `Failed to delete entry: ${error.message}` 
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to delete entry: ${error.message}`
       });
     }
   };

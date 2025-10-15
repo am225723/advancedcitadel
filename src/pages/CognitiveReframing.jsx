@@ -47,11 +47,11 @@ const CognitiveReframing = () => {
 
       // CHANGE: Set the entire returned data object to the new state variable
       setAnalysis(data);
-      addXP(20);
+      addXP(20, 'Reforge'); // Pass exercise type
       recordExerciseType('Reforge');
 
       // Check for Brembo Brake Kit unlock after 10 Reforge exercises
-      if (user && user.completed_exercises === 9) { // 9 because addXP increments it to 10
+      if (user && (user.reforge_count || 0) === 9) { // Check specific counter
         unlockPart('Brembo Brake Kit');
         toast({
           title: "Part Unlocked! 🔧",

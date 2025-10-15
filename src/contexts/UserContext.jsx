@@ -62,7 +62,7 @@ export const UserProvider = ({ children }) => {
     };
   }, [session]);
 
-  const addXP = async (amount) => {
+  const addXP = async (amount, exerciseType = null) => {
     if (!user) return;
 
     const newXP = user.xp + amount;
@@ -90,6 +90,10 @@ export const UserProvider = ({ children }) => {
       completed_exercises: user.completed_exercises + 1,
       updated_at: new Date().toISOString(),
     };
+
+    if (exerciseType === 'Reforge') {
+      updatedProfile.reforge_count = (user.reforge_count || 0) + 1;
+    }
 
     const { error } = await supabase
       .from('user_profiles')
@@ -164,8 +168,58 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const updateJournalStreak = async () => {
+    if (!user) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const lastDate = user.last_journal_date ? new Date(user.last_journal_date) : null;
+    if (lastDate) {
+      lastDate.setHours(0, 0, 0, 0);
+    }
+
+    let newStreak = user.journal_streak || 0;
+
+    if (lastDate) {
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+
+      if (lastDate.getTime() === today.getTime()) {
+        // Already journaled today, do nothing to the streak.
+        return;
+      } else if (lastDate.getTime() === yesterday.getTime()) {
+        // Consecutive day
+        newStreak++;
+      } else {
+        // Streak is broken
+        newStreak = 1;
+      }
+    } else {
+      // First journal entry
+      newStreak = 1;
+    }
+
+    const { error } = await supabase
+      .from('user_profiles')
+      .update({
+        last_journal_date: today.toISOString(),
+        journal_streak: newStreak,
+      })
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Error updating journal streak:', error);
+    }
+
+    // Check for Carbon Fiber Hood unlock
+    if (newStreak >= 30) {
+      unlockPart('Carbon Fiber Hood');
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, loading, addXP, updateCarColor, unlockPart, recordExerciseType }}>
+    <UserContext.Provider value={{ user, loading, addXP, updateCarColor, unlockPart, recordExerciseType, updateJournalStreak }}>
       {children}
     </UserContext.Provider>
   );
