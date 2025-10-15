@@ -77,6 +77,11 @@ export const UserProvider = ({ children }) => {
       xpNeeded = Math.floor(100 * Math.pow(1.5, newLevel - 1));
     }
 
+    // Check for level-based unlocks
+    if (newLevel >= 5) {
+      unlockPart('Roll Cage');
+    }
+
     const updatedProfile = {
       level: newLevel,
       xp: remainingXP,
@@ -109,8 +114,58 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const unlockPart = async (partName) => {
+    if (!user) return;
+
+    // Ensure unlocked_parts is an array, even if it's null/undefined in the DB
+    const currentParts = Array.isArray(user.unlocked_parts) ? user.unlocked_parts : [];
+
+    // Avoid adding duplicate parts
+    if (currentParts.includes(partName)) {
+      console.log(`Part "${partName}" is already unlocked.`);
+      return;
+    }
+
+    const newParts = [...currentParts, partName];
+
+    const { error } = await supabase
+      .from('user_profiles')
+      .update({ unlocked_parts: newParts, updated_at: new Date().toISOString() })
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Error unlocking part:', error);
+    }
+  };
+
+  const recordExerciseType = async (exerciseType) => {
+    if (!user) return;
+
+    const currentTypes = Array.isArray(user.completed_exercise_types) ? user.completed_exercise_types : [];
+
+    if (currentTypes.includes(exerciseType)) {
+      return; // Type already recorded
+    }
+
+    const newTypes = [...currentTypes, exerciseType];
+
+    const { error } = await supabase
+      .from('user_profiles')
+      .update({ completed_exercise_types: newTypes, updated_at: new Date().toISOString() })
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Error recording exercise type:', error);
+    }
+
+    // Check for Active Center Differential unlock
+    if (newTypes.length >= 3) {
+      unlockPart('Active Center Differential');
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, loading, addXP, updateCarColor }}>
+    <UserContext.Provider value={{ user, loading, addXP, updateCarColor, unlockPart, recordExerciseType }}>
       {children}
     </UserContext.Provider>
   );

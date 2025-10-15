@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
+import CarModel from '@/components/CarModel';
+import { allGarageParts } from '@/lib/garage_parts';
 
 const VirtualGarage = () => {
   const { user, updateCarColor, loading } = useUser();
@@ -34,13 +36,10 @@ const VirtualGarage = () => {
     { label: 'Top Speed', value: '155 mph (limited)' }
   ];
 
-  const modifications = [
-    { name: 'HKS Turbo Kit', category: 'Performance', boost: '+50 HP' },
-    { name: 'Brembo Brake Kit', category: 'Braking', boost: 'Enhanced Stopping' },
-    { name: 'Coilover Suspension', category: 'Handling', boost: 'Improved Cornering' },
-    { name: 'Titanium Exhaust', category: 'Performance', boost: '+15 HP' },
-    { name: 'Carbon Fiber Hood', category: 'Weight Reduction', boost: '-20 lbs' }
-  ];
+  // Filter the master list of parts to show only what the user has unlocked.
+  const modifications = allGarageParts.filter(part =>
+    user?.unlocked_parts?.includes(part.name)
+  );
 
   const applyColor = () => {
     updateCarColor(selectedColor);
@@ -82,13 +81,10 @@ const VirtualGarage = () => {
         >
           <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-blue-900/50 p-8 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-950/20 to-transparent" />
-            <div className="relative car-3d-container">
-              <img 
-                className="w-full rounded-lg shadow-2xl"
-                alt="Mitsubishi Lancer Evolution IX"
-               src="https://images.unsplash.com/photo-1533228356290-43b171e9835d" />
+            <div className="relative car-3d-container h-96">
+              <CarModel />
               <div className="absolute top-4 right-4 px-4 py-2 bg-blue-950/80 backdrop-blur-sm border border-blue-700 rounded-lg">
-                <span className="text-blue-400 font-bold">{user.car_color}</span>
+                <span className="text-blue-400 font-bold">{user?.car_color || 'Default'}</span>
               </div>
             </div>
           </Card>
