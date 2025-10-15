@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Car, Palette, Wrench, Gauge } from 'lucide-react';
+import { Car, Palette, Wrench, Gauge, Waves } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
+import CarModel from '@/components/CarModel';
+import { allGarageParts } from '@/lib/garage_parts';
+import CarWashGame from '@/components/games/CarWashGame';
 
 const VirtualGarage = () => {
   const { user, updateCarColor, loading } = useUser();
   const [selectedColor, setSelectedColor] = useState('');
+  const [activeGame, setActiveGame] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -34,13 +38,10 @@ const VirtualGarage = () => {
     { label: 'Top Speed', value: '155 mph (limited)' }
   ];
 
-  const modifications = [
-    { name: 'HKS Turbo Kit', category: 'Performance', boost: '+50 HP' },
-    { name: 'Brembo Brake Kit', category: 'Braking', boost: 'Enhanced Stopping' },
-    { name: 'Coilover Suspension', category: 'Handling', boost: 'Improved Cornering' },
-    { name: 'Titanium Exhaust', category: 'Performance', boost: '+15 HP' },
-    { name: 'Carbon Fiber Hood', category: 'Weight Reduction', boost: '-20 lbs' }
-  ];
+  // Filter the master list of parts to show only what the user has unlocked.
+  const modifications = allGarageParts.filter(part =>
+    user?.unlocked_parts?.includes(part.name)
+  );
 
   const applyColor = () => {
     updateCarColor(selectedColor);
@@ -74,114 +75,140 @@ const VirtualGarage = () => {
           <p className="text-xl text-slate-400">Your Mitsubishi Lancer Evolution IX</p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="relative"
-        >
-          <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-blue-900/50 p-8 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-950/20 to-transparent" />
-            <div className="relative car-3d-container">
-              <img 
-                className="w-full rounded-lg shadow-2xl"
-                alt="Mitsubishi Lancer Evolution IX"
-               src="https://images.unsplash.com/photo-1533228356290-43b171e9835d" />
-              <div className="absolute top-4 right-4 px-4 py-2 bg-blue-950/80 backdrop-blur-sm border border-blue-700 rounded-lg">
-                <span className="text-blue-400 font-bold">{user.car_color}</span>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="bg-slate-900/80 border-slate-700 p-6 space-y-4 h-full">
-              <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
-                <Gauge className="w-6 h-6 text-red-600" />
-                <span>Specifications</span>
-              </h3>
-              <div className="space-y-3">
-                {specs.map((spec, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b border-slate-800">
-                    <span className="text-slate-400">{spec.label}</span>
-                    <span className="text-white font-semibold">{spec.value}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="bg-slate-900/80 border-slate-700 p-6 space-y-4 h-full">
-              <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
-                <Wrench className="w-6 h-6 text-yellow-600" />
-                <span>Modifications</span>
-              </h3>
-              <div className="space-y-3">
-                {modifications.map((mod, index) => (
-                  <div key={index} className="p-3 bg-slate-950/50 border border-slate-800 rounded-lg">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-white font-semibold">{mod.name}</p>
-                        <p className="text-sm text-slate-400">{mod.category}</p>
-                      </div>
-                      <span className="text-green-400 text-sm font-bold">{mod.boost}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </motion.div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-purple-900/50 p-8 space-y-6">
-            <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
-              <Palette className="w-6 h-6 text-purple-600" />
-              <span>Color Customization</span>
-            </h3>
-            
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {colors.map((color) => (
-                <motion.button
-                  key={color.name}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setSelectedColor(color.name)}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    selectedColor === color.name
-                      ? 'border-purple-600 shadow-lg shadow-purple-600/50'
-                      : 'border-slate-700 hover:border-slate-600'
-                  }`}
-                >
-                  <div className={`w-full h-20 rounded-lg bg-gradient-to-br ${color.gradient} mb-2`} />
-                  <p className="text-sm text-white font-semibold">{color.name}</p>
-                </motion.button>
-              ))}
-            </div>
-
-            <Button
-              onClick={applyColor}
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-bold py-6 text-lg"
+        {activeGame === 'carWash' ? (
+          <CarWashGame onComplete={() => setActiveGame(null)} />
+        ) : (
+          <>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="relative"
             >
-              <Palette className="w-5 h-5 mr-2" />
-              Apply Color
-            </Button>
-          </Card>
-        </motion.div>
+              <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-blue-900/50 p-8 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-950/20 to-transparent" />
+                <div className="relative car-3d-container h-96">
+                  <CarModel />
+                  <div className="absolute top-4 right-4 px-4 py-2 bg-blue-950/80 backdrop-blur-sm border border-blue-700 rounded-lg">
+                    <span className="text-blue-400 font-bold">{user?.car_color || 'Default'}</span>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Card className="bg-slate-900/80 border-slate-700 p-6 space-y-4 h-full">
+                  <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
+                    <Gauge className="w-6 h-6 text-red-600" />
+                    <span>Specifications</span>
+                  </h3>
+                  <div className="space-y-3">
+                    {specs.map((spec, index) => (
+                      <div key={index} className="flex justify-between items-center py-2 border-b border-slate-800">
+                        <span className="text-slate-400">{spec.label}</span>
+                        <span className="text-white font-semibold">{spec.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Card className="bg-slate-900/80 border-slate-700 p-6 space-y-4 h-full">
+                  <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
+                    <Wrench className="w-6 h-6 text-yellow-600" />
+                    <span>Modifications</span>
+                  </h3>
+                  <div className="space-y-3">
+                    {modifications.map((mod, index) => (
+                      <div key={index} className="p-3 bg-slate-950/50 border border-slate-800 rounded-lg">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="text-white font-semibold">{mod.name}</p>
+                            <p className="text-sm text-slate-400">{mod.category}</p>
+                          </div>
+                          <span className="text-green-400 text-sm font-bold">{mod.boost}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </motion.div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Card className="bg-slate-900/80 border-slate-700 p-6 space-y-4">
+                <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
+                  <Waves className="w-6 h-6 text-cyan-400" />
+                  <span>Maintenance</span>
+                </h3>
+                <p className="text-slate-400">
+                  Engage in mindful maintenance to improve your car's performance and earn rewards.
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('carWash')}>
+                    <Waves className="w-8 h-8" />
+                    Car Wash
+                  </Button>
+                  {/* Other game buttons will be added here */}
+                </div>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-purple-900/50 p-8 space-y-6">
+                <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
+                  <Palette className="w-6 h-6 text-purple-600" />
+                  <span>Color Customization</span>
+                </h3>
+
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  {colors.map((color) => (
+                    <motion.button
+                      key={color.name}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedColor(color.name)}
+                      className={`p-4 rounded-lg border-2 transition-all ${
+                        selectedColor === color.name
+                          ? 'border-purple-600 shadow-lg shadow-purple-600/50'
+                          : 'border-slate-700 hover:border-slate-600'
+                      }`}
+                    >
+                      <div className={`w-full h-20 rounded-lg bg-gradient-to-br ${color.gradient} mb-2`} />
+                      <p className="text-sm text-white font-semibold">{color.name}</p>
+                    </motion.button>
+                  ))}
+                </div>
+
+                <Button
+                  onClick={applyColor}
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-bold py-6 text-lg"
+                >
+                  <Palette className="w-5 h-5 mr-2" />
+                  Apply Color
+                </Button>
+              </Card>
+            </motion.div>
+          </>
+        )}
       </div>
     </>
   );
