@@ -77,6 +77,11 @@ export const UserProvider = ({ children }) => {
       xpNeeded = Math.floor(100 * Math.pow(1.5, newLevel - 1));
     }
 
+    // Check for level-based unlocks
+    if (newLevel >= 5) {
+      unlockPart('Roll Cage');
+    }
+
     const updatedProfile = {
       level: newLevel,
       xp: remainingXP,
@@ -133,6 +138,34 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const recordExerciseType = async (exerciseType) => {
+    if (!user) return;
+
+    const currentTypes = Array.isArray(user.completed_exercise_types) ? user.completed_exercise_types : [];
+
+    if (currentTypes.includes(exerciseType)) {
+      return; // Type already recorded
+    }
+
+    const newTypes = [...currentTypes, exerciseType];
+
+    const { error } = await supabase
+      .from('user_profiles')
+      .update({ completed_exercise_types: newTypes, updated_at: new Date().toISOString() })
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Error recording exercise type:', error);
+    }
+
+    // Check for Active Center Differential unlock
+    if (newTypes.length >= 3) {
+      unlockPart('Active Center Differential');
+    }
+  };
+
+  return (
+    <UserContext.Provider value={{ user, loading, addXP, updateCarColor, unlockPart, recordExerciseType }}>
   return (
     <UserContext.Provider value={{ user, loading, addXP, updateCarColor, unlockPart }}>
       {children}

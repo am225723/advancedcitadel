@@ -24,7 +24,7 @@ const AIJournal = () => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [analysisLoading, setAnalysisLoading] = useState(null);
-  const { addXP } = useUser();
+  const { user, addXP, unlockPart, recordExerciseType } = useUser();
   const { session } = useAuth();
 
   useEffect(() => {
@@ -85,6 +85,17 @@ const AIJournal = () => {
       });
       
       addXP(10);
+      recordExerciseType('Journal');
+
+      // Check for Carbon Fiber Hood unlock after 30 journal entries
+      if (entries.length === 29) { // 29 because the new entry makes it 30
+        unlockPart('Carbon Fiber Hood');
+        toast({
+          title: "Part Unlocked! 🔧",
+          description: "You've earned the Carbon Fiber Hood for your journaling consistency!",
+        });
+      }
+
       setTitle('');
       setEntry('');
       setTags('');
