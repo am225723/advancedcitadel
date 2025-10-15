@@ -181,24 +181,24 @@ const VirtualGarage = () => {
                     <Waves className="w-8 h-8" />
                     Car Wash
                   </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('engineTuning')}>
-                Engine Tuning
-              </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('cleaningExterior')}>
-                Cleaning Exterior
-              </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('oilChange')}>
-                Oil Change
-              </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('tireRotation')}>
-                Tire Rotation
-              </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('ecuTuning')}>
-                ECU Tuning
-              </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('bodyRepair')}>
-                Body Repair
-              </Button>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('engineTuning')}>
+                    Engine Tuning
+                  </Button>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('cleaningExterior')}>
+                    Cleaning Exterior
+                  </Button>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('oilChange')}>
+                    Oil Change
+                  </Button>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('tireRotation')}>
+                    Tire Rotation
+                  </Button>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('ecuTuning')}>
+                    ECU Tuning
+                  </Button>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('bodyRepair')}>
+                    Body Repair
+                  </Button>
                 </div>
               </Card>
             </motion.div>
