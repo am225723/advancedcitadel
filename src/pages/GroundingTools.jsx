@@ -241,7 +241,13 @@ const MantraForge = ({ addXP }) => {
 };
 
 const GroundingTools = () => {
-  const { addXP } = useUser();
+  const { addXP, recordExerciseType } = useUser();
+
+  // Wrapper function to record the exercise type
+  const handleExerciseCompletion = (xp, type) => {
+    addXP(xp);
+    recordExerciseType(type);
+  };
 
   return (
     <>
@@ -266,26 +272,26 @@ const GroundingTools = () => {
           </TabsList>
 
           <TabsContent value="blacksmith" className="mt-6">
-            <BlacksmithsRhythm addXP={addXP} />
+            <BlacksmithsRhythm addXP={(xp) => handleExerciseCompletion(xp, 'Grounding')} />
           </TabsContent>
 
           <TabsContent value="driver" className="mt-6">
-            <DriversFocus addXP={addXP} />
+            <DriversFocus addXP={(xp) => handleExerciseCompletion(xp, 'Grounding')} />
           </TabsContent>
 
           {/* NEW: Tab content for Scout's Survey */}
           <TabsContent value="scout" className="mt-6">
-            <ScoutsSurvey addXP={addXP} />
+            <ScoutsSurvey addXP={(xp) => handleExerciseCompletion(xp, 'Grounding')} />
           </TabsContent>
 
           {/* NEW: Tab content for Custom Anchor */}
           <TabsContent value="custom" className="mt-6">
-            <CustomAnchor addXP={addXP} />
+            <CustomAnchor addXP={(xp) => handleExerciseCompletion(xp, 'Grounding')} />
           </TabsContent>
         </Tabs>
 
         {/* NEW: Mantra Forge component added below the tabs */}
-        <MantraForge addXP={addXP} />
+        <MantraForge addXP={(xp) => handleExerciseCompletion(xp, 'Grounding')} />
       </div>
     </>
   );
