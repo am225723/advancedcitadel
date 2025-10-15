@@ -9,6 +9,12 @@ import { toast } from '@/components/ui/use-toast';
 import CarModel from '@/components/CarModel';
 import { allGarageParts } from '@/lib/garage_parts';
 import CarWashGame from '@/components/games/CarWashGame';
+import EngineTuning from '@/components/games/EngineTuning';
+import CleaningExterior from '@/components/games/CleaningExterior';
+import OilChange from '@/components/games/OilChange';
+import TireRotation from '@/components/games/TireRotation';
+import ECUTuning from '@/components/games/ECUTuning';
+import BodyRepair from '@/components/games/BodyRepair';
 
 const VirtualGarage = () => {
   const { user, updateCarColor, loading } = useUser();
@@ -77,6 +83,18 @@ const VirtualGarage = () => {
 
         {activeGame === 'carWash' ? (
           <CarWashGame onComplete={() => setActiveGame(null)} />
+        ) : activeGame === 'engineTuning' ? (
+          <EngineTuning onComplete={() => setActiveGame(null)} />
+        ) : activeGame === 'cleaningExterior' ? (
+          <CleaningExterior onComplete={() => setActiveGame(null)} />
+        ) : activeGame === 'oilChange' ? (
+          <OilChange onComplete={() => setActiveGame(null)} />
+        ) : activeGame === 'tireRotation' ? (
+          <TireRotation onComplete={() => setActiveGame(null)} />
+        ) : activeGame === 'ecuTuning' ? (
+          <ECUTuning onComplete={() => setActiveGame(null)} />
+        ) : activeGame === 'bodyRepair' ? (
+          <BodyRepair onComplete={() => setActiveGame(null)} />
         ) : (
           <>
             <motion.div
@@ -163,7 +181,24 @@ const VirtualGarage = () => {
                     <Waves className="w-8 h-8" />
                     Car Wash
                   </Button>
-                  {/* Other game buttons will be added here */}
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('engineTuning')}>
+                    Engine Tuning
+                  </Button>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('cleaningExterior')}>
+                    Cleaning Exterior
+                  </Button>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('oilChange')}>
+                    Oil Change
+                  </Button>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('tireRotation')}>
+                    Tire Rotation
+                  </Button>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('ecuTuning')}>
+                    ECU Tuning
+                  </Button>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('bodyRepair')}>
+                    Body Repair
+                  </Button>
                 </div>
               </Card>
             </motion.div>
