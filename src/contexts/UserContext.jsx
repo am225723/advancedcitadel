@@ -166,6 +166,8 @@ export const UserProvider = ({ children }) => {
 
   return (
     <UserContext.Provider value={{ user, loading, addXP, updateCarColor, unlockPart, recordExerciseType }}>
+  return (
+    <UserContext.Provider value={{ user, loading, addXP, updateCarColor, unlockPart }}>
       {children}
     </UserContext.Provider>
   );
