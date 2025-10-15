@@ -61,8 +61,7 @@ const ExposureLadder = () => {
     } else {
       newCompletedSteps.push(index);
       addXP(5);
-      toast({ title: "Step Complete!", description: "+5
-XP for your bravery!" });
+      toast({ title: "Step Complete!", description: "+5 XP for your bravery!" });
 
       // Check for HKS Turbo Kit unlock when all steps are completed
       if (steps.length > 0 && newCompletedSteps.length === steps.length) {
