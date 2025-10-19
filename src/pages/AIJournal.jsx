@@ -24,7 +24,7 @@ const AIJournal = () => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [analysisLoading, setAnalysisLoading] = useState(null);
-  const { addXP } = useUser();
+  const { user, addXP, unlockPart, recordExerciseType, updateJournalStreak } = useUser();
   const { session } = useAuth();
 
   useEffect(() => {
@@ -85,6 +85,9 @@ const AIJournal = () => {
       });
       
       addXP(10);
+      recordExerciseType('Journal');
+      updateJournalStreak();
+
       setTitle('');
       setEntry('');
       setTags('');
