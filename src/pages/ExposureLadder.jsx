@@ -19,7 +19,7 @@ const ExposureLadder = () => {
   const [steps, setSteps] = useState([]);
   const [completedSteps, setCompletedSteps] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { addXP } = useUser();
+  const { user, addXP, unlockPart } = useUser();
   const { session } = useAuth();
 
   const generateLadder = async () => {
@@ -61,7 +61,17 @@ const ExposureLadder = () => {
     } else {
       newCompletedSteps.push(index);
       addXP(5);
-      toast({ title: "Step Complete!", description: "+5 XP for your bravery!" });
+      toast({ title: "Step Complete!", description: "+5
+XP for your bravery!" });
+
+      // Check for HKS Turbo Kit unlock when all steps are completed
+      if (steps.length > 0 && newCompletedSteps.length === steps.length) {
+        unlockPart('HKS Turbo Kit');
+        toast({
+          title: "Part Unlocked! 🔧",
+          description: "You've completed the Path of the Undaunted and earned the HKS Turbo Kit!",
+        });
+      }
     }
     setCompletedSteps(newCompletedSteps);
   };
