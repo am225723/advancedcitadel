@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Car, Palette, Wrench, Gauge, Waves, Map } from 'lucide-react';
-import { Car, Palette, Wrench, Gauge, Waves } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/contexts/UserContext';
@@ -83,20 +82,16 @@ const VirtualGarage = () => {
           <p className="text-xl text-slate-400">Your Mitsubishi Lancer Evolution IX</p>
         </motion.div>
 
-        {activeGame === 'carWash' ? (
-          <CarWashGame onComplete={() => setActiveGame(null)} />
-        ) : activeGame === 'engineTuning' ? (
-          <EngineTuning onComplete={() => setActiveGame(null)} />
-        ) : activeGame === 'cleaningExterior' ? (
-          <CleaningExterior onComplete={() => setActiveGame(null)} />
-        ) : activeGame === 'oilChange' ? (
-          <OilChange onComplete={() => setActiveGame(null)} />
-        ) : activeGame === 'tireRotation' ? (
-          <TireRotation onComplete={() => setActiveGame(null)} />
-        ) : activeGame === 'ecuTuning' ? (
-          <ECUTuning onComplete={() => setActiveGame(null)} />
-        ) : activeGame === 'bodyRepair' ? (
-          <BodyRepair onComplete={() => setActiveGame(null)} />
+        {activeGame ? (
+          <>
+            {activeGame === 'carWash' && <CarWashGame onComplete={() => setActiveGame(null)} />}
+            {activeGame === 'engineTuning' && <EngineTuning onComplete={() => setActiveGame(null)} />}
+            {activeGame === 'cleaningExterior' && <CleaningExterior onComplete={() => setActiveGame(null)} />}
+            {activeGame === 'oilChange' && <OilChange onComplete={() => setActiveGame(null)} />}
+            {activeGame === 'tireRotation' && <TireRotation onComplete={() => setActiveGame(null)} />}
+            {activeGame === 'ecuTuning' && <ECUTuning onComplete={() => setActiveGame(null)} />}
+            {activeGame === 'bodyRepair' && <BodyRepair onComplete={() => setActiveGame(null)} />}
+          </>
         ) : (
           <>
             <motion.div
@@ -116,12 +111,12 @@ const VirtualGarage = () => {
               </Card>
             </motion.div>
 
-        <Link to="/mindful-drive">
-          <Button className="w-full py-8 text-xl font-bold" variant="outline">
-            <Map className="w-6 h-6 mr-2" />
-            Take a Mindful Drive
-          </Button>
-        </Link>
+            <Link to="/mindful-drive">
+              <Button className="w-full py-8 text-xl font-bold" variant="outline">
+                <Map className="w-6 h-6 mr-2" />
+                Take a Mindful Drive
+              </Button>
+            </Link>
 
             <div className="grid md:grid-cols-2 gap-6">
               <motion.div
@@ -190,24 +185,6 @@ const VirtualGarage = () => {
                     <Waves className="w-8 h-8" />
                     Car Wash
                   </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('engineTuning')}>
-                Engine Tuning
-              </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('cleaningExterior')}>
-                Cleaning Exterior
-              </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('oilChange')}>
-                Oil Change
-              </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('tireRotation')}>
-                Tire Rotation
-              </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('ecuTuning')}>
-                ECU Tuning
-              </Button>
-              <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('bodyRepair')}>
-                Body Repair
-              </Button>
                   <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('engineTuning')}>
                     Engine Tuning
                   </Button>
@@ -217,7 +194,7 @@ const VirtualGarage = () => {
                   <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('oilChange')}>
                     Oil Change
                   </Button>
-                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('tireRotation')}>
+                  <Button variant="outline" className="h-24. flex-col gap-2" onClick={() => setActiveGame('tireRotation')}>
                     Tire Rotation
                   </Button>
                   <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('ecuTuning')}>
