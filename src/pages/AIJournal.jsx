@@ -43,10 +43,10 @@ const AIJournal = () => {
       if (error) throw error;
       setEntries(data || []);
     } catch (error) {
-      toast({ 
-        variant: "destructive", 
-        title: "Error", 
-        description: `Failed to fetch entries: ${error.message}` 
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to fetch entries: ${error.message}`
       });
     } finally {
       setLoading(false);
@@ -55,10 +55,10 @@ const AIJournal = () => {
 
   const handleSaveEntry = async () => {
     if (!title.trim() || !entry.trim()) {
-      toast({ 
-        variant: "destructive", 
-        title: "Validation Error", 
-        description: "Title and entry content are required." 
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Title and entry content are required."
       });
       return;
     }
@@ -79,9 +79,9 @@ const AIJournal = () => {
 
       if (error) throw error;
 
-      toast({ 
-        title: "Entry Saved!", 
-        description: "Your journal entry has been saved. +10 XP earned." 
+      toast({
+        title: "Entry Saved!",
+        description: "Your journal entry has been saved. +10 XP earned."
       });
       
       addXP(10);
@@ -93,10 +93,10 @@ const AIJournal = () => {
       setTags('');
       fetchEntries();
     } catch (error) {
-      toast({ 
-        variant: "destructive", 
-        title: "Error", 
-        description: `Failed to save entry: ${error.message}` 
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to save entry: ${error.message}`
       });
     } finally {
       setLoading(false);
@@ -112,16 +112,16 @@ const AIJournal = () => {
 
       if (error) throw error;
 
-      toast({ 
-        title: "Entry Deleted", 
-        description: "Journal entry has been removed." 
+      toast({
+        title: "Entry Deleted",
+        description: "Journal entry has been removed."
       });
       fetchEntries();
     } catch (error) {
-      toast({ 
-        variant: "destructive", 
-        title: "Error", 
-        description: `Failed to delete entry: ${error.message}` 
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to delete entry: ${error.message}`
       });
     }
   };

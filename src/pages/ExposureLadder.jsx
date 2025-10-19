@@ -39,11 +39,11 @@ const ExposureLadder = () => {
         body: { fear, goal, constraints },
       });
       if (error) throw new Error(error.message);
-      // CHANGE: The original code expected data.steps, but the function returns data.ladder.
+      // The original code expected data.steps, but the function returns data.ladder.
       if (!data || !data.ladder) {
         throw new Error("Received an unexpected response from the AI.");
       }
-      // CHANGE: Set state from data.ladder, not data.steps
+      // Set state from data.ladder, not data.steps
       setSteps(data.ladder);
       addXP(15);
       toast({ title: "Quest Created! ✨", description: "Your exposure ladder is ready. +15 XP earned." });
@@ -61,8 +61,8 @@ const ExposureLadder = () => {
     } else {
       newCompletedSteps.push(index);
       addXP(5);
-      toast({ title: "Step Complete!", description: "+5
-XP for your bravery!" });
+      // This line was corrected to fix the "Unterminated string literal" error.
+      toast({ title: "Step Complete!", description: "+5 XP for your bravery!" });
 
       // Check for HKS Turbo Kit unlock when all steps are completed
       if (steps.length > 0 && newCompletedSteps.length === steps.length) {
@@ -113,7 +113,7 @@ XP for your bravery!" });
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <h2 className="text-2xl font-bold text-center text-gradient-gold mb-4">Your Quest: {fear}</h2>
             <div className="space-y-3">
-              {/* CHANGE: The rendering logic now displays the properties of the 'step' object (title, description, etc.) */}
+              {/* The rendering logic now displays the properties of the 'step' object (title, description, etc.) */}
               {steps.map((step, index) => (
                 <motion.div 
                     key={index} 
