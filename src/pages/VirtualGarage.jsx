@@ -194,7 +194,7 @@ const VirtualGarage = () => {
                   <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('oilChange')}>
                     Oil Change
                   </Button>
-                  <Button variant="outline" className="h-24. flex-col gap-2" onClick={() => setActiveGame('tireRotation')}>
+                  <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('tireRotation')}>
                     Tire Rotation
                   </Button>
                   <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => setActiveGame('ecuTuning')}>
