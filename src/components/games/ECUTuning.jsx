@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider.jsx';
+import { Slider } from '@/components/ui/slider';
 import { SlidersHorizontal } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useUser } from '@/contexts/UserContext';
