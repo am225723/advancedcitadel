@@ -391,15 +391,38 @@ const EnhancedBonfireOfBreath = () => {
           
           <EffectComposer>
             <Bloom 
-              intensity={0.8} 
-              luminanceThreshold={0.6} 
-              luminanceSmoothing={0.6} 
+              intensity={
+                isRunning 
+                  ? (phase === 'hold' || phase === 'holdAfter' 
+                      ? 1.5 
+                      : phase === 'inhale' 
+                        ? 0.7 + (phaseProgress * 0.8)
+                        : phase === 'exhale'
+                          ? 1.5 - (phaseProgress * 0.8)
+                          : 0.7)
+                  : 0.6
+              } 
+              luminanceThreshold={
+                isRunning && (phase === 'hold' || phase === 'holdAfter')
+                  ? 0.3
+                  : 0.5
+              } 
+              luminanceSmoothing={0.7} 
               mipmapBlur
+              radius={0.9}
             />
-            <Vignette eskil={false} offset={0.15} darkness={1.2} />
+            <Vignette 
+              eskil={false} 
+              offset={0.12} 
+              darkness={
+                isRunning && (phase === 'hold' || phase === 'holdAfter')
+                  ? 1.4
+                  : 1.2
+              } 
+            />
             <ChromaticAberration
               blendFunction={BlendFunction.NORMAL}
-              offset={[0.0005, 0.0005]}
+              offset={[0.0004, 0.0004]}
             />
           </EffectComposer>
         </Canvas>
