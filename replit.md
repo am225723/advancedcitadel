@@ -62,6 +62,12 @@ A `.env.example` file is provided as a template.
 
 ## Recent Changes (October 25, 2025)
 
+### Bug Fix: Missing Fonts Causing Canvas Failure
+- **Issue**: Text components in Canvas were referencing non-existent font files (`/fonts/CormorantGaramond-Regular.ttf` and `/fonts/CormorantGaramond-Bold.ttf`)
+- **Impact**: This caused the entire Canvas to fail silently, resulting in a blank screen on the Bonfire page
+- **Fix**: Removed font props from all Text components - they now use default fonts
+- **Result**: Canvas now renders properly with all premium components visible
+
 ### Premium Breathing Widget Implementation
 1. Created **PremiumSoulFlame** component with advanced GLSL shaders:
    - Volumetric flame rendering using custom vertex/fragment shaders

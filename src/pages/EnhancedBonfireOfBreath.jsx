@@ -75,7 +75,6 @@ const CircularProgress = ({ progress, breathCount }) => {
         <Text
           color="#d4af37"
           fontSize={0.3}
-          font="/fonts/CormorantGaramond-Regular.ttf"
           position={[0, -0.5, 0]}
           anchorX="center"
         >
@@ -362,7 +361,6 @@ const EnhancedBonfireOfBreath = () => {
                   <Text 
                     color="#d4af37" 
                     fontSize={0.5} 
-                    font="/fonts/CormorantGaramond-Regular.ttf" 
                     position={[0, 1.8, 0]} 
                     anchorX="center"
                     letterSpacing={0.05}
@@ -375,7 +373,6 @@ const EnhancedBonfireOfBreath = () => {
                       <Text 
                         color="#FFE8B3" 
                         fontSize={1.5} 
-                        font="/fonts/CormorantGaramond-Bold.ttf" 
                         position={[0, -0.6, 0]} 
                         anchorX="center"
                       >

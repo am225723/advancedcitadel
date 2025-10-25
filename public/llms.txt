@@ -3,6 +3,7 @@
 - [Enter The Citadel](/auth): Login or Sign Up to access your Mental Fortress
 - [Hall of Characters - The Citadel](/characters): Learn from the legends of fallen kingdoms and choose your guide.
 - [Journal - The Citadel](/aijournal): Chronicle your journey through The Citadel.
+- [Mindful Drive - Therapeutic Garage](/mindfuldrive): A serene driving experience for relaxation and mindfulness.
 - [Path of the Undaunted - The Citadel](/exposureladder): Create AI-generated exposure therapy quests to face your fears.
 - [SafeView - Therapeutic Garage](/safeview): Secure storage with car-themed two-factor authentication
 - [The Bonfire of Breath - The Citadel](/bonfireofbreath): A meditative breathing ritual to rekindle your inner flame.
