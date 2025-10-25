@@ -329,7 +329,7 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
     if (flameMeshRef.current) {
       flameMeshRef.current.material.uniforms.uTime.value = timeRef.current;
 
-      let targetScale = 0.5;
+      let targetScale = 0.3;
       let targetIntensity = 0.3;
       let targetDisplacement = 0.35;
       let targetTurbulence = 0.4;
@@ -338,14 +338,14 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
       let midColor = new THREE.Color('#FFB347');
       let edgeColor = new THREE.Color('#FF8C00');
       let tipColor = new THREE.Color('#9370DB');
-      let lightIntensity = 4;
+      let lightIntensity = 3;
       let lightColor = new THREE.Color('#FF8C42');
 
       if (isRunning) {
         switch (phase) {
           case 'inhale':
             // Growing, intensifying
-            targetScale = 0.5 + (phaseProgress * 0.85);
+            targetScale = 0.3 + (phaseProgress * 0.4);
             targetIntensity = 0.3 + (phaseProgress * 0.7);
             targetDisplacement = 0.35 + (phaseProgress * 0.45);
             targetTurbulence = 0.4 + (phaseProgress * 0.5);
@@ -363,7 +363,7 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
               phaseProgress
             );
             
-            lightIntensity = 4 + (phaseProgress * 8);
+            lightIntensity = 3 + (phaseProgress * 5);
             lightColor.lerpColors(
               new THREE.Color('#FF8C42'),
               new THREE.Color('#FFE8B3'),
@@ -374,8 +374,8 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
           case 'hold':
           case 'holdAfter':
             // Sustained brilliance with subtle pulse
-            const pulse = Math.sin(timeRef.current * 2.5) * 0.04;
-            targetScale = 1.35 + pulse;
+            const pulse = Math.sin(timeRef.current * 2.5) * 0.03;
+            targetScale = 0.7 + pulse;
             targetIntensity = 1.0;
             targetDisplacement = 0.6 + pulse * 0.5;
             targetTurbulence = 0.9;
@@ -386,13 +386,13 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
             edgeColor = new THREE.Color('#FFD700');
             tipColor = new THREE.Color('#9370DB');
             
-            lightIntensity = 12 + pulse * 3;
+            lightIntensity = 8 + pulse * 2;
             lightColor = new THREE.Color('#FFEBCD');
             break;
             
           case 'exhale':
             // Cooling, settling
-            targetScale = 1.35 - (phaseProgress * 0.85);
+            targetScale = 0.7 - (phaseProgress * 0.4);
             targetIntensity = 1.0 - (phaseProgress * 0.7);
             targetDisplacement = 0.8 - (phaseProgress * 0.45);
             targetTurbulence = 0.9 - (phaseProgress * 0.5);
@@ -415,7 +415,7 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
               phaseProgress
             );
             
-            lightIntensity = 12 - (phaseProgress * 8);
+            lightIntensity = 8 - (phaseProgress * 5);
             lightColor.lerpColors(
               new THREE.Color('#FFEBCD'),
               new THREE.Color('#FF8C42'),
@@ -481,7 +481,7 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
 
   return (
     <group position={[0, -0.5, 0]}>
-      <mesh ref={flameMeshRef}>
+      <mesh ref={flameMeshRef} scale={[1, 1.4, 1]}>
         <sphereGeometry args={[1, 48, 96]} />
         <shaderMaterial
           uniforms={uniforms}

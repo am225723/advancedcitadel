@@ -322,7 +322,7 @@ const EnhancedBonfireOfBreath = () => {
       </Helmet>
       
       <div className="fixed inset-0 bg-black">
-        <Canvas camera={{ position: [0, -0.2, 4.5], fov: 85 }}>
+        <Canvas camera={{ position: [0, 0, 7], fov: 60 }}>
           <ambientLight intensity={0.1} />
           <Suspense fallback={null}>
             <ProceduralStarfield />
@@ -394,22 +394,18 @@ const EnhancedBonfireOfBreath = () => {
               intensity={
                 isRunning 
                   ? (phase === 'hold' || phase === 'holdAfter' 
-                      ? 1.5 
+                      ? 0.5 
                       : phase === 'inhale' 
-                        ? 0.7 + (phaseProgress * 0.8)
+                        ? 0.25 + (phaseProgress * 0.25)
                         : phase === 'exhale'
-                          ? 1.5 - (phaseProgress * 0.8)
-                          : 0.7)
-                  : 0.6
+                          ? 0.5 - (phaseProgress * 0.25)
+                          : 0.25)
+                  : 0.2
               } 
-              luminanceThreshold={
-                isRunning && (phase === 'hold' || phase === 'holdAfter')
-                  ? 0.3
-                  : 0.5
-              } 
-              luminanceSmoothing={0.7} 
+              luminanceThreshold={0.7} 
+              luminanceSmoothing={0.5} 
               mipmapBlur
-              radius={0.9}
+              radius={0.6}
             />
             <Vignette 
               eskil={false} 
