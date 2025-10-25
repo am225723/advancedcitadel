@@ -32,11 +32,11 @@ A photorealistic volumetric flame using advanced GLSL shaders with layered rende
   
 - **Worley/Voronoi Noise**: Creates realistic cellular flame structure (visible "cells" in real fire)
   
-- **Temperature-Based Color Gradient**:
-  - **Core** (#FFFEF0): Brilliant white-gold at 1200°C+
-  - **Mid** (#FFB347): Rich amber transitioning to...
-  - **Edge** (#FF6B35): Deep orange-red at ~800°C
-  - **Tips** (#8B4789): Ethereal blue-violet for mystical quality
+- **Temperature-Based Color Gradient** (adjusted for photorealism):
+  - **Core** (#FFFEF0): Brilliant white-gold at 1200°C+ (EXPANDED to 50% of flame)
+  - **Mid** (#FFB347): Rich amber body (extends to 85% of flame radius)
+  - **Edge** (#FF8C00): Deep fiery orange (only at outermost 75-100%)
+  - **Tips** (#9370DB): Medium purple hints for mystical quality (very subtle, only at extreme tips)
   
 - **Height-Based Opacity Falloff**: Exponential dissipation (pow 2.0) for wispy top
 - **Fresnel Effect**: Edge translucency based on viewing angle

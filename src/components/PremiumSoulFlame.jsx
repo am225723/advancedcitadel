@@ -232,18 +232,18 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
         
         // === LAYERED DENSITY ===
         
-        // Core density (bright white-gold center)
-        float coreDensity = 1.0 - smoothstep(0.0, 0.3, distFromCenter);
+        // Core density (bright white-gold center) - EXPANDED
+        float coreDensity = 1.0 - smoothstep(0.0, 0.5, distFromCenter);
         coreDensity *= (1.0 - heightGradientSmooth * 0.5); // Denser at bottom
         coreDensity *= uDensity;
         
-        // Mid layer (amber/orange body)
-        float midDensity = 1.0 - smoothstep(0.2, 0.7, distFromCenter);
+        // Mid layer (amber/orange body) - EXTENDED further out
+        float midDensity = 1.0 - smoothstep(0.3, 0.85, distFromCenter);
         midDensity *= (1.0 - heightGradientSmooth * 0.7);
         midDensity *= uDensity * 0.9;
         
-        // Outer layer (wispy edges)
-        float outerDensity = 1.0 - smoothstep(0.5, 1.0, distFromCenter);
+        // Outer layer (only at very edges for red/violet hints)
+        float outerDensity = 1.0 - smoothstep(0.75, 1.0, distFromCenter);
         outerDensity *= (1.0 - heightGradientSmooth * 0.9);
         outerDensity *= fresnel * 0.5;
         
@@ -267,17 +267,17 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
         // Temperature-based color (hotter at bottom, cooler at top)
         float temperature = 1.0 - heightGradientSmooth;
         
-        // Core: brilliant white-gold
-        vec3 coreContribution = uCoreColor * coreDensity * 1.2;
+        // Core: brilliant white-gold - INCREASED contribution
+        vec3 coreContribution = uCoreColor * coreDensity * 1.5;
         
-        // Mid: amber to orange, influenced by cells
-        vec3 midColor = mix(uMidColor, uEdgeColor, heightGradientSmooth * 0.6);
+        // Mid: mostly amber, subtle orange at tips only
+        vec3 midColor = mix(uMidColor, uEdgeColor, heightGradientSmooth * 0.3);
         midColor = mix(midColor, midColor * 0.8, cellPattern * 0.3); // Darker in cell boundaries
-        vec3 midContribution = midColor * midDensity;
+        vec3 midContribution = midColor * midDensity * 1.1;
         
-        // Outer edges: deep orange-red to blue-violet
-        vec3 edgeColor = mix(uEdgeColor, uTipColor, heightGradientSmooth);
-        vec3 outerContribution = edgeColor * outerDensity * 0.7;
+        // Outer edges: subtle orange to purple hints at very tips
+        vec3 edgeColor = mix(uEdgeColor, uTipColor, heightGradientSmooth * 0.8);
+        vec3 outerContribution = edgeColor * outerDensity * 0.5;
         
         // === FINAL COMPOSITION ===
         vec3 finalColor = coreContribution + midContribution + outerContribution;
@@ -319,8 +319,8 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
     uDensity: { value: 1.0 },
     uCoreColor: { value: new THREE.Color('#FFFEF0') },      // Bright white-gold
     uMidColor: { value: new THREE.Color('#FFB347') },       // Amber
-    uEdgeColor: { value: new THREE.Color('#FF6B35') },      // Deep orange
-    uTipColor: { value: new THREE.Color('#8B4789') }        // Blue-violet for mystical tips
+    uEdgeColor: { value: new THREE.Color('#FF8C00') },      // Deep fiery orange (not red)
+    uTipColor: { value: new THREE.Color('#9370DB') }        // Medium purple for mystical hints
   }), []);
 
   useFrame((state, delta) => {
@@ -336,8 +336,8 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
       let targetDensity = 1.0;
       let coreColor = new THREE.Color('#FFFEF0');
       let midColor = new THREE.Color('#FFB347');
-      let edgeColor = new THREE.Color('#FF6B35');
-      let tipColor = new THREE.Color('#8B4789');
+      let edgeColor = new THREE.Color('#FF8C00');
+      let tipColor = new THREE.Color('#9370DB');
       let lightIntensity = 4;
       let lightColor = new THREE.Color('#FF8C42');
 
@@ -411,7 +411,7 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
             );
             edgeColor.lerpColors(
               new THREE.Color('#FFD700'),
-              new THREE.Color('#FF6B35'),
+              new THREE.Color('#FF8C00'),
               phaseProgress
             );
             
