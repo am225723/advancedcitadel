@@ -396,12 +396,12 @@ const EnhancedBonfireOfBreath = () => {
           </Suspense>
 
           {/* *****************************************************
-            ************** TEMPORARILY DISABLED FOR DEBUGGING **************
-            ***************************************************** 
-            Testing to isolate whether the bloom-out effect is from 
-            post-processing or from the flame shader itself.
+            ************** POST-PROCESSING (RE-ENABLED) **************
+            *****************************************************
+            Shader fixes applied: normalized color weights, corrected alpha
+            falloff, reduced phase intensity. Post-processing now enabled
+            with conservative bloom settings for subtle glow.
           */}
-          {/*
           <EffectComposer>
             <Bloom 
               intensity={
@@ -434,7 +434,6 @@ const EnhancedBonfireOfBreath = () => {
               offset={[0.0004, 0.0004]}
             />
           </EffectComposer>
-          */}
         </Canvas>
 
         {/* HTML UI Overlay */}

@@ -62,6 +62,15 @@ A `.env.example` file is provided as a template.
 
 ## Recent Changes (October 25, 2025)
 
+### Critical Shader Bug Fixes
+After diagnosing "blown-out white blob" rendering issues, three critical shader bugs were identified and resolved:
+
+1. **Excessive Brightness (Fixed)** - Layer colors multiplied by large scalars (1.8, 1.3, 0.7) then added together, causing RGB > 1.0. Fixed by normalizing weights to weighted average and adding alpha premultiplication.
+
+2. **Inverted Alpha Falloff (Fixed)** - `smoothstep()` edge parameters were backwards, preventing proper alpha falloff. Fixed by correcting smoothstep ranges and changing from max() to weighted sum.
+
+3. **Missing 3D Noise Function (Fixed)** - Fragment shader called `snoise()` but only had `snoise_2d()` defined, causing compilation failure. Fixed by adding complete 3D simplex noise function.
+
 ### Photorealistic Flame Enhancements
 Based on user-provided reference images, completely overhauled the soul flame for photorealism:
 

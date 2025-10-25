@@ -3,7 +3,24 @@
 ## Overview
 This document describes the photorealistic, shader-based breathing visualization created for the Enhanced Bonfire of Breath page. The implementation features advanced volumetric rendering, Worley noise cellular structure, realistic particle systems, and dynamic post-processing to create a highly realistic and immersive soul flame experience.
 
-## Latest Update: Photorealistic Volumetric Enhancements (October 25, 2025)
+## Latest Update: Critical Shader Fixes + Volumetric Enhancements (October 25, 2025)
+
+### Critical Shader Bugs Fixed
+After diagnosing "blown-out white blob" issues, three major shader bugs were identified and resolved:
+
+1. **Excessive Brightness (Fixed)**
+   - **Problem**: Layer colors multiplied by 1.8, 1.3, 0.7 then ADDED together → RGB values exceeded 1.0 → white blob
+   - **Solution**: Changed from additive to weighted average; normalized weights to sum to 1.0; added `finalColor *= alpha` premultiplication
+
+2. **Inverted Alpha Falloff (Fixed)**
+   - **Problem**: `smoothstep(1.0, 0.2, ...)` had backwards edge parameters → alpha never fell off properly
+   - **Solution**: Corrected to `smoothstep(0.3, 0.85, 1.0 - distFromCenter)` and changed from max() to weighted sum
+
+3. **Missing 3D Noise Function (Fixed)**
+   - **Problem**: Fragment shader called `snoise()` but only had `snoise_2d()` defined → shader compilation failure
+   - **Solution**: Added complete 3D simplex noise function to fragment shader
+
+### Photorealistic Volumetric Enhancements (October 25, 2025)
 Based on user-provided reference images and expert shader guidance, the flame has been completely overhauled to achieve volumetric photorealism:
 
 **Volumetric Illusion & Depth:**
