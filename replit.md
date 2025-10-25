@@ -62,13 +62,39 @@ A `.env.example` file is provided as a template.
 
 ## Recent Changes (October 25, 2025)
 
+### Photorealistic Flame Enhancements
+Based on user-provided reference images, completely overhauled the soul flame for photorealism:
+
+**Shader Enhancements:**
+- Implemented layered volumetric rendering (core, mid-layer, wispy edges)
+- Added Worley/Voronoi noise for realistic cellular flame structure
+- 4-octave turbulent noise for multi-scale organic motion
+- Temperature-based color gradients: white-gold → amber → orange-red → blue-violet
+- Height-based opacity falloff with exponential dissipation for wispy top
+- Fresnel effect for edge translucency
+- Increased geometry resolution to 48×96 for smoother appearance
+
+**Particle System Overhaul:**
+- Enhanced to 300 embers (inhale) and 200 sparks (exhale)
+- Custom soft-sprite shaders with circular gradients and exponential glow
+- Realistic physics: gravity, drag, swirl, acceleration
+- Size attenuation based on camera distance
+- GPU-friendly instanced rendering
+
+**Dynamic Post-Processing:**
+- Phase-responsive bloom (0.6 idle → 1.5 hold)
+- Adaptive luminance threshold (0.5 → 0.3 during hold)
+- Dynamic vignette darkness (1.2 → 1.4 during hold)
+- Subtle chromatic aberration for photographic realism
+
+**Performance:** Estimated 8-12ms per frame (60+ FPS on modern hardware)
+
 ### Bug Fix: Missing Fonts Causing Canvas Failure
-- **Issue**: Text components in Canvas were referencing non-existent font files (`/fonts/CormorantGaramond-Regular.ttf` and `/fonts/CormorantGaramond-Bold.ttf`)
-- **Impact**: This caused the entire Canvas to fail silently, resulting in a blank screen on the Bonfire page
+- **Issue**: Text components in Canvas were referencing non-existent font files
 - **Fix**: Removed font props from all Text components - they now use default fonts
 - **Result**: Canvas now renders properly with all premium components visible
 
-### Premium Breathing Widget Implementation
+### Premium Breathing Widget Implementation (Initial)
 1. Created **PremiumSoulFlame** component with advanced GLSL shaders:
    - Volumetric flame rendering using custom vertex/fragment shaders
    - Curl noise displacement for realistic fluid motion
