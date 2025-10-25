@@ -3,12 +3,15 @@ import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import EnhancedSoulEmber from '@/components/EnhancedSoulEmber';
+import PremiumSoulFlame from '@/components/PremiumSoulFlame';
+import ProceduralStarfield from '@/components/ProceduralStarfield';
+import GeometricOverlay from '@/components/GeometricOverlay';
+import BreathingParticles from '@/components/BreathingParticles';
 import RiteScribe from '@/components/RiteScribe';
 import { useBreathingAudio } from '@/components/BreathingAudio';
 import { Button } from '@/components/ui/button';
 import { Pause, Play, RotateCw, Settings, GlassWater, Shield, Moon, Flame, Volume2, VolumeX } from 'lucide-react';
-import { Stars, Text } from '@react-three/drei';
+import { Text } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette, ChromaticAberration } from '@react-three/postprocessing';
 import { BlendFunction } from 'postprocessing';
 
@@ -83,31 +86,6 @@ const CircularProgress = ({ progress, breathCount }) => {
   );
 };
 
-// --- Animated Background Stars ---
-const AnimatedStars = () => {
-  const starsRef = useRef();
-  
-  useFrame((state) => {
-    if (starsRef.current) {
-      starsRef.current.rotation.y = state.clock.elapsedTime * 0.01;
-      starsRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.005) * 0.05;
-    }
-  });
-
-  return (
-    <group ref={starsRef}>
-      <Stars 
-        radius={100} 
-        depth={50} 
-        count={8000} 
-        factor={5} 
-        saturation={0} 
-        fade 
-        speed={0.5} 
-      />
-    </group>
-  );
-};
 
 // --- Timer Component (runs inside Canvas) ---
 const BreathingTimer = ({ 
@@ -323,10 +301,10 @@ const EnhancedBonfireOfBreath = () => {
     if (!isRunning) return "Ready to Begin";
     if (isPaused) return "Paused";
     switch (phase) {
-      case 'inhale': return "Inhale the Embers";
-      case 'hold': return "Hold the Flame";
-      case 'exhale': return "Release the Light";
-      case 'holdAfter': return "Rest in Stillness";
+      case 'inhale': return "INHALE";
+      case 'hold': return "HOLD";
+      case 'exhale': return "EXHALE";
+      case 'holdAfter': return "REST";
       default: return "";
     }
   }, [isRunning, isPaused, phase]);
@@ -348,11 +326,19 @@ const EnhancedBonfireOfBreath = () => {
         <Canvas camera={{ position: [0, -0.2, 4.5], fov: 85 }}>
           <ambientLight intensity={0.1} />
           <Suspense fallback={null}>
-            <AnimatedStars />
-            <EnhancedSoulEmber 
+            <ProceduralStarfield />
+            <PremiumSoulFlame 
               phase={phase} 
               phaseProgress={phaseProgress} 
               isRunning={isRunning} 
+            />
+            <GeometricOverlay 
+              phase={phase} 
+              phaseProgress={phaseProgress} 
+            />
+            <BreathingParticles 
+              phase={phase} 
+              phaseProgress={phaseProgress} 
             />
             
             <BreathingTimer 
