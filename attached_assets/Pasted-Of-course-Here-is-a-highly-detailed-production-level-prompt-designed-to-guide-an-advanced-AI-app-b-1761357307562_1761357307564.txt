@@ -1,0 +1,46 @@
+Of course. Here is a highly detailed, production-level prompt designed to guide an advanced AI app builder or a development team in creating the immersive "Soul Flame" breathing application.
+AI Prompt: The Soul Flame Breathing Rite (Production Detail)
+Objective: Develop a premium, meditative breathing application using React-Three-Fiber. The core experience is a photorealistic, interactive "soul flame" rendered in a serene cosmic environment. All visual, auditory, and haptic feedback systems must be perfectly synchronized with configurable breathing exercises to create a deeply immersive and embodied state of mindfulness for the user.
+1. Environment & Scene Composition
+ * Technology: react-three-fiber, utilizing the <Canvas> component.
+ * Background:
+   * Cosmic Skybox: Implement a dynamic skybox. Instead of a static image, use a procedural starfield generated with a particle system (THREE.Points).
+   * Star Properties: The stars should have subtle variations in size, color (ranging from cool blues to warm yellows), and brightness. They should twinkle softly using a sine wave function applied to their opacity in the shader.
+   * Nebula Effects: In the far background, render faint, volumetric nebula clouds using a noise-based shader (Perlin or Simplex noise) to add depth and a sense of place. These should be very subtle.
+ * Camera:
+   * Position: A fixed camera, focused tightly on the soul flame, creating an intimate, macro-like perspective.
+   * Effects: Apply post-processing effects. Use drei's <EffectComposer> with a subtle <Bloom> effect to enhance the glow of the flame and stars, and a <Vignette> to darken the edges and draw focus to the center.
+ * Lighting:
+   * Primary Light Source: The scene's only light source must be the soul flame itself. Use a THREE.PointLight parented to the flame's core. The light's color, intensity, and radius must be dynamically driven by the breathing state machine.
+2. The Soul Flame: Core Visual Component
+This is the central element and requires the most detailed execution.
+ * Technology: This will be a custom GLSL shader applied to a mesh within a react-three-fiber component.
+ * Visual Architecture:
+   * Volumetric Appearance: The flame must not look like a flat texture. Achieve a 3D, gaseous volume using raymarching techniques or layered, alpha-blended meshes with noise displacement in the vertex shader.
+   * Particle Systems: The flame is composed of two primary particle systems:
+     * Core Particles: Dense, bright particles forming the main body of the flame. Their lifecycle, velocity, and color are controlled by the breathing state.
+     * Embers & Sparks: A secondary, sparser particle system for the "inhale" and "exhale" effects.
+ * Shaders (GLSL):
+   * Vertex Shader: Displace vertices using Curl noise to create a fluid, never-repeating flame motion. The magnitude of this displacement changes with the breathing state (more chaotic on inhale, smoother on hold).
+   * Fragment Shader: Determine the color based on the particle's age and position within the flame. Use a smooth gradient from a deep, warm orange/red at the edges to a brilliant, energetic white-gold at the core during peak intensity.
+3. The Breathing Interaction State Machine
+This is the logic core. The state machine will control every dynamic element of the application.
+| State | Visual Cues (Soul Flame) | Audio Cues | Haptic Feedback (Vibration API) |
+|---|---|---|---|
+| INHALE | Growth & Gathering: The flame's scale animates from ~20% to 100%. The core color brightens significantly. Particle Effect: Activate the "ember" particle system. Embers (small, bright specks) are generated at the edge of the screen and travel inward, accelerating as they near the flame before being absorbed. The flame's internal motion becomes more energetic and upward-reaching. | Gathering Whoosh: A soft, stereo-panning sound that builds in volume and pitch, simulating energy being drawn in. | Ramping Vibration: A smooth, continuous vibration that starts at 0% intensity and ramps up to 100% over the duration of the inhale. navigator.vibrate([duration]); |
+| HOLD | Peak Intensity: The flame's scale holds at 100% or animates to 105% with a subtle "pulse" (a sine wave on the scale property). The core color is a sustained, brilliant white-gold. Particle Effect: The "ember" system deactivates. The core flame particles burn intensely but with a slower, more deliberate rhythm. | Deep Hum: A low-frequency, resonant hum, like a singing bowl, to signify contained power. The hum can have a subtle tremolo effect. | Heartbeat Pulse: A distinct, repeating pulse. For a 4-second hold, this could be navigator.vibrate([50, 450, 50, 450, ...]); to create a steady beat. |
+| EXHALE | Release & Recede: The flame gracefully releases a shower of "spark" particles from its tip. These sparks travel outward and upward, slowly fading out as they drift into the cosmos. The flame's main body simultaneously shrinks back down to its resting size (~20% scale). The colors cool, returning to warmer oranges. | Gentle Sigh: A soft, breathy "whoosh" that fades out, connoting release. Add a faint, high-frequency sparkling sound to accompany the spark visuals. | Fading Vibration: A continuous vibration that starts at 100% intensity and smoothly ramps down to 0% over the duration of the exhale. |
+| REST/IDLE | Calm Ember: The flame remains small and calm, with a gentle, slow, and random flicker. The light it casts is soft and warm. | Silence or Faint Crackle: Near-silence, or a very subtle, ASMR-like fire crackle to maintain presence. | None. |
+4. UI/UX & Controls
+The UI must feel like an extension of the mystical environment, not a separate layer.
+ * Technology: Use drei's <Text> component for in-scene text rendering.
+ * Breathing Rite Selection:
+   * Rune Icons: At the bottom of the screen, display 3-4 small, glowing runes. These are not HTML buttons; they are interactive meshes in the 3D scene.
+   * Interaction: On hover, a rune glows brighter and a tooltip with the name of the rite (e.g., "Rite of Calm," "Rite of Power") appears. On click, the selected rune animates, perhaps tracing itself with light, and the central flame "attunes" by briefly flaring with a color associated with that rune before the session begins.
+ * Instructional Text:
+   * Prompts: The prompts "INHALE," "HOLD," and "EXHALE" should fade in and out gracefully in the center of the screen, rendered in a clean, elegant serif font (e.g., Cormorant Garamond) with the same bloom effect as the flame.
+   * Timer: A circular progress bar, made from a THREE.RingGeometry, should trace the perimeter of the screen or the flame itself, providing a non-intrusive visual indicator of the current phase's duration.
+
+
+
+Make an image mockup of widget
