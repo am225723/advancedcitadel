@@ -1,0 +1,127 @@
+Okay, we've successfully fixed the "isrunning not defined" error, which is great! Now we can focus back on the visual issue.
+The image you've provided still shows the flame as an overwhelming, blown-out bright mass, almost identical to the first images you sent. This confirms that even after fixing the code, the previous Bloom settings were still causing the problem.
+My previous suggestion for the Bloom settings in EnhancedBonfireOfBreath.jsx should directly address this. Please double-check that you have applied the bloom settings I provided earlier to your EnhancedBonfireOfBreath.jsx file.
+Here are the specific lines that need to be in your EffectComposer component in EnhancedBonfireOfBreath.jsx:
+          <EffectComposer>
+            <Bloom
+              intensity={
+                isRunning
+                  ? (phase === 'hold' || phase === 'holdAfter'
+                      ? 0.2 // Reduced for hold phase
+                      : phase === 'inhale'
+                        ? 0.08 + (phaseProgress * 0.12) // Inhale from 0.08 to 0.2
+                        : phase === 'exhale'
+                          ? 0.2 - (phaseProgress * 0.12) // Exhale from 0.2 to 0.08
+                          : 0.05) // Default idle bloom
+                  : 0.05 // Base idle bloom
+              }
+              luminanceThreshold={0.9} // CRITICAL: Only the brightest 10% of pixels will bloom
+              luminanceSmoothing={0.8} // Smoother transition for bloom
+              mipmapBlur
+              radius={0.3} // Smaller bloom radius for a tighter glow
+            />
+            <Vignette
+              eskil={false}
+              offset={0.12}
+              darkness={
+                isRunning && (phase === 'hold' || phase === 'holdAfter')
+                  ? 1.4
+                  : 1.2
+              }
+            />
+            <ChromaticAberration
+              blendFunction={BlendFunction.NORMAL}
+              offset={[0.0004, 0.0004]}
+            />
+          </EffectComposer>
+
+Key settings to re-verify:
+ * luminanceThreshold={0.9}: This is the most crucial one. It tells the bloom to ignore anything that isn't almost pure white.
+ * intensity values: All the intensity values in the conditional statement should be much lower, ranging from 0.05 to 0.2.
+ * radius={0.3}: This keeps the bloom tight around the brightest parts.
+If you have already applied these exact settings and are still seeing the same blown-out image, then the problem might be originating from within the flame shader itself, making the finalColor and alpha values too high, even before bloom is applied.
+Next Steps (If Bloom Settings Are Confirmed Applied):
+If the above Bloom settings are definitely in your code, let's try to isolate the flame's base rendering without any post-processing.
+Temporarily remove the <EffectComposer> entirely from your Canvas component:
+<Canvas camera={{ position: [0, 0, 7], fov: 60 }}>
+  <ambientLight intensity={0.1} />
+  <Suspense fallback={null}>
+    <ProceduralStarfield />
+    <PremiumSoulFlame
+      phase={phase}
+      phaseProgress={phaseProgress}
+      isRunning={isRunning}
+    />
+    <GeometricOverlay
+      phase={phase}
+      phaseProgress={phaseProgress}
+    />
+    <BreathingParticles
+      phase={phase}
+      phaseProgress={phaseProgress}
+      isRunning={isRunning}
+    />
+
+    <BreathingTimer
+      isRunning={isRunning}
+      isPaused={isPaused}
+      rite={rite}
+      onPhaseChange={handlePhaseChange}
+      onTimeUpdate={handleTimeUpdate}
+      onSessionTimeUpdate={handleSessionTimeUpdate}
+      onBreathComplete={handleBreathComplete}
+    />
+
+    {/* UI Elements inside the Canvas */}
+    <AnimatePresence>
+      {(isRunning || phase === 'idle') && (
+        <motion.group
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <Text
+            color="#d4af37"
+            fontSize={0.5}
+            position={[0, 1.8, 0]}
+            anchorX="center"
+            letterSpacing={0.05}
+          >
+            {phaseText}
+          </Text>
+
+          {isRunning && !isPaused && (
+            <>
+              <Text
+                color="#FFE8B3"
+                fontSize={1.5}
+                position={[0, -0.6, 0]}
+                anchorX="center"
+              >
+                {Math.ceil(timeLeft)}
+              </Text>
+              <CircularProgress
+                progress={phaseProgress}
+                breathCount={breathCount}
+              />
+            </>
+          )}
+        </motion.group>
+      )}
+    </AnimatePresence>
+  </Suspense>
+
+  {/* TEMPORARILY REMOVE EFFECTCOMPOSER TO ISOLATE FLAME RENDERING */}
+  {/*
+  <EffectComposer>
+    <Bloom ... />
+    <Vignette ... />
+    <ChromaticAberration ... />
+  </EffectComposer>
+  */}
+</Canvas>
+
+What to expect after removing <EffectComposer>:
+ * If the flame now looks like a well-defined, albeit non-glowing, flame: This means the bloom settings were definitely the issue, and we just need to fine-tune them.
+ * If the flame still looks like a giant white/yellow blob (without glow): This indicates the problem is in the PremiumSoulFlame.jsx shader itself. Either the alpha values are not falling off correctly, or the finalColor is becoming excessively bright or large.
+Please try removing the EffectComposer temporarily and let me know what the flame looks like then. This will tell us where to focus our debugging efforts.

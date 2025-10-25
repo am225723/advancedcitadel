@@ -43,7 +43,7 @@ const breathingRites = {
 const CircularProgress = ({ progress, breathCount }) => {
   const radius = 2.8;
   const strokeWidth = 0.12;
-  
+
   return (
     <group position={[0, -2.0, 0]}>
       {/* Background ring */}
@@ -56,7 +56,7 @@ const CircularProgress = ({ progress, breathCount }) => {
           side={THREE.DoubleSide} 
         />
       </mesh>
-      
+
       {/* Progress ring */}
       <mesh rotation={[0, 0, Math.PI / 2]}>
         <ringGeometry 
@@ -131,7 +131,7 @@ const BreathingTimer = ({
     onSessionTimeUpdate(timer.current.sessionTime);
 
     const { timeInPhase, phaseIndex, phases, phaseDurations, lastPhase } = timer.current;
-    
+
     const currentPhaseName = phases[phaseIndex];
     const currentPhaseDuration = phaseDurations[phaseIndex];
 
@@ -148,7 +148,7 @@ const BreathingTimer = ({
 
     if (timeInPhase >= currentPhaseDuration) {
       let nextPhaseIndex = (phaseIndex + 1) % phases.length;
-      
+
       // Skip phases with 0 duration
       while(phaseDurations[nextPhaseIndex] <= 0) {
         nextPhaseIndex = (nextPhaseIndex + 1) % phases.length;
@@ -174,16 +174,16 @@ const EnhancedBonfireOfBreath = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [showRiteScribe, setShowRiteScribe] = useState(false);
-  
+
   const [phase, setPhase] = useState('idle');
   const [timeLeft, setTimeLeft] = useState(0);
   const [phaseProgress, setPhaseProgress] = useState(0);
   const [breathCount, setBreathCount] = useState(0);
   const [sessionTime, setSessionTime] = useState(0);
-  
+
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [audioInitialized, setAudioInitialized] = useState(false);
-  
+
   const { initialize: initializeAudio, playPhaseTransition, setVolume } = useBreathingAudio(audioEnabled);
   const lastPhaseRef = useRef(null);
 
@@ -248,7 +248,7 @@ const EnhancedBonfireOfBreath = () => {
     setBreathCount(0);
     setSessionTime(0);
   };
-  
+
   const pause = () => {
     if (!isRunning) return;
     setIsPaused(true);
@@ -320,7 +320,7 @@ const EnhancedBonfireOfBreath = () => {
         <title>The Bonfire of Breath - The Citadel</title>
         <meta name="description" content="A meditative breathing ritual to rekindle your inner flame." />
       </Helmet>
-      
+
       <div className="fixed inset-0 bg-black">
         <Canvas camera={{ position: [0, 0, 7], fov: 60 }}>
           <ambientLight intensity={0.1} />
@@ -335,11 +335,17 @@ const EnhancedBonfireOfBreath = () => {
               phase={phase} 
               phaseProgress={phaseProgress} 
             />
+            {/* *****************************************************
+              ********************* THE FIX *********************
+              *****************************************************
+            */}
             <BreathingParticles 
               phase={phase} 
-              phaseProgress={phaseProgress} 
+              phaseProgress={phaseProgress}
+              isRunning={isRunning} // The 'isRunning' prop was missing here
             />
-            
+
+
             <BreathingTimer 
               isRunning={isRunning} 
               isPaused={isPaused} 
@@ -367,7 +373,7 @@ const EnhancedBonfireOfBreath = () => {
                   >
                     {phaseText}
                   </Text>
-                  
+
                   {isRunning && !isPaused && (
                     <>
                       <Text 
@@ -388,24 +394,31 @@ const EnhancedBonfireOfBreath = () => {
               )}
             </AnimatePresence>
           </Suspense>
-          
+
+          {/* *****************************************************
+            ************** TEMPORARILY DISABLED FOR DEBUGGING **************
+            ***************************************************** 
+            Testing to isolate whether the bloom-out effect is from 
+            post-processing or from the flame shader itself.
+          */}
+          {/*
           <EffectComposer>
             <Bloom 
               intensity={
                 isRunning 
                   ? (phase === 'hold' || phase === 'holdAfter' 
-                      ? 0.5 
+                      ? 0.2 // Reduced for hold phase
                       : phase === 'inhale' 
-                        ? 0.25 + (phaseProgress * 0.25)
+                        ? 0.08 + (phaseProgress * 0.12) // Inhale from 0.08 to 0.2
                         : phase === 'exhale'
-                          ? 0.5 - (phaseProgress * 0.25)
-                          : 0.25)
-                  : 0.2
+                          ? 0.2 - (phaseProgress * 0.12) // Exhale from 0.2 to 0.08
+                          : 0.05) // Default idle bloom
+                  : 0.05 // Base idle bloom
               } 
-              luminanceThreshold={0.7} 
-              luminanceSmoothing={0.5} 
+              luminanceThreshold={0.9} // CRITICAL: Only the brightest 10% of pixels will bloom
+              luminanceSmoothing={0.8} // Smoother transition for bloom
               mipmapBlur
-              radius={0.6}
+              radius={0.3} // Smaller bloom radius for a tighter glow
             />
             <Vignette 
               eskil={false} 
@@ -421,6 +434,7 @@ const EnhancedBonfireOfBreath = () => {
               offset={[0.0004, 0.0004]}
             />
           </EffectComposer>
+          */}
         </Canvas>
 
         {/* HTML UI Overlay */}
@@ -483,7 +497,7 @@ const EnhancedBonfireOfBreath = () => {
                           <p className="text-xs text-slate-300">{description}</p>
                         </div>
                       </div>
-                      
+
                       <div className={`p-3 rounded-full border-2 transition-all duration-300 ${
                         selectedRiteKey === key 
                           ? 'border-yellow-400 bg-yellow-400/20 shadow-lg shadow-yellow-400/20' 
@@ -504,7 +518,7 @@ const EnhancedBonfireOfBreath = () => {
                       </span>
                     </div>
                   ))}
-                  
+
                   <Button 
                     onClick={start} 
                     size="lg" 
@@ -512,7 +526,7 @@ const EnhancedBonfireOfBreath = () => {
                   >
                     <Play className="w-8 h-8" />
                   </Button>
-                  
+
                   <Button
                     onClick={() => setShowRiteScribe(true)}
                     size="lg"
@@ -532,7 +546,7 @@ const EnhancedBonfireOfBreath = () => {
                   >
                     <RotateCw className="w-8 h-8" />
                   </Button>
-                  
+
                   <Button 
                     onClick={isPaused ? resume : pause} 
                     size="lg" 
@@ -540,7 +554,7 @@ const EnhancedBonfireOfBreath = () => {
                   >
                     {isPaused ? <Play className="w-10 h-10"/> : <Pause className="w-10 h-10" />}
                   </Button>
-                  
+
                   <Button 
                     size="lg" 
                     variant="ghost" 
