@@ -3,14 +3,34 @@
 ## Overview
 This document describes the photorealistic, shader-based breathing visualization created for the Enhanced Bonfire of Breath page. The implementation features advanced volumetric rendering, Worley noise cellular structure, realistic particle systems, and dynamic post-processing to create a highly realistic and immersive soul flame experience.
 
-## Latest Update: Photorealistic Enhancements (October 25, 2025)
-Based on user-provided reference images, the flame has been completely overhauled to achieve photorealism with:
-- **Layered volumetric rendering** with separate core, mid-layer, and wispy edge densities
+## Latest Update: Photorealistic Volumetric Enhancements (October 25, 2025)
+Based on user-provided reference images and expert shader guidance, the flame has been completely overhauled to achieve volumetric photorealism:
+
+**Volumetric Illusion & Depth:**
+- **3D Simplex noise for internal density variation** - creates pockets of varying density within the flame
+- **Layered volumetric rendering** with separate core, mid-layer, and wispy edge densities all influenced by noise
 - **Worley/Voronoi noise** for realistic cellular flame structure (visible flame cells)
 - **Multi-octave turbulence** for natural, organic motion at multiple scales
-- **Temperature-based color gradients** from white-gold core to blue-violet tips
-- **Enhanced soft-sprite particles** (300 embers, 200 sparks) with realistic physics
-- **Dynamic bloom post-processing** that intensifies during breathing phases
+- **More aggressive alpha falloff** using smoothstep for sharper edges and wispy top
+- **Stronger Fresnel effect** (pow 2.5) for enhanced edge translucency
+
+**Enhanced Color Palette:**
+- **Core**: #FFFEE0 (brighter white-gold) → #FFFFFF (pure white at peak)
+- **Mid**: #FFC040 (richer amber) → #FFE080 (bright yellow-gold at peak)
+- **Edge**: #FF6600 (deep fiery orange-red) → #FFD700 (gold at hold)
+- **Outer Wisps**: #87CEEB (sky blue) → #ADD8E6 (light blue) - subtle cool hints at extreme edges/tips
+
+**Advanced Shader Features:**
+- **Nuanced flickering** using multi-frequency noise instead of sine waves
+- **Phase-responsive outer wisp colors** that shift with breathing phases
+- **Higher geometry resolution** (64×128 segments) for ultra-smooth appearance
+- **Optimized scale** (~55% smaller) for better composition and centering
+
+**Camera & Bloom Adjustments:**
+- **Camera**: Position [0, 0, 7], FOV 60° for natural perspective and perfect centering
+- **Bloom intensity**: Reduced to 0.2-0.5 (was 0.6-1.5) for visible flame structure
+- **Luminance threshold**: 0.7 for controlled, realistic glow
+- **Radius**: 0.6 for tighter, more defined glow
 
 ## Components Created
 
