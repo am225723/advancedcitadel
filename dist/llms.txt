@@ -7,7 +7,9 @@
 - [Path of the Undaunted - The Citadel](/exposureladder): Create AI-generated exposure therapy quests to face your fears.
 - [SafeView - Therapeutic Garage](/safeview): Secure storage with car-themed two-factor authentication
 - [The Bonfire of Breath - The Citadel](/bonfireofbreath): A meditative breathing ritual to rekindle your inner flame.
+- [The Codex - The Citadel](/codex): Choose your therapeutic guide and view your journey
 - [The Reforge - The Citadel](/cognitivereframing): Use AI-powered CBT to challenge and reframe your negative thoughts.
+- [The Reforge - The Citadel](/cognitivereframingwithguide): Use AI-powered CBT to challenge and reframe your negative thoughts with your guide.
 - [User Management - The Citadel](/usermanagement): No description available
 - [Virtual Garage - Therapeutic Garage](/virtualgarage): Customize your Mitsubishi Lancer Evolution IX and track your progress
 - [Warden Notes - The Citadel](/wardennotes): Manage important notes and directives for the Citadel.

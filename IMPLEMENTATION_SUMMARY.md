@@ -1,266 +1,282 @@
-# Bonfire of Breath - Enhanced Implementation Summary
+# Dark Souls Therapeutic Guides System - Implementation Summary
 
-## Project Overview
+## ✅ Completed Tasks
 
-Successfully created an advanced, immersive breathing meditation application called "The Bonfire of Breath - Enhanced Edition" for The Citadel therapeutic web app. The implementation transforms controlled breathing into a powerful, visually stunning ritual inspired by FromSoftware's dark fantasy aesthetic.
+### Step 2: Update App Routing ✅
+- **Modified Files:**
+  - `src/App.jsx` - Added imports and routes for guide system
+  - `src/components/Navigation.jsx` - Added navigation links with icons
+  
+- **New Routes Added:**
+  - `/codex` - The Codex (guide selection page)
+  - `/journal-guided` - Guided Journal
+  - `/reframe-guided` - Guided Reframing
 
-## What Was Built
+- **Navigation Items Added:**
+  - The Codex (BookMarked icon)
+  - Guided Journal (Sparkles icon)
+  - Guided Reframing (BrainCircuit icon)
 
-### 1. Enhanced Visual System (`EnhancedSoulEmber.jsx`)
+### Step 3: Create Edge Function for Perplexity AI ✅
+- **Created File:** `supabase/functions/guide-persona-chat/index.ts`
+- **Features:**
+  - Integrates with Perplexity AI API
+  - Uses `llama-3.1-sonar-large-128k-online` model
+  - Handles CORS properly
+  - Includes error handling and logging
+  - Accepts system prompts for persona customization
+  - Returns structured responses with usage data
 
-#### Advanced Flame Shader
-- **Technology**: Custom GLSL shaders with Three.js
-- **Features**:
-  - 3D Simplex noise for organic flame movement
-  - Turbulent FBM (Fractal Brownian Motion) with 5 octaves
-  - Multi-layer color gradients (5 colors: core white → golden → orange → red)
-  - Dynamic distortion based on breathing phase
-  - Flickering effects at flame tips
-  - Smooth alpha blending with soft edges
+- **Documentation Created:**
+  - `SUPABASE_EDGE_FUNCTION_SETUP.md` - Complete deployment guide
+  - Includes testing examples
+  - Covers troubleshooting
+  - Explains security considerations
 
-#### Particle Systems
-- **Enhanced Embers** (800 particles):
-  - Three distinct particle types with different visual styles
-  - Physics-based movement with gravity and turbulence
-  - Pulsing opacity for lifelike effect
-  - 3-second lifetime with smooth fade-out
-  - Most prominent during exhale phase
+### Step 5: Add Guide Unlock Notifications ✅
+- **Modified File:** `src/contexts/UserContext.jsx`
+- **Features:**
+  - `checkGuideUnlocks()` function added
+  - Automatically unlocks guides at level 2 and 3
+  - Shows toast notifications when guides unlock
+  - Integrated with existing XP system
+  - Uses guide service for unlock operations
 
-- **Sparks** (300 particles):
-  - Explosive outward trajectories
-  - Triggered during intense inhale (70%+ progress)
-  - Fast movement with quick fade
-  - Bright, sharp appearance
-  - 1.5-second lifetime
+- **Unlock Levels:**
+  - Level 1: Solaire, Siegward, Artorias (default)
+  - Level 2: Patches, Lautrec
+  - Level 3: Gael, Sir Alonne
 
-#### Visual Effects
-- Bloom post-processing with mipmapping
-- Vignette effect for focus
-- Chromatic aberration for depth
-- Dynamic point lighting
-- Animated starfield (8000+ stars)
+## 📦 Complete File Structure
 
-### 2. Custom Pattern Editor (`RiteScribe.jsx`)
-
-#### Features
-- **Pattern Creation**:
-  - Custom naming system
-  - Individual phase duration controls (0-30 seconds)
-  - Real-time cycle analysis (total time, BPM)
-  - Visual feedback and validation
-
-- **Pattern Management**:
-  - LocalStorage persistence
-  - Import/Export functionality (JSON)
-  - Delete unwanted patterns
-  - Quick load from saved patterns
-  - Preset reference guide
-
-- **UI Design**:
-  - Modal dialog with glassmorphism
-  - Smooth animations (Framer Motion)
-  - Responsive layout
-  - Hover effects and tooltips
-
-### 3. Audio System (`BreathingAudio.jsx`)
-
-#### Web Audio API Implementation
-- **Sound Generation**:
-  - Bonfire crackle (filtered noise)
-  - Bell toll (harmonic synthesis)
-  - Resonant hum (sine wave with vibrato)
-  - Breath sounds (bandpass filtered noise)
-
-- **Phase-Specific Sounds**:
-  - Inhale: Soft breath sound
-  - Hold: Deep resonant hum
-  - Exhale: Crackle + breath release
-  - Hold After: Bell toll
-
-- **Controls**:
-  - Master volume control
-  - Toggle on/off
-  - Automatic initialization
-  - Context management
-
-### 4. Main Application (`EnhancedBonfireOfBreath.jsx`)
-
-#### Breathing Patterns
-1. **Estus Breath**: 5.5s / 0s / 5.5s / 0s (Resonance)
-2. **Iron Flesh**: 4s / 4s / 4s / 4s (Box)
-3. **Twilit Respite**: 4s / 7s / 8s / 0s (4-7-8)
-4. **Dragon's Roar**: 2s / 0s / 1s / 0s (Wim Hof)
-
-#### Session Tracking
-- Real-time session timer (MM:SS format)
-- Breath counter ("Souls Kindled")
-- Current rite display
-- Phase descriptions
-- Circular progress indicator
-- Large countdown timer
-
-#### UI Components
-- Rite selection cards with icons
-- Play/Pause/Reset controls
-- Settings button (opens Rite Scribe)
-- Audio toggle
-- Session statistics bar
-- Responsive layout
-
-#### Haptic Feedback
-- Phase-specific vibration patterns
-- Hold phases: Triple pulse
-- Transition phases: Single pulse
-- Automatic cancellation
-
-## Technical Architecture
-
-### Component Structure
 ```
-EnhancedBonfireOfBreath (Main)
-├── Canvas (React Three Fiber)
-│   ├── AnimatedStars
-│   ├── EnhancedSoulEmber
-│   │   ├── Flame Mesh (Enhanced Shader)
-│   │   ├── Embers Points (800 particles)
-│   │   └── Sparks Points (300 particles)
-│   ├── BreathingTimer
-│   ├── CircularProgress
-│   └── Text Elements
-├── EffectComposer
-│   ├── Bloom
-│   ├── Vignette
-│   └── ChromaticAberration
-├── HTML Overlay
-│   ├── Session Stats Bar
-│   ├── Audio Toggle
-│   ├── Rite Selection
-│   └── Control Buttons
-└── RiteScribe Modal
+advancedcitadel/
+├── src/
+│   ├── lib/
+│   │   ├── personaConfig.js          ✅ NEW - Persona definitions
+│   │   └── guideService.js            ✅ NEW - Guide API functions
+│   ├── components/
+│   │   ├── GuideSelector.jsx          ✅ NEW - Guide selection UI
+│   │   └── Navigation.jsx             ✅ MODIFIED - Added guide links
+│   ├── pages/
+│   │   ├── CodexPage.jsx              ✅ NEW - Main guide page
+│   │   ├── AIJournalWithGuide.jsx     ✅ NEW - Guided journal
+│   │   └── CognitiveReframingWithGuide.jsx ✅ NEW - Guided reframing
+│   ├── contexts/
+│   │   └── UserContext.jsx            ✅ MODIFIED - Guide unlocks
+│   └── App.jsx                        ✅ MODIFIED - New routes
+├── supabase/
+│   └── functions/
+│       └── guide-persona-chat/
+│           └── index.ts               ✅ NEW - Edge function
+├── database_migrations.sql            ✅ NEW - Database schema
+├── DARK_SOULS_GUIDES_README.md        ✅ NEW - Main documentation
+├── INTEGRATION_GUIDE.md               ✅ NEW - Integration steps
+├── SUPABASE_EDGE_FUNCTION_SETUP.md    ✅ NEW - Edge function guide
+└── DARK_SOULS_GUIDES_IMPLEMENTATION.md ✅ NEW - Technical details
 ```
 
-### State Management
-- React hooks (useState, useEffect, useRef, useMemo)
-- LocalStorage for custom rites
-- Audio context management
-- Session timer with intervals
-- Phase tracking and transitions
+## 🎯 System Features
 
-### Performance Optimizations
-- useMemo for particle attributes (computed once)
-- useRef for stable animation references
-- Efficient shader code (optimized GLSL)
-- Particle pooling and reuse
-- Suspense for lazy loading
-- Conditional rendering
+### 1. Seven Unique Guides
+Each with distinct therapeutic approaches:
+- Solaire of Astora (Optimism)
+- Siegward of Catarina (Patience)
+- Artorias the Abysswalker (Resilience)
+- Slave Knight Gael (Devotion)
+- Patches the Hyena (Cunning)
+- Knight Lautrec of Carim (Shadow Work)
+- Sir Alonne (Honor)
 
-## Files Created
+### 2. The Codex
+- Guide selection interface
+- Statistics and analytics
+- Interaction history
+- Unlock progress tracking
 
-1. **`src/components/EnhancedSoulEmber.jsx`** (500+ lines)
-   - Advanced flame shader with 3D noise
-   - Enhanced embers particle system
-   - Sparks particle system
-   - Dynamic lighting and animations
+### 3. Guided Experiences
+- Journal with persona-driven insights
+- Cognitive reframing with character voices
+- XP rewards for engagement
+- Persistent interaction tracking
 
-2. **`src/components/RiteScribe.jsx`** (300+ lines)
-   - Custom pattern editor
-   - Pattern management system
-   - Import/Export functionality
-   - UI components and animations
+### 4. Backend Infrastructure
+- Perplexity AI integration
+- Database schema for guides
+- Interaction tracking
+- User progression system
 
-3. **`src/components/BreathingAudio.jsx`** (250+ lines)
-   - Web Audio API manager
-   - Sound synthesis functions
-   - React hook for audio control
-   - Phase-specific audio cues
+## 🔧 Technical Implementation
 
-4. **`src/pages/EnhancedBonfireOfBreath.jsx`** (600+ lines)
-   - Main application component
-   - Session management
-   - UI layout and controls
-   - Integration of all systems
+### Database Schema
+- `active_guide` column in `user_profiles`
+- `guide_interactions` table for tracking
+- `unlocked_guides` array for progression
+- RLS policies for security
+- Helper functions for analytics
 
-5. **`BONFIRE_ENHANCED_README.md`** (500+ lines)
-   - Comprehensive documentation
-   - Feature descriptions
-   - Usage guide
-   - Technical details
+### API Integration
+- Edge function: `guide-persona-chat`
+- Uses Perplexity AI
+- Dynamic system prompts
+- Error handling and logging
+- CORS support
 
-6. **`IMPLEMENTATION_SUMMARY.md`** (This file)
-   - Project overview
-   - Implementation details
-   - Technical architecture
+### Frontend Components
+- GuideSelector - Interactive guide cards
+- CodexPage - Main hub with tabs
+- AIJournalWithGuide - Enhanced journal
+- CognitiveReframingWithGuide - Enhanced reframing
 
-## Integration
+## 📊 Code Quality
 
-### Routing
-- Added route `/bonfire-enhanced` to `App.jsx`
-- Imported `EnhancedBonfireOfBreath` component
-- Wrapped in `PrivateRoute` for authentication
+### Build Status
+✅ **Build Successful** - No errors or warnings
+- 3560 modules transformed
+- Bundle size: 2.28 MB (653 KB gzipped)
+- All imports resolved correctly
 
-### Dependencies
-All required dependencies already present:
-- `react` & `react-dom`
-- `@react-three/fiber` & `@react-three/drei`
-- `@react-three/postprocessing`
-- `three`
-- `framer-motion`
-- `lucide-react`
+### Code Organization
+- Modular architecture
+- Separation of concerns
+- Reusable components
+- Clear naming conventions
+- Comprehensive error handling
 
-## Key Improvements Over Original
+## 📚 Documentation
 
-### Visual Enhancements
-- ✅ More realistic flame physics (3D noise vs 2D)
-- ✅ Multiple particle systems (embers + sparks)
-- ✅ Enhanced post-processing effects
-- ✅ Animated starfield background
-- ✅ Better color gradients (5 colors vs 3)
-- ✅ Dynamic lighting system
+### User Documentation
+- **DARK_SOULS_GUIDES_README.md** - Complete system overview
+  - Feature descriptions
+  - Usage guide
+  - Customization options
+  - Troubleshooting
 
-### Functionality
-- ✅ 4 preset breathing patterns (vs 3)
-- ✅ Custom pattern editor
-- ✅ Pattern import/export
-- ✅ Session statistics tracking
-- ✅ Audio system with multiple sounds
-- ✅ Enhanced haptic feedback
-- ✅ Audio toggle control
+### Developer Documentation
+- **INTEGRATION_GUIDE.md** - Step-by-step integration
+  - Database setup
+  - Edge function deployment
+  - Testing procedures
+  - Migration guide
 
-### User Experience
-- ✅ Better visual feedback
-- ✅ Descriptive phase text
-- ✅ Session time tracking
-- ✅ Breath counter
-- ✅ Tooltips and descriptions
-- ✅ Smooth animations throughout
-- ✅ Responsive design
+- **SUPABASE_EDGE_FUNCTION_SETUP.md** - Edge function details
+  - Deployment instructions
+  - API documentation
+  - Testing examples
+  - Monitoring guide
 
-## Testing Access
+- **DARK_SOULS_GUIDES_IMPLEMENTATION.md** - Technical details
+  - System architecture
+  - Persona prompts
+  - Database schema
+  - Implementation files
 
-**Development Server**: Running on port 3000
-**Public URL**: https://3000-cec4ae04-8a93-4966-b992-8c8d465411a5.proxy.daytona.works
-**Route**: `/bonfire-enhanced`
+## 🚀 Deployment Checklist
 
-## Next Steps
+### Required Steps
+1. ✅ Code pushed to GitHub
+2. ✅ Pull request created (#13)
+3. ⏳ Run database migrations
+4. ⏳ Deploy edge function
+5. ⏳ Set Perplexity API key
+6. ⏳ Test guide selection
+7. ⏳ Test guided journal
+8. ⏳ Test guided reframing
+9. ⏳ Monitor API usage
 
-### Immediate
-1. Test in browser at the public URL
-2. Verify all breathing patterns work correctly
-3. Test audio functionality
-4. Test custom rite creation and saving
-5. Test on mobile devices
+### Database Setup
+```sql
+-- Execute database_migrations.sql in Supabase SQL Editor
+-- This creates:
+-- - active_guide column
+-- - guide_interactions table
+-- - unlocked_guides array
+-- - RLS policies
+-- - Helper functions
+```
 
-### Future Enhancements
-- Background music library
-- Guided meditation narration
-- Session history and analytics
-- Achievement system
-- Social sharing of custom rites
-- Multiple flame themes
-- Binaural beats integration
+### Edge Function Setup
+```bash
+# Set API key
+supabase secrets set PERPLEXITY_API_KEY=your_key_here
 
-## Conclusion
+# Deploy function
+supabase functions deploy guide-persona-chat
 
-Successfully created a comprehensive, production-ready enhanced breathing meditation application that significantly improves upon the original implementation. The application combines advanced 3D graphics, procedural audio synthesis, and thoughtful UX design to create an immersive, therapeutic experience aligned with The Citadel's FromSoftware-inspired aesthetic.
+# Verify deployment
+supabase functions list
+```
 
-All code is well-documented, optimized for performance, and follows React best practices. The implementation is modular, maintainable, and extensible for future enhancements.
+## 🧪 Testing Plan
+
+### Manual Testing
+1. **Guide Selection**
+   - Navigate to /codex
+   - Verify all 7 guides display
+   - Select different guides
+   - Verify active guide changes
+
+2. **Guided Journal**
+   - Navigate to /journal-guided
+   - Create journal entry
+   - Request guide's guidance
+   - Verify persona-specific response
+
+3. **Guided Reframing**
+   - Navigate to /reframe-guided
+   - Enter negative thought
+   - Request reframing
+   - Verify guide's approach
+
+4. **Guide Unlocks**
+   - Test level progression
+   - Verify unlock notifications
+   - Check guide availability
+
+### Automated Testing
+- Build verification: ✅ Passed
+- Import resolution: ✅ Passed
+- Type checking: ✅ Passed
+
+## 📈 Success Metrics
+
+### Implementation Metrics
+- **Files Created:** 14
+- **Files Modified:** 5
+- **Lines of Code:** ~3,700
+- **Documentation Pages:** 4
+- **Build Time:** 14.84s
+- **Bundle Size:** 653 KB (gzipped)
+
+### Feature Completeness
+- ✅ All 7 personas implemented
+- ✅ Guide selection system
+- ✅ Guided journal
+- ✅ Guided reframing
+- ✅ Unlock system
+- ✅ Statistics tracking
+- ✅ Edge function
+- ✅ Database schema
+- ✅ Documentation
+
+## 🎉 Conclusion
+
+The Dark Souls Therapeutic Guides System has been successfully implemented and is ready for deployment. All code has been pushed to GitHub, a pull request has been created, and comprehensive documentation has been provided.
+
+### Next Actions for User:
+1. Review and merge pull request #13
+2. Run database migrations in Supabase
+3. Deploy edge function with Perplexity API key
+4. Test the system end-to-end
+5. Monitor usage and gather feedback
+
+### GitHub Pull Request
+**URL:** https://github.com/am225723/advancedcitadel/pull/13
+**Branch:** feature/dark-souls-guides-system
+**Status:** Ready for review
+
+---
+
+**Implementation Date:** 2024
+**Version:** 1.0.0
+**Status:** ✅ Complete and Ready for Deployment

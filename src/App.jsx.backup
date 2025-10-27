@@ -89,12 +89,7 @@ function App() {
               <Route path="/garage" element={<PrivateRoute><VirtualGarage /></PrivateRoute>} />
               <Route path="/mindful-drive" element={<PrivateRoute><MindfulDrive /></PrivateRoute>} />
               <Route path="/bonfire-of-breath" element={<PrivateRoute><BonfireOfBreath /></PrivateRoute>} />
-              <Route path="/bonfire-enhanced" element={<PrivateRoute><EnhancedBonfireOfBreath /></PrivateRoute>} />
-              
-              {/* Dark Souls Guides System Routes */}
-              <Route path="/codex" element={<PrivateRoute><CodexPage /></PrivateRoute>} />
-              <Route path="/journal-guided" element={<PrivateRoute><AIJournalWithGuide /></PrivateRoute>} />
-              <Route path="/reframe-guided" element={<PrivateRoute><CognitiveReframingWithGuide /></PrivateRoute>} />
+                <Route path="/bonfire-enhanced" element={<PrivateRoute><EnhancedBonfireOfBreath /></PrivateRoute>} />
               
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin/notes" element={<AdminRoute><AdminNotesPage /></AdminRoute>} />
