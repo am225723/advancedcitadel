@@ -43,7 +43,17 @@
 - [x] Push all changes to GitHub
 
 ## Phase 7: Documentation
-- [ ] Create API documentation
-- [ ] Write integration guide
-- [ ] Document persona system architecture
-- [ ] Create user guide for guide selection
+- [x] Create API documentation
+- [x] Write integration guide
+- [x] Document persona system architecture
+- [x] Create user guide for guide selection
+
+## Phase 8: Deployment (User Action Required)
+- [ ] Review and merge pull request #13
+- [ ] Run database migrations in Supabase
+- [ ] Deploy edge function with Perplexity API key
+- [ ] Test guide selection functionality
+- [ ] Test guided journal with AI responses
+- [ ] Test guided reframing with AI responses
+- [ ] Verify guide unlock notifications
+- [ ] Monitor Perplexity API usage
