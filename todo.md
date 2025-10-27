@@ -1,49 +1,49 @@
-# Bonfire of Breath Enhancement - COMPLETED ✅
+# Dark Souls Therapeutic Guide System - Implementation Plan
 
-## Phase 1: Enhanced Visual System ✅
-- [x] Analyze current implementation
-- [x] Create advanced flame shader with more realistic fire physics
-- [x] Add particle system for floating embers and sparks
-- [x] Add dynamic glow and bloom effects
-- [x] Create circular progress ring around the flame
-- [x] Test and optimize visual performance
+## Phase 1: Repository Setup & Analysis
+- [x] Clone the repository and analyze existing structure
+- [x] Review current codebase architecture
+- [x] Identify integration points for the guide system
+- [x] Document current database schema (Supabase)
+- [x] Create comprehensive implementation documentation
 
-## Phase 2: Extended Breathing Patterns ✅
-- [x] Add "Dragon's Roar" (Wim Hof Method) breathing pattern
-- [x] Create custom pattern editor ("Rite Scribe")
-- [x] Implement pattern saving to local storage
-- [x] Add pattern import/export functionality
+## Phase 2: Database Schema Design
+- [x] Design user profile schema for active_guide storage
+- [x] Create guides/personas table structure
+- [x] Design interaction history schema
+- [x] Plan migration scripts
 
-## Phase 3: Multi-Sensory Enhancements ✅
-- [x] Add atmospheric sound effects for phase transitions
-- [x] Implement enhanced haptic feedback patterns
-- [x] Add audio toggle control
-- [x] Test audio system
+## Phase 3: Backend Implementation
+- [x] Create persona prompt templates system
+- [x] Implement dynamic prompt injection logic
+- [x] Build API endpoints for guide selection
+- [x] Create API endpoints for therapeutic interactions
+- [x] Implement guide-specific response generation
 
-## Phase 4: UI/UX Improvements ✅
-- [x] Enhance button styling with metallic/forged look
-- [x] Add smooth transitions and animations
-- [x] Implement session statistics tracking
-- [x] Create settings panel for customization
-- [x] Add breath counter display
-- [x] Add session timer display
+## Phase 4: Frontend Implementation
+- [x] Design Codex page for guide selection
+- [x] Create guide profile cards with lore
+- [x] Implement active guide state management
+- [x] Build integration with journal/reframe modules
+- [x] Add guide response UI components
 
-## Phase 5: Background & Atmosphere ✅
-- [x] Add high-quality starfield background
-- [x] Implement subtle camera movement
-- [x] Create immersive vignette effects
-- [x] Add chromatic aberration for depth
+## Phase 5: Persona System
+- [ ] Implement all 7 persona prompts (Solaire, Siegward, Artorias, Gael, Patches, Lautrec, Sir Alonne)
+- [ ] Create persona-specific response formatting
+- [ ] Add character voice consistency checks
+- [ ] Implement therapeutic lens mapping
 
-## Phase 6: Integration & Documentation ✅
-- [x] Update App.jsx routing to include enhanced version
-- [x] Create comprehensive documentation
-- [x] Start development server
-- [x] Expose port for testing
+## Phase 6: Testing & Refinement
+- [x] Complete Step 2: Update App Routing
+- [x] Complete Step 3: Create Edge Function for Perplexity AI
+- [x] Complete Step 5: Add Guide Unlock Notifications
+- [ ] Test each persona's responses
+- [ ] Verify therapeutic accuracy
+- [ ] Test state persistence
+- [x] Push all changes to GitHub
 
-## Deployment ✅
-- [x] Commit all changes to Git
-- [x] Push to GitHub repository
-
-## Ready for Testing
-- Access the enhanced version at: https://3000-cec4ae04-8a93-4966-b992-8c8d465411a5.proxy.daytona.works/bonfire-enhanced
-- All features implemented and ready for user testing
+## Phase 7: Documentation
+- [ ] Create API documentation
+- [ ] Write integration guide
+- [ ] Document persona system architecture
+- [ ] Create user guide for guide selection

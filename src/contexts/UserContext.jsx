@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { toast } from '@/components/ui/use-toast';
+import { unlockGuide as unlockGuideService } from '@/lib/guideService';
+import { getPersona } from '@/lib/personaConfig';
 
 const UserContext = createContext(undefined);
 
@@ -62,11 +65,45 @@ export const UserProvider = ({ children }) => {
     };
   }, [session]);
 
+  const checkGuideUnlocks = async (newLevel, oldLevel) => {
+    if (!user) return;
+    
+    const guidesToUnlock = [];
+    
+    // Check which guides should be unlocked at this level
+    if (newLevel >= 2 && oldLevel < 2) {
+      guidesToUnlock.push('patches', 'lautrec');
+    }
+    if (newLevel >= 3 && oldLevel < 3) {
+      guidesToUnlock.push('gael', 'alonne');
+    }
+    
+    // Unlock each guide and show notification
+    for (const guideId of guidesToUnlock) {
+      try {
+        const unlocked = await unlockGuideService(user.id, guideId);
+        if (unlocked) {
+          const persona = getPersona(guideId);
+          if (persona) {
+            toast({
+              title: "New Guide Unlocked! ⚔️",
+              description: `${persona.name} is now available in the Codex.`,
+              duration: 5000,
+            });
+          }
+        }
+      } catch (error) {
+        console.error(`Error unlocking guide ${guideId}:`, error);
+      }
+    }
+  };
+
   const addXP = async (amount, exerciseType = null) => {
     if (!user) return;
 
     const newXP = user.xp + amount;
     const newTotalXP = user.total_xp + amount;
+    const oldLevel = user.level;
     let newLevel = user.level;
     let remainingXP = newXP;
     let xpNeeded = user.xp_to_next_level;
@@ -80,6 +117,11 @@ export const UserProvider = ({ children }) => {
     // Check for level-based unlocks
     if (newLevel >= 5) {
       unlockPart('Roll Cage');
+    }
+
+    // Check for guide unlocks
+    if (newLevel > oldLevel) {
+      await checkGuideUnlocks(newLevel, oldLevel);
     }
 
     const updatedProfile = {
