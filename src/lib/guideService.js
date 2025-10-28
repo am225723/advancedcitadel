@@ -9,6 +9,16 @@ import { supabase } from './customSupabaseClient'; // Your custom client
  */
 export const getAIGuideResponse = async (systemPrompt, messageHistory, userContext) => {
   try {
+    // Client-side validation to prevent 400 errors
+    if (!systemPrompt) {
+      console.error('getAIGuideResponse error: systemPrompt is missing.');
+      throw new Error('System prompt is required.');
+    }
+    if (!messageHistory || messageHistory.length === 0) {
+      console.error('getAIGuideResponse error: messageHistory is empty or missing.');
+      throw new Error('Message history is required.');
+    }
+
     const { data, error } = await supabase.functions.invoke('guide-persona-chat', {
       // FIX: Removed JSON.stringify. The Supabase client handles this automatically.
       // Passing an object directly is the correct way.
@@ -24,6 +34,7 @@ export const getAIGuideResponse = async (systemPrompt, messageHistory, userConte
       throw new Error(`Error from AI Guide: ${error.message || 'Unknown error'}`);
     }
 
+    // Handle errors returned successfully in the data object (from the edge function's try/catch)
     if (data.error) {
       console.error('Edge function runtime error:', data.error, data.details);
       throw new Error(`Error from AI Guide: ${data.error}`);
@@ -32,9 +43,10 @@ export const getAIGuideResponse = async (systemPrompt, messageHistory, userConte
     return data; // Contains { response, model, usage }
   } catch (error) {
     console.error('Error calling getAIGuideResponse:', error);
-    // Return a user-friendly error message
+    // Return a user-friendly error message that includes the specific error
     return {
-      response: "Hark, Undead. I am unable to channel my guidance at this moment. Rest at the bonfire and try again presently."
+      response: `Hark, Undead. I am unable to channel my guidance at this moment (${error.message || 'Unknown error'}). Rest at the bonfire and try again presently.`
     };
   }
 };
+
