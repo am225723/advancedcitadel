@@ -58,6 +58,16 @@ const CognitiveReframingWithGuide = () => {
       });
       return;
     }
+    
+    // Validate thought length
+    if (thought.length < 10) {
+      toast({ 
+        variant: "destructive", 
+        title: "Thought Too Short", 
+        description: "Please provide more detail about your thought." 
+      });
+      return;
+    }
 
     setLoading(true);
     setGuideResponse(null);
