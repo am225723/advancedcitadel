@@ -14,9 +14,11 @@ export const getAIGuideResponse = async (systemPrompt, messageHistory, userConte
       console.error('getAIGuideResponse error: systemPrompt is missing.');
       throw new Error('System prompt is required.');
     }
-    if (!messageHistory || messageHistory.length === 0) {
-      console.error('getAIGuideResponse error: messageHistory is empty or missing.');
-      throw new Error('Message history is required.');
+    // FIX: Removed check for messageHistory.length === 0
+    // An empty history is valid for the first message of a conversation.
+    if (!messageHistory) {
+      console.error('getAIGuideResponse error: messageHistory is null or undefined.');
+      throw new Error('Message history is required (but can be empty).');
     }
 
     const { data, error } = await supabase.functions.invoke('guide-persona-chat', {
@@ -30,7 +32,7 @@ export const getAIGuideResponse = async (systemPrompt, messageHistory, userConte
     });
 
     if (error) {
-      console.error('Supabase function error:', error);
+      console.error('xSupabase function error:', error);
       throw new Error(`Error from AI Guide: ${error.message || 'Unknown error'}`);
     }
 
