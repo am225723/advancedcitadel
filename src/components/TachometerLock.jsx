@@ -372,64 +372,32 @@ const TachometerLock = ({ onSuccess }) => {
             {rpm.toFixed(0)}
           </text>
 
-          {/* Checkpoint indicators */}
-          {targetRpms.map((targetRpm, idx) => {
-            const targetAngle = -135 + (targetRpm / 9000) * 270;
-            const indicatorR = 95;
-            const indX = 120 + indicatorR * Math.cos(targetAngle * Math.PI / 180);
-            const indY = 120 + indicatorR * Math.sin(targetAngle * Math.PI / 180);
-            const isPassed = idx < checkpointIndex;
-            const isCurrent = idx === checkpointIndex;
-            
-            return (
-              <g key={idx}>
-                <circle 
-                  cx={indX} 
-                  cy={indY} 
-                  r="4" 
-                  fill={isPassed ? "#22c55e" : isCurrent ? "#f59e0b" : "#666"}
-                  stroke={isCurrent ? "#fbbf24" : "#333"}
-                  strokeWidth="1.5"
-                  opacity={isPassed || isCurrent ? "1" : "0.5"}
-                >
-                  {isCurrent && (
-                    <animate attributeName="r" values="4;5;4" dur="1s" repeatCount="indefinite"/>
-                  )}
-                </circle>
-                {isCurrent && (
-                  <circle cx={indX} cy={indY} r="6" fill="none" stroke="#f59e0b" strokeWidth="1" opacity="0.6">
-                    <animate attributeName="r" values="6;8;6" dur="1.5s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="1.5s" repeatCount="indefinite"/>
-                  </circle>
-                )}
-              </g>
-            );
-          })}
-
           {/* Needle with enhanced shadow */}
           <motion.g
             style={{ transformOrigin: '120px 120px' }}
             animate={{ rotate: needleRotation }}
             transition={{ type: "spring", stiffness: 200, damping: 24 }}
           >
+            {/* Wider shadow needle */}
             <line
               x1="120"
               y1="120"
               x2="120"
-              y2="32"
+              y2="48"
               stroke={isInRedzone ? "#dc2626" : "#1a1a1a"}
-              strokeWidth="4"
+              strokeWidth="3.5"
               strokeLinecap="round"
               filter="url(#needle-glow)"
               opacity="0.9"
             />
+            {/* Precise center needle */}
             <line
               x1="120"
               y1="120"
               x2="120"
-              y2="28"
+              y2="45"
               stroke={isInRedzone ? "#ef4444" : "#2a2a2a"}
-              strokeWidth="2"
+              strokeWidth="1.5"
               strokeLinecap="round"
             />
           </motion.g>
