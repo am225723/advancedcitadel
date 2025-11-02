@@ -2,11 +2,8 @@ import React, { useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import Dashboard from '@/pages/Dashboard';
-import CognitiveReframing from '@/pages/CognitiveReframing';
 import ExposureLadder from '@/pages/ExposureLadder';
-import AIJournal from '@/pages/AIJournal';
 import GroundingTools from '@/pages/GroundingTools';
-import CharactersPage from '@/pages/CharactersPage';
 import AdminDashboard from '@/pages/AdminDashboard';
 import AdminNotesPage from '@/pages/AdminNotesPage';
 import UserManagementPage from '@/pages/UserManagementPage';
@@ -80,11 +77,8 @@ function App() {
             <Routes location={location} key={location.pathname}>
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-              <Route path="/reforge" element={<PrivateRoute><CognitiveReframing /></PrivateRoute>} />
               <Route path="/forward-path" element={<PrivateRoute><ExposureLadder /></PrivateRoute>} />
-              <Route path="/journal" element={<PrivateRoute><AIJournal /></PrivateRoute>} />
               <Route path="/anchor" element={<PrivateRoute><GroundingTools /></PrivateRoute>} />
-              <Route path="/characters" element={<PrivateRoute><CharactersPage /></PrivateRoute>} />
               <Route path="/safe" element={<PrivateRoute><SafeView /></PrivateRoute>} />
               <Route path="/garage" element={<PrivateRoute><VirtualGarage /></PrivateRoute>} />
               <Route path="/mindful-drive" element={<PrivateRoute><MindfulDrive /></PrivateRoute>} />

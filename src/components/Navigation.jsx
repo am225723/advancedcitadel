@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Shield, BookOpen, Swords, Sun, Anchor, Users, LogOut, Scroll, Settings, Footprints, Car, Flame, ChevronLeft, ChevronRight, BookMarked, Sparkles, BrainCircuit } from 'lucide-react';
+import { Menu, X, Shield, Sun, Anchor, Scroll, Settings, Footprints, Car, Flame, ChevronLeft, ChevronRight, BookMarked, Sparkles, BrainCircuit, LogOut } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
@@ -10,13 +10,10 @@ import WardenNotes from '@/components/WardenNotes';
 const navItems = [
   { path: '/', label: 'Dashboard', icon: Sun },
   { path: '/codex', label: 'The Codex', icon: BookMarked },
-  { path: '/journal-guided', label: 'Guided Journal', icon: Sparkles },
-  { path: '/reframe-guided', label: 'Guided Reframing', icon: BrainCircuit },
-  { path: '/reforge', label: 'The Reforge', icon: Swords },
+  { path: '/journal-guided', label: 'The Reforge', icon: Sparkles },
+  { path: '/reframe-guided', label: "Scribe's Chronicle", icon: BrainCircuit },
   { path: '/forward-path', label: 'Path of the Undaunted', icon: Footprints },
-  { path: '/journal', label: "The Scribe's Chronicle", icon: BookOpen },
   { path: '/anchor', label: 'Anchor & Mantra', icon: Anchor },
-  { path: '/characters', label: 'Hall of Characters', icon: Users },
   { path: '/garage', label: 'The Garage', icon: Car },
   { path: '/bonfire-enhanced', label: 'Bonfire of Breath', icon: Flame },
   { path: '/safe', label: 'The Safe', icon: Shield },

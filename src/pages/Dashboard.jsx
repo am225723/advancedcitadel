@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import WelcomeMessage from '@/components/WelcomeMessage';
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useUser } from '@/contexts/UserContext';
-import { BookOpen, Shield, Anchor, Users, BrainCircuit, Flame, Car, Footprints } from 'lucide-react';
+import { BookOpen, Shield, Anchor, BookMarked, BrainCircuit, Flame, Car, Footprints, Scroll } from 'lucide-react';
 
 const ToolCard = ({ title, description, icon, imageUrl, path, delay }) => {
   const navigate = useNavigate();
@@ -41,16 +41,20 @@ const ToolCard = ({ title, description, icon, imageUrl, path, delay }) => {
 
 const Dashboard = () => {
   const { user } = useUser();
-  const tools = [
-    { title: "The Reforge", path: "/reforge", description: "Challenge and reshape negative thought patterns.", icon: BrainCircuit, imageUrl: "https://brywmjhsrnebfmhrhlmi.supabase.co/storage/v1/object/public/Citadel/Reforge.png", delay: 0.1 },
-    { title: "Path of the Undaunted", path: "/forward-path", description: "Confront fears with courage and strategy.", icon: Footprints, imageUrl: "https://brywmjhsrnebfmhrhlmi.supabase.co/storage/v1/object/public/Citadel/Path.png", delay: 0.2 },
-    { title: "Scribe's Chronicle", path: "/journal", description: "Document your journey and uncover insights.", icon: BookOpen, imageUrl: "https://brywmjhsrnebfmhrhlmi.supabase.co/storage/v1/object/public/Citadel/Scribe.png", delay: 0.3 },
-    { title: "Anchor & Mantra", path: "/anchor", description: "Find your center with grounding techniques.", icon: Anchor, imageUrl: "https://brywmjhsrnebfmhrhlmi.supabase.co/storage/v1/object/public/Citadel/Anchor.png", delay: 0.4 },
-    { title: "Hall of Characters", path: "/characters", description: "Consult with legendary figures for guidance.", icon: Users, imageUrl: "https://brywmjhsrnebfmhrhlmi.supabase.co/storage/v1/object/public/Citadel/Characters.png", delay: 0.5 },
-    { title: "The Garage", path: "/garage", description: "Tune your engine of resilience.", icon: Car, imageUrl: "https://brywmjhsrnebfmhrhlmi.supabase.co/storage/v1/object/public/Citadel/Garage.png", delay: 0.6 },
-    { title: "Bonfire of Breath", path: "/bonfire-enhanced", description: "Rekindle your inner flame.", icon: Flame, imageUrl: "https://brywmjhsrnebfmhrhlmi.supabase.co/storage/v1/object/public/Citadel/Bonfire.png", delay: 0.7 },
-    { title: "The Safe", path: "/safe", description: "Secure your most sensitive reflections.", icon: Shield, imageUrl: "https://brywmjhsrnebfmhrhlmi.supabase.co/storage/v1/object/public/Citadel/Safe.png", delay: 0.8 },
+  const baseTools = [
+    { title: "The Codex", path: "/codex", description: "Consult the ancient tome of wisdom.", icon: BookMarked, imageUrl: "/images/books/codex.png", delay: 0.1 },
+    { title: "The Reforge", path: "/journal-guided", description: "Transform your thoughts with guided journaling.", icon: BrainCircuit, imageUrl: "/images/books/reforge.png", delay: 0.2 },
+    { title: "Scribe's Chronicle", path: "/reframe-guided", description: "Reshape negative patterns with guided reframing.", icon: Scroll, imageUrl: "/images/books/scribes-chronicle.png", delay: 0.3 },
+    { title: "Path of the Undaunted", path: "/forward-path", description: "Confront fears with courage and strategy.", icon: Footprints, imageUrl: "/images/books/path-undaunted.png", delay: 0.4 },
+    { title: "Anchor & Mantra", path: "/anchor", description: "Find your center with grounding techniques.", icon: Anchor, imageUrl: "/images/books/anchor-mantra.png", delay: 0.5 },
+    { title: "The Garage", path: "/garage", description: "Tune your engine of resilience.", icon: Car, imageUrl: "/images/books/garage.png", delay: 0.6 },
+    { title: "Bonfire of Breath", path: "/bonfire-enhanced", description: "Rekindle your inner flame.", icon: Flame, imageUrl: "/images/books/bonfire.png", delay: 0.7 },
+    { title: "The Safe", path: "/safe", description: "Secure your most sensitive reflections.", icon: Shield, imageUrl: "/images/books/safe.png", delay: 0.8 },
   ];
+
+  const tools = user?.role === 'admin' 
+    ? [...baseTools, { title: "Warden's Notes", path: "/warden-notes", description: "Read and respond to messages from users.", icon: Scroll, imageUrl: "/images/books/scribes-chronicle.png", delay: 0.9 }]
+    : baseTools;
 
   return (
     <motion.div
