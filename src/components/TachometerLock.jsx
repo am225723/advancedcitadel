@@ -5,36 +5,98 @@ import { toast } from '@/components/ui/use-toast';
 const EvoPedal = ({ children, type, ...props }) => {
   const isBrake = type === 'brake';
   const isGas = type === 'gas';
+  const isCheck = type === 'check';
+  
+  const accentColor = isBrake ? '#dc2626' : isGas ? '#22c55e' : '#3b82f6';
+  const glowColor = isBrake ? 'rgba(220, 38, 38, 0.4)' : isGas ? 'rgba(34, 197, 94, 0.4)' : 'rgba(59, 130, 246, 0.4)';
   
   return (
     <motion.button
       {...props}
-      whileTap={{ scale: 0.96, y: 8 }}
-      whileHover={{ scale: 1.02 }}
-      className="relative w-28 h-40 group touch-manipulation"
+      whileTap={{ scale: 0.95, y: 6 }}
+      whileHover={{ scale: 1.03 }}
+      className="relative w-32 h-48 group touch-manipulation"
+      style={{ perspective: '1000px' }}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-800 via-slate-900 to-black rounded-t-2xl rounded-b-md shadow-2xl border-2 border-slate-700/50"></div>
-      
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-700/30 via-transparent to-transparent rounded-t-2xl"></div>
-      
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-20 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg border border-slate-600 shadow-inner">
-        <div className="absolute inset-2 rounded-md overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900"></div>
-          <div className="absolute top-1/3 left-0 right-0 h-px bg-slate-600"></div>
-          <div className="absolute top-2/3 left-0 right-0 h-px bg-slate-600"></div>
-          <div className="absolute inset-0 border border-slate-700/30 rounded-md"></div>
+      {/* Mounting bracket (top) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-6 bg-gradient-to-b from-slate-700 to-slate-800 rounded-t-lg border-x-2 border-t-2 border-slate-600 shadow-lg">
+        <div className="absolute top-1 left-1/2 -translate-x-1/2 flex gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-slate-900 border border-slate-600"></div>
+          <div className="w-1.5 h-1.5 rounded-full bg-slate-900 border border-slate-600"></div>
         </div>
       </div>
-      
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-20 px-3 py-2 rounded-md flex items-center justify-center">
-        <span className={`font-bold text-sm tracking-wider ${
-          isBrake ? 'text-red-500' : isGas ? 'text-green-400' : 'text-blue-400'
-        } group-hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]`}>
+
+      {/* Main pedal body - brushed aluminum */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 w-28 h-36 rounded-lg overflow-hidden shadow-2xl border-2 border-slate-600">
+        {/* Brushed metal gradient */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-br from-slate-400 via-slate-500 to-slate-600"
+          style={{
+            backgroundImage: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
+            backgroundSize: '4px 100%'
+          }}
+        ></div>
+        
+        {/* Metal shine effect */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/30"></div>
+        
+        {/* Angled edge highlights */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-black/40 to-transparent"></div>
+        
+        {/* Rubber grip sections */}
+        <div className="absolute top-8 left-3 right-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="mb-2">
+              {/* Rubber grip bar */}
+              <div className="h-4 rounded-sm overflow-hidden bg-gradient-to-b from-slate-800 to-black border border-slate-700/50 shadow-inner">
+                {/* Rubber texture pattern */}
+                <div className="flex h-full items-center justify-around px-1">
+                  {[...Array(8)].map((_, j) => (
+                    <div key={j} className="w-0.5 h-2 bg-slate-900 rounded-full"></div>
+                  ))}
+                </div>
+              </div>
+              {/* Gap between grips */}
+              <div className="h-2"></div>
+            </div>
+          ))}
+        </div>
+
+        {/* Accent LED indicator strip */}
+        <div 
+          className="absolute bottom-4 left-4 right-4 h-1 rounded-full shadow-lg transition-all duration-300"
+          style={{ 
+            backgroundColor: accentColor,
+            boxShadow: `0 0 12px ${glowColor}, inset 0 1px 2px rgba(255,255,255,0.3)`
+          }}
+        >
+          <div 
+            className="h-full w-1/3 rounded-full bg-white/50 animate-pulse"
+            style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}
+          ></div>
+        </div>
+      </div>
+
+      {/* Label badge */}
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-md bg-gradient-to-b from-slate-800 to-slate-950 border border-slate-700 shadow-lg">
+        <span 
+          className="font-bold text-xs tracking-widest group-hover:text-white transition-all duration-200"
+          style={{ 
+            color: accentColor,
+            textShadow: `0 0 8px ${glowColor}`
+          }}
+        >
           {children}
         </span>
       </div>
-      
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-16 h-2 bg-slate-950 rounded-full blur-sm opacity-50"></div>
+
+      {/* Floor shadow */}
+      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-24 h-3 bg-black rounded-full blur-md opacity-40"></div>
+
+      {/* Mounting bolt details */}
+      <div className="absolute top-2 left-8 w-2 h-2 rounded-full bg-slate-900 border border-slate-600 shadow-inner"></div>
+      <div className="absolute top-2 right-8 w-2 h-2 rounded-full bg-slate-900 border border-slate-600 shadow-inner"></div>
     </motion.button>
   );
 };
