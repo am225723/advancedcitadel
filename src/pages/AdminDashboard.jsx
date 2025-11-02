@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Users, Scroll, Bot, BarChart, AlertTriangle } from 'lucide-react';
+import { Users, Scroll, Bot, BarChart, AlertTriangle, Settings } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/customSupabaseClient';
@@ -108,6 +108,11 @@ const AdminDashboard = () => {
                 <Link to="/admin/notes">
                   <Button variant="outline" className="w-full justify-start">
                     <Scroll className="mr-2 h-4 w-4" /> Warden's Notes
+                  </Button>
+                </Link>
+                <Link to="/admin/locks">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Settings className="mr-2 h-4 w-4" /> Lock Configuration
                   </Button>
                 </Link>
                 <Button variant="outline" className="w-full justify-start" disabled>

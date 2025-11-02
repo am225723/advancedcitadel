@@ -7,6 +7,7 @@ import GroundingTools from '@/pages/GroundingTools';
 import AdminDashboard from '@/pages/AdminDashboard';
 import AdminNotesPage from '@/pages/AdminNotesPage';
 import UserManagementPage from '@/pages/UserManagementPage';
+import LockConfiguration from '@/pages/LockConfiguration';
 import SafeView from '@/pages/SafeView';
 import AuthPage from '@/pages/AuthPage';
 import Navigation from '@/components/Navigation';
@@ -93,6 +94,7 @@ function App() {
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin/notes" element={<AdminRoute><AdminNotesPage /></AdminRoute>} />
               <Route path="/admin/users" element={<AdminRoute><UserManagementPage /></AdminRoute>} />
+              <Route path="/admin/locks" element={<AdminRoute><LockConfiguration /></AdminRoute>} />
               <Route path="/warden-notes" element={<AdminRoute><WardenNotesPage /></AdminRoute>} />
 
               <Route path="*" element={<Navigate to="/" replace />} />
