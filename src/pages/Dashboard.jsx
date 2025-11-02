@@ -43,8 +43,8 @@ const ToolCard = ({ title, description, icon, imageUrl, path, delay }) => {
           </div>
         </div>
         
-        <CardHeader className="relative z-20 h-full flex flex-col justify-end p-6 pl-44">
-          <div className="space-y-3">
+        <CardHeader className="relative z-20 h-full flex flex-col justify-center p-6 pl-44">
+          <div className="space-y-2">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <CardTitle className="text-2xl font-cinzel font-bold text-gold-accent tracking-wide leading-tight mb-2 group-hover:text-amber-300 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(218,165,32,0.4)]">
@@ -56,7 +56,7 @@ const ToolCard = ({ title, description, icon, imageUrl, path, delay }) => {
               </div>
             </div>
             
-            <div className="flex items-center gap-2 text-gold-accent/70 group-hover:text-gold-accent transition-colors duration-300">
+            <div className="flex items-center gap-2 text-gold-accent/70 group-hover:text-gold-accent transition-colors duration-300 pt-1">
               <Icon size={18} className="group-hover:scale-110 transition-transform duration-300" />
               <span className="text-xs font-cinzel tracking-wider uppercase opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
                 Enter
