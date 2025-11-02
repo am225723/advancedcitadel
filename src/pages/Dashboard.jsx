@@ -19,53 +19,54 @@ const ToolCard = ({ title, description, icon, imageUrl, path, delay }) => {
         y: -8,
         transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
       }}
+      whileTap={{ 
+        scale: 0.98,
+        y: -4,
+        transition: { duration: 0.15 }
+      }}
       onClick={() => navigate(path)}
-      className="cursor-pointer group h-full"
+      className="cursor-pointer group h-full touch-manipulation"
     >
-      <Card className="relative h-full min-h-[280px] overflow-hidden border-2 border-slate-800/80 bg-gradient-to-br from-black/60 via-slate-900/50 to-black/70 backdrop-blur-md transition-all duration-500 ease-out group-hover:border-gold-accent/70 group-hover:shadow-2xl group-hover:shadow-gold-accent/20">
-        <div className="absolute inset-0 bg-gradient-to-br from-gold-accent/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"></div>
+      <Card className="relative h-full min-h-[200px] overflow-hidden border-2 border-slate-800/80 bg-gradient-to-br from-black/60 via-slate-900/50 to-black/70 backdrop-blur-md transition-all duration-500 ease-out group-hover:border-gold-accent/70 group-active:border-gold-accent/70 group-hover:shadow-2xl group-active:shadow-2xl group-hover:shadow-gold-accent/20 group-active:shadow-gold-accent/20">
+        <div className="absolute inset-0 bg-gradient-to-br from-gold-accent/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-500 z-0"></div>
         
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-500 z-0">
           <div className="absolute top-0 left-0 w-32 h-32 bg-gold-accent/10 rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl"></div>
         </div>
         
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent z-10"></div>
         
-        <div className="absolute left-6 top-1/2 -translate-y-1/2 z-15 transition-all duration-500 group-hover:scale-110 group-hover:left-8">
+        <div className="absolute left-6 top-1/2 -translate-y-1/2 z-15 transition-all duration-500 group-hover:scale-110 group-active:scale-110 group-hover:left-8 group-active:left-8">
           <div className="relative">
-            <div className="absolute inset-0 blur-xl bg-gold-accent/30 scale-110 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute inset-0 blur-xl bg-gold-accent/30 scale-110 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-500"></div>
             <img 
               src={imageUrl} 
               alt={title} 
-              className="relative w-32 h-40 object-contain drop-shadow-2xl filter brightness-90 group-hover:brightness-110 transition-all duration-500" 
+              className="relative w-28 h-36 object-contain drop-shadow-2xl filter brightness-90 group-hover:brightness-110 group-active:brightness-110 transition-all duration-500" 
             />
           </div>
         </div>
         
-        <CardHeader className="relative z-20 h-full flex flex-col justify-center p-6 pl-44">
-          <div className="space-y-2">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <CardTitle className="text-2xl font-cinzel font-bold text-gold-accent tracking-wide leading-tight mb-2 group-hover:text-amber-300 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(218,165,32,0.4)]">
-                  {title.toUpperCase()}
-                </CardTitle>
-                <CardDescription className="text-slate-300 font-garamond text-base leading-relaxed group-hover:text-slate-100 transition-colors duration-300">
-                  {description}
-                </CardDescription>
-              </div>
-            </div>
+        <CardHeader className="relative z-20 h-full flex items-center justify-center p-4 pl-40 text-center">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-cinzel font-bold text-gold-accent tracking-wide leading-tight group-hover:text-amber-300 group-active:text-amber-300 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(218,165,32,0.4)]">
+              {title.toUpperCase()}
+            </CardTitle>
+            <CardDescription className="text-slate-300 font-garamond text-sm leading-snug group-hover:text-slate-100 group-active:text-slate-100 transition-colors duration-300">
+              {description}
+            </CardDescription>
             
-            <div className="flex items-center gap-2 text-gold-accent/70 group-hover:text-gold-accent transition-colors duration-300 pt-1">
-              <Icon size={18} className="group-hover:scale-110 transition-transform duration-300" />
-              <span className="text-xs font-cinzel tracking-wider uppercase opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                Enter
+            <div className="flex items-center justify-center gap-2 text-gold-accent/70 group-hover:text-gold-accent group-active:text-gold-accent transition-colors duration-300 pt-2">
+              <Icon size={16} className="group-hover:scale-110 group-active:scale-110 transition-transform duration-300" />
+              <span className="text-xs font-cinzel tracking-wider uppercase opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all duration-300">
+                ENTER
               </span>
             </div>
           </div>
         </CardHeader>
         
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold-accent/50 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold-accent/50 to-transparent scale-x-0 group-hover:scale-x-100 group-active:scale-x-100 transition-transform duration-500 origin-center"></div>
       </Card>
     </motion.div>
   );
