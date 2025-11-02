@@ -48,16 +48,16 @@ const ToolCard = ({ title, description, icon, imageUrl, path, delay }) => {
           </div>
         </div>
         
-        <CardHeader className="relative z-20 h-full flex items-center justify-center p-4 pl-40 text-center">
-          <div className="space-y-1">
-            <CardTitle className="text-2xl font-cinzel font-bold text-gold-accent tracking-wide leading-tight group-hover:text-amber-300 group-active:text-amber-300 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(218,165,32,0.4)]">
+        <CardHeader className="relative z-20 h-full flex items-center justify-center p-3 pl-36 text-center">
+          <div>
+            <CardTitle className="text-2xl font-cinzel font-bold text-gold-accent tracking-wide leading-tight mb-1 group-hover:text-amber-300 group-active:text-amber-300 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(218,165,32,0.4)]">
               {title.toUpperCase()}
             </CardTitle>
-            <CardDescription className="text-slate-300 font-garamond text-sm leading-snug group-hover:text-slate-100 group-active:text-slate-100 transition-colors duration-300">
+            <CardDescription className="text-slate-300 font-garamond text-lg leading-tight group-hover:text-slate-100 group-active:text-slate-100 transition-colors duration-300 mb-1">
               {description}
             </CardDescription>
             
-            <div className="flex items-center justify-center gap-2 text-gold-accent/70 group-hover:text-gold-accent group-active:text-gold-accent transition-colors duration-300 pt-2">
+            <div className="flex items-center justify-center gap-2 text-gold-accent/70 group-hover:text-gold-accent group-active:text-gold-accent transition-colors duration-300">
               <Icon size={16} className="group-hover:scale-110 group-active:scale-110 transition-transform duration-300" />
               <span className="text-xs font-cinzel tracking-wider uppercase opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all duration-300">
                 ENTER
