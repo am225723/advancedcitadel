@@ -1,0 +1,153 @@
+Here are the 7 mini-games, described in a prompt style suitable for App Builder, detailing their complex logic and visual requirements.
+1. Component: CarWashGame
+ * Objective: Create a multi-stage, interactive car wash mini-game. The user must first soak the car, then scrub off all the "dirt" using a mouse-drag mechanic, and finally rinse to complete the wash.
+ * Core Logic:
+   * Maintain a stage state: 'soak', 'scrub', 'rinse'.
+   * 'Soak' Stage: A single "Soak Car" button transitions the state to 'scrub'.
+   * 'Scrub' Stage:
+     * Display a <canvas> element over a 2D car visual.
+     * Initialize the canvas with a semi-transparent "dirt" overlay (e.g., rgba(139, 69, 19, 0.8)).
+     * On mouse-move/drag, clear a circular area around the cursor using globalCompositeOperation = 'destination-out'.
+     * Continuously recalculate the remaining "dirt level" (percentage of non-cleared pixels) and update a progress bar.
+   * 'Rinse' Stage:
+     * A "Rinse" button becomes active.
+     * If clicked, check the dirtLevel. If it's above a threshold (e.g., 10%), show a failure toast ("You missed a spot!").
+     * If dirtLevel is below the threshold, grant XP (e.g., 30 XP), show a success toast, and call the onComplete prop.
+ * UI Layout & Visuals:
+   * A central card layout.
+   * A 2D car silhouette (SVG or image) as the base layer.
+   * A <canvas> element precisely layered on top of the car visual during the 'scrub' stage.
+   * A progress bar labeled "Cleanliness" that fills as the dirtLevel decreases (i.e., shows 100 - dirtLevel).
+   * A single, context-aware button: "Soak Car" (blue), which changes to "Rinse" (green).
+   * Use framer-motion for the component's initial appearance.
+ * Libraries: react, framer-motion, react-hot-toast (or similar), lucide-react.
+2. Component: EngineTuning
+ * Objective: Create a "Simon Says" style memory and rhythm game. The user must successfully repeat an ever-lengthening sequence of flashing engine parts.
+ * Core Logic:
+   * Define the parts: ['Spark Plugs', 'Injectors', 'Camshaft', 'Turbo'].
+   * Maintain state for:
+     * sequence (the correct, growing sequence).
+     * playerSequence (the user's current input).
+     * level (current round, e.g., 1 to 5).
+     * isPlayerTurn (boolean).
+   * Game Loop:
+     * Computer's Turn: Add one new random part to the sequence. Animate this sequence by highlighting each part in order (e.g., 600ms per part). After, set isPlayerTurn to true.
+     * Player's Turn: For each player click:
+       * Compare the clicked part to the correct part in sequence at the current index.
+       * Incorrect: Show a failure toast, reset sequence, playerSequence, and level to 1. Start the game loop over.
+       * Correct: Add the part to playerSequence.
+       * Round Complete: If playerSequence.length === sequence.length, check the level.
+         * If level < 5, increment level, show a success message, set isPlayerTurn to false, and start the computer's turn again.
+         * If level === 5, grant XP (e.g., 60 XP), show a final success toast, and call onComplete.
+ * UI Layout & Visuals:
+   * A central card showing the current round (e.g., "Round: 3 / 5").
+   * A 2x2 grid of large, clickable buttons, one for each part name.
+   * Use framer-motion to animate the active part during the computer's sequence (e.g., scale: 1.05, background color change).
+   * A text indicator shows "Listen carefully..." or "Your turn!"
+ * Libraries: react, framer-motion, react-hot-toast (or similar), lucide-react.
+3. Component: CleaningExterior
+ * Objective: Create a two-stage "find and clean" game. The user must first "soak" a car panel to reveal hidden dirt spots, and then click each spot to clean it.
+ * Core Logic:
+   * Maintain state for isSoaked (boolean) and dirtSpots (an array of objects).
+   * On mount, generate an array of 10 dirtSpots, each with an id and random top/left percentage positions.
+   * 'Soak' Stage:
+     * The dirt spots are hidden. A "Soak Panel" button is shown.
+     * Clicking "Soak" sets isSoaked to true, which reveals the dirt spots.
+   * 'Clean' Stage:
+     * When isSoaked is true, the dirt spots (rendered as <div>s) become visible and clickable.
+     * If a user clicks a spot, remove it from the dirtSpots array.
+     * If isSoaked is false, clicking a spot's (hidden) location shows a failure toast ("Too Dry!").
+   * Win Condition: An effect hook (useEffect) checks if isSoaked is true and dirtSpots.length is 0. If so, grant XP (e.g., 25 XP), show a success toast, and call onComplete.
+ * UI Layout & Visuals:
+   * A large div representing a car panel (e.g., a solid red rectangle).
+   * Before soaking, the panel is visually obscured (e.g., backdrop-blur-sm, bg-black/30).
+   * After soaking, the obscurity is removed, and the dirtSpots (small, brown, rounded divs) are rendered at their absolute positions on the panel.
+   * Use framer-motion for the dirt spots' whileHover (e.g., scale: 1.2) and click effects.
+   * A progress bar shows (initialCount - dirtSpots.length) / initialCount * 100.
+ * Libraries: react, framer-motion, react-hot-toast (or similar), lucide-react.
+4. Component: OilChange
+ * Objective: Create a complex, multi-stage oil change game involving unscrewing a plug, draining old oil, and filling new oil with a timed "sweet spot" mechanic.
+ * Core Logic:
+   * Maintain a stage state: 'unscrew', 'drain', 'fill', 'done'.
+   * 'Unscrew' Stage: Show a "plug" visual. A simple click or drag on it transitions to the 'drain' stage.
+   * 'Drain' Stage:
+     * Maintain a drainProgress state (100 to 0).
+     * Use a useEffect with a setTimeout to decrement drainProgress over time (e.g., 3 seconds).
+     * When drainProgress hits 0, transition to the 'fill' stage.
+   * 'Fill' Stage:
+     * Maintain a fillProgress state (0 to 110 to allow overfill).
+     * On "Hold to Fill" button press (mousedown), use setInterval to rapidly increase fillProgress.
+     * On button release (mouseup), stop the interval and check the value:
+       * Sweet Spot (95-105): Grant XP (e.g., 35 XP), show success toast, set stage to 'done'.
+       * Overfill (>105): Show failure toast ("Overfilled!"), reset fillProgress to 0.
+       * Underfill (<95): Show failure toast ("Too low!"), allowing the user to press again.
+   * 'Done' Stage: Show a "Return to Garage" button that calls onComplete.
+ * UI Layout & Visuals:
+   * The UI changes drastically based on the stage.
+   * 'Drain': Show a progress bar or visual container emptying (e.g., a black bar shrinking to reveal a yellow one).
+   * 'Fill': Show a progress bar that fills. Critically, add a visual "sweet spot" (e.g., a green-tinted area from 95% to 105% on the bar) so the user knows where to stop.
+   * The "Hold to Fill" button should be large and clear.
+ * Libraries: react, framer-motion, react-hot-toast (or similar), lucide-react.
+5. Component: TireRotation
+ * Objective: Create a drag-and-drop puzzle where the user must place four tires onto the correct hubs of a car diagram, following a standard cross-rotation pattern.
+ * Core Logic:
+   * Use react-dnd (or a similar library) for drag-and-drop.
+   * Define ItemTypes.TIRE.
+   * Define the "source" tires: ['Front Left', 'Front Right', 'Rear Left', 'Rear Right'].
+   * Define the "target" hubs (drop zones): 'Front Left', 'Front Right', 'Rear Left', 'Rear Right'.
+   * Define the correct solution mapping: {'Front Left': 'Rear Right', 'Front Right': 'Rear Left', 'Rear Left': 'Front Right', 'Rear Right': 'Front Left'}.
+   * Maintain state for placedTires (an object mapping hub names to the tire name dropped on them).
+   * Tire Component: A draggable item (useDrag) with item: { name: 'Front Left' }.
+   * Hub Component: A drop zone (useDrop) that accepts ItemTypes.TIRE. On drop, it calls a handler to update the placedTires state.
+   * Win Condition: A "Check Rotation" button (enabled only when all hubs are full) compares the placedTires state against the correctSolution.
+     * Correct: Grant XP (e.g., 40 XP), show success toast, call onComplete.
+     * Incorrect: Show failure toast, reset the game.
+ * UI Layout & Visuals:
+   * Requires DndProvider at the root.
+   * A column on the left shows the 4 draggable Tire components.
+   * A central area shows a simple car diagram with 4 Hub drop zones in their respective positions.
+   * Hubs are visually distinct (e.g., dashed-line circles) and change appearance on hover (isOver).
+   * When a Tire is dropped, it renders inside the Hub.
+ * Libraries: react, framer-motion, react-dnd, react-dnd-html5-backend, react-hot-toast (or similar).
+6. Component: BodyRepair
+ * Objective: Create a multi-tool repair game. The user must switch between two tools to fix two different types of damage: "dents" and "scratches."
+ * Core Logic:
+   * Maintain a tool state: 'dent' or 'scratch'.
+   * Maintain a damage state: an array of damage objects, e.g.,
+     [{ id: 1, type: 'dent', fixed: false }, { id: 2, type: 'scratch', progress: 0, fixed: false }].
+   * Tool Switching: Two buttons, "Fix Dents" and "Buff Scratches," set the tool state.
+   * Damage Interaction:
+     * Dents: Rendered as clickable divs. If clicked while tool === 'dent', set fixed: true for that item.
+     * Scratches: Rendered as clickable divs with an inner progress bar. If clicked while tool === 'scratch', increment its progress (e.g., by 25). When progress hits 100, set fixed: true.
+     * If the wrong tool is used, do nothing or show a "Wrong Tool!" toast.
+   * Win Condition: A useEffect hook checks if damage.every(d => d.fixed). If true, grant XP (e.g., 45 XP), show success toast, and call onComplete.
+ * UI Layout & Visuals:
+   * A large div represents a car panel (e.g., a solid color rectangle).
+   * Render damage items at absolute positions.
+   * Dents: Visually distinct (e.g., dark, blurred circles). Use framer-motion whileTap for a "popping" effect.
+   * Scratches: Visually distinct (e.g., light-colored, thin rectangles). Contain an inner motion.div to animate the width based on progress.
+   * The active tool button is highlighted.
+ * Libraries: react, framer-motion, react-hot-toast (or similar), lucide-react.
+7. Component: ECUTuning
+ * Objective: Create a complex tuning game where the user adjusts sliders to manipulate a "torque curve" on a 2D graph, trying to match an "optimal" target curve.
+ * Core Logic:
+   * Use chart.js with react-chartjs-2.
+   * Define graph labels (RPMs): ['1000', ..., '7000'].
+   * Define optimalData (target array, e.g., [180, 220, 280, ...]).
+   * Define baseData (the starting curve, e.g., [150, 180, 220, ...]).
+   * Maintain state for three sliders: fuelMap, timing, boost (all 0-100, default 50).
+   * Maintain state for currentCurve (an array of numbers).
+   * A useEffect hook recalculates currentCurve whenever sliders change. The logic maps the slider values (e.g., (fuelMap[0] - 50) / 100) to multipliers, which are then applied to the baseData to generate the new curve.
+   * Win Condition:
+     * A "Run on Dyno" button triggers a check.
+     * The check calculates the difference between currentCurve and optimalData (e.g., Mean Squared Error).
+     * If the error is below a low threshold, grant XP (e.g., 70 XP), show success toast, call onComplete.
+     * If the error is moderate, show a "Good, but not perfect" toast.
+     * If the error is high, show a "Suboptimal" failure toast.
+ * UI Layout & Visuals:
+   * A large Line chart component from react-chartjs-2.
+   * The chart must display two datasets:
+     * "Optimal Tune": Dashed, green line (using optimalData).
+     * "Your Tune": Solid, blue line (using currentCurve).
+   * Below the graph, render the three sliders ("Fuel Map," "Ignition Timing," "Boost Pressure").
+ * Libraries: react, framer-motion, chart.js, react-chartjs-2, react-hot-toast (or similar), lucide-react.

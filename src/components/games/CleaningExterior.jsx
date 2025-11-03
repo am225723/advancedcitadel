@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,81 +9,104 @@ import { toast } from '@/components/ui/use-toast';
 
 const CleaningExterior = ({ onComplete }) => {
   const { addXP } = useUser();
-  const [dirtLevel, setDirtLevel] = useState(100);
-  const canvasRef = useRef(null);
+  const [isSoaked, setIsSoaked] = useState(false);
+  const [dirtSpots, setDirtSpots] = useState([]);
+  const initialCount = 10;
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = 'rgba(139, 69, 19, 0.7)'; // Brown color for dirt
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const spots = Array.from({ length: initialCount }, (_, i) => ({
+      id: i + 1,
+      top: `${Math.random() * 70 + 10}%`,
+      left: `${Math.random() * 70 + 10}%`,
+    }));
+    setDirtSpots(spots);
   }, []);
 
-  const handleMouseMove = (e) => {
-    if (dirtLevel === 0) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    ctx.clearRect(x - 15, y - 15, 30, 30);
-
-    // Recalculate dirt level by checking remaining pixels
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    let dirtyPixels = 0;
-    for (let i = 0; i < imageData.data.length; i += 4) {
-      if (imageData.data[i + 3] > 0) { // Check alpha channel
-        dirtyPixels++;
-      }
-    }
-    const totalPixels = canvas.width * canvas.height;
-    const newDirtLevel = Math.round((dirtyPixels / totalPixels) * 100);
-    setDirtLevel(newDirtLevel);
-
-    if (newDirtLevel === 0) {
-      addXP(20);
+  useEffect(() => {
+    if (isSoaked && dirtSpots.length === 0) {
+      addXP(25);
       toast({
-        title: "Exterior Cleaned!",
-        description: "You've earned +20 XP for your meditative focus.",
+        title: "Panel Cleaned! ✨",
+        description: "You've earned +25 XP for thorough cleaning.",
       });
+      setTimeout(onComplete, 1000);
     }
+  }, [isSoaked, dirtSpots.length]);
+
+  const handleSoak = () => {
+    setIsSoaked(true);
+    toast({
+      title: "Panel Soaked!",
+      description: "Now click all the dirt spots to clean them.",
+    });
   };
 
-  if (dirtLevel === 0) {
-    return (
-        <div className="text-center space-y-4">
-            <h3 className="text-2xl font-bold text-green-400">Exterior is Clean!</h3>
-            <p className="text-slate-300">Great job on the mindful maintenance.</p>
-            <Button onClick={onComplete}>Return to Garage</Button>
-        </div>
-    );
-  }
+  const handleSpotClick = (id) => {
+    if (!isSoaked) {
+      toast({
+        variant: "destructive",
+        title: "Too Dry!",
+        description: "Soak the panel first before cleaning.",
+      });
+      return;
+    }
+    setDirtSpots(prev => prev.filter(spot => spot.id !== id));
+  };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <Card className="bg-slate-900/80 border-cyan-500/50 p-8 text-center">
+      <Card className="bg-slate-900/80 border-cyan-500/50 p-8">
         <h3 className="text-2xl font-bold text-white flex items-center justify-center space-x-2 mb-4">
           <Sun className="w-6 h-6 text-cyan-400" />
           <span>Cleaning Exterior</span>
         </h3>
-        <p className="text-slate-400 mb-6">
-          Drag your mouse over the car to wipe away the dirt.
+        <p className="text-slate-400 mb-6 text-center">
+          {!isSoaked ? "First, soak the panel to reveal the dirt." : "Click all the dirt spots to clean them!"}
         </p>
 
-        <canvas
-          ref={canvasRef}
-          width="500"
-          height="300"
-          className="mx-auto bg-gray-400 rounded-lg cursor-pointer"
-          onMouseMove={handleMouseMove}
-        ></canvas>
+        {!isSoaked && (
+          <div className="text-center mb-6">
+            <Button onClick={handleSoak} className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
+              Soak Panel
+            </Button>
+          </div>
+        )}
 
-        <div className="space-y-4 mt-4">
-          <Progress value={100 - dirtLevel} className="w-full" />
-          <p className="text-sm text-slate-300">{100 - dirtLevel}% Clean</p>
+        <div 
+          className={`relative w-full h-96 bg-gradient-to-br from-red-700 to-red-900 rounded-lg ${
+            !isSoaked ? 'backdrop-blur-sm' : ''
+          }`}
+        >
+          {!isSoaked && (
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-sm rounded-lg" />
+          )}
+          
+          {isSoaked && dirtSpots.map(spot => (
+            <motion.div
+              key={spot.id}
+              className="absolute w-6 h-6 bg-amber-900 rounded-full cursor-pointer border-2 border-amber-700"
+              style={{ top: spot.top, left: spot.left }}
+              onClick={() => handleSpotClick(spot.id)}
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+            />
+          ))}
         </div>
+
+        {isSoaked && (
+          <div className="space-y-2 mt-4">
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-400">Progress</span>
+              <span className="text-cyan-400 font-bold">
+                {initialCount - dirtSpots.length} / {initialCount}
+              </span>
+            </div>
+            <Progress value={((initialCount - dirtSpots.length) / initialCount) * 100} className="h-3" />
+          </div>
+        )}
       </Card>
     </motion.div>
   );
