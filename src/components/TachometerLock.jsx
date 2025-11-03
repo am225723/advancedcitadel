@@ -378,24 +378,24 @@ const TachometerLock = ({ onSuccess }) => {
             animate={{ rotate: needleRotation }}
             transition={{ type: "spring", stiffness: 200, damping: 24 }}
           >
-            {/* Wider shadow needle */}
+            {/* Wider shadow needle - points to numbers at radius 66 */}
             <line
               x1="120"
               y1="120"
               x2="120"
-              y2="48"
+              y2="54"
               stroke={isInRedzone ? "#dc2626" : "#1a1a1a"}
               strokeWidth="3.5"
               strokeLinecap="round"
               filter="url(#needle-glow)"
               opacity="0.9"
             />
-            {/* Precise center needle */}
+            {/* Precise center needle - exactly 66 units from center */}
             <line
               x1="120"
               y1="120"
               x2="120"
-              y2="45"
+              y2="54"
               stroke={isInRedzone ? "#ef4444" : "#2a2a2a"}
               strokeWidth="1.5"
               strokeLinecap="round"
