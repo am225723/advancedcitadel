@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,9 +14,12 @@ const EngineTuning = ({ onComplete }) => {
   const [level, setLevel] = useState(1);
   const [isPlayerTurn, setIsPlayerTurn] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const isResettingRef = useRef(false);
 
   useEffect(() => {
-    startComputerTurn();
+    if (!isResettingRef.current) {
+      startComputerTurn();
+    }
   }, [level]);
 
   const startComputerTurn = () => {
@@ -28,6 +31,23 @@ const EngineTuning = ({ onComplete }) => {
     
     setTimeout(() => {
       playSequence(newSequence);
+    }, 500);
+  };
+
+  const resetGame = () => {
+    isResettingRef.current = true;
+    setSequence([]);
+    setPlayerSequence([]);
+    setIsPlayerTurn(false);
+    setActiveIndex(-1);
+    
+    setTimeout(() => {
+      const firstPart = parts[Math.floor(Math.random() * parts.length)];
+      setSequence([firstPart]);
+      setTimeout(() => {
+        playSequence([firstPart]);
+        isResettingRef.current = false;
+      }, 500);
     }, 500);
   };
 
@@ -54,10 +74,8 @@ const EngineTuning = ({ onComplete }) => {
         title: "Wrong Part!",
         description: "Starting over from Round 1...",
       });
-      setSequence([]);
-      setPlayerSequence([]);
       setLevel(1);
-      setIsPlayerTurn(false);
+      resetGame();
       return;
     }
 

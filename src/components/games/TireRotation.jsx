@@ -2,11 +2,30 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { TouchBackend } from 'react-dnd-touch-backend';
+import { MultiBackend, TouchTransition, MouseTransition } from 'react-dnd-multi-backend';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useUser } from '@/contexts/UserContext';
+
+const HTML5toTouch = {
+  backends: [
+    {
+      id: 'html5',
+      backend: HTML5Backend,
+      transition: MouseTransition,
+    },
+    {
+      id: 'touch',
+      backend: TouchBackend,
+      options: { enableMouseEvents: true },
+      preview: true,
+      transition: TouchTransition,
+    },
+  ],
+};
 
 const ItemTypes = {
   TIRE: 'tire',
@@ -186,7 +205,7 @@ const TireRotationGame = ({ onComplete }) => {
 };
 
 const TireRotation = (props) => (
-  <DndProvider backend={HTML5Backend}>
+  <DndProvider backend={MultiBackend} options={HTML5toTouch}>
     <TireRotationGame {...props} />
   </DndProvider>
 );
