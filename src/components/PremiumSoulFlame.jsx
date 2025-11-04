@@ -1,264 +1,217 @@
-import React, { useRef, Suspense, useLayoutEffect, useEffect, useState } from 'react'; // Added useState
-import { useFrame, useLoader, useThree } from '@react-three/fiber';
-import { TextureLoader } from 'three';
+import React, { useRef, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-const SoulParticles = () => null;
-
-// BillboardFlame component remains unchanged
-const BillboardFlame = ({ texture, position, scale, rotationZ, opacity, emissiveIntensity, color, emissiveColor, time }) => {
-  const meshRef = useRef();
-  const { camera } = useThree();
-
-  useFrame(() => {
-    if (meshRef.current) {
-      camera.updateMatrixWorld();
-      meshRef.current.lookAt(camera.position);
-
-      if (texture) {
-        texture.offset.y = (-time * 0.2 + (position.y * 0.1)) % 1;
-      }
-    }
-  });
-
-  return (
-    <mesh position={position} scale={scale} rotation-z={rotationZ} ref={meshRef}>
-      <planeGeometry args={[0.8, 2.5]} /> {/* Taller, narrower plane */}
-      <meshStandardMaterial
-        transparent
-        map={texture}
-        emissiveMap={texture}
-        color={color}
-        emissive={emissiveColor}
-        emissiveIntensity={emissiveIntensity}
-        opacity={opacity}
-        blending={THREE.NormalBlending}
-        side={THREE.DoubleSide}
-        depthWrite={false}
-        alphaTest={0.01}
-      />
-    </mesh>
-  );
-};
-
-
 const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
-  const coreMeshRef = useRef();
-  const pointLightRef = useRef();
+  const flameMeshRef = useRef();
+  const shaderMaterialRef = useRef();
   const timeRef = useRef(0);
 
-  // --- CRITICAL FIX: Declare state variables with useState ---
-  const [currentFlameScaleX, setCurrentFlameScaleX] = useState(0.6); // Initialize X scale
-  const [currentFlameScaleY, setCurrentFlameScaleY] = useState(0.6); // Initialize Y scale
-  // --- END CRITICAL FIX ---
-
-  const [currentFlameOpacity, setCurrentFlameOpacity] = useState(0.4);
-  const [currentFlameEmissiveIntensity, setCurrentFlameEmissiveIntensity] = useState(0.05);
-  const [currentFlameColor, setCurrentFlameColor] = useState(new THREE.Color('#FF8C42'));
-  const [currentFlameEmissiveColor, setCurrentFlameEmissiveColor] = useState(new THREE.Color('#FF6B35'));
-
-  const [currentCoreScale, setCurrentCoreScale] = useState(0.4);
-  const [currentCoreOpacity, setCurrentCoreOpacity] = useState(0.5);
-  const [currentCoreEmissiveIntensity, setCurrentCoreEmissiveIntensity] = useState(0.06);
-  const [currentCoreColor, setCurrentCoreColor] = useState(new THREE.Color('#D2691E'));
-  const [currentCoreEmissiveColor, setCurrentCoreEmissiveColor] = useState(new THREE.Color('#FF4500'));
-
-  const [currentLightIntensity, setCurrentLightIntensity] = useState(0.3);
-  const [currentLightColor, setCurrentLightColor] = useState(new THREE.Color('#FF8C42'));
-
-  const flameTextureUrl = 'https://brywmjhsrnebfmhrhlmi.supabase.co/storage/v1/object/public/Citadel/flame_texture.png';
-  const flameTexture = useLoader(TextureLoader, flameTextureUrl);
-
-  useLayoutEffect(() => {
-    if (flameTexture) {
-      flameTexture.wrapS = flameTexture.wrapT = THREE.RepeatWrapping;
-      flameTexture.repeat.set(1, 2); // Repeat vertically
-      flameTexture.premultiplyAlpha = true;
-      flameTexture.needsUpdate = true;
-      console.log("Using flame texture from YOUR Supabase:", flameTextureUrl);
-      console.log("Supabase Flame texture loaded successfully:", flameTexture);
-    }
-  }, [flameTexture, flameTextureUrl]);
+  // Custom shader with locked orange-amber colors
+  const shaderMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uIntensity: { value: 0.4 },
+        uHeight: { value: 0.8 },
+        uFlicker: { value: 0.0 },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        
+        void main() {
+          vUv = uv;
+          vPosition = position;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uIntensity;
+        uniform float uHeight;
+        uniform float uFlicker;
+        
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        
+        // Simplex 2D noise
+        vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+        
+        float snoise(vec2 v) {
+          const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+                   -0.577350269189626, 0.024390243902439);
+          vec2 i  = floor(v + dot(v, C.yy) );
+          vec2 x0 = v -   i + dot(i, C.xx);
+          vec2 i1;
+          i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+          vec4 x12 = x0.xyxy + C.xxzz;
+          x12.xy -= i1;
+          i = mod(i, 289.0);
+          vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+          + i.x + vec3(0.0, i1.x, 1.0 ));
+          vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+            dot(x12.zw,x12.zw)), 0.0);
+          m = m*m ;
+          m = m*m ;
+          vec3 x = 2.0 * fract(p * C.www) - 1.0;
+          vec3 h = abs(x) - 0.5;
+          vec3 ox = floor(x + 0.5);
+          vec3 a0 = x - ox;
+          m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+          vec3 g;
+          g.x  = a0.x  * x0.x  + h.x  * x0.y;
+          g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+          return 130.0 * dot(m, g);
+        }
+        
+        void main() {
+          vec2 uv = vUv;
+          
+          // Create flame shape - taller at bottom, tapers at top
+          float flameShape = 1.0 - uv.y;
+          flameShape = pow(flameShape, 0.8);
+          
+          // Add horizontal tapering (narrower at top)
+          float horizontalTaper = 1.0 - abs(uv.x - 0.5) * (1.0 + uv.y * 2.0);
+          horizontalTaper = smoothstep(0.0, 1.0, horizontalTaper);
+          
+          // Noise-based distortion
+          float noise1 = snoise(vec2(uv.x * 3.0, uv.y * 2.0 - uTime * 0.5)) * 0.5 + 0.5;
+          float noise2 = snoise(vec2(uv.x * 5.0 + uTime * 0.3, uv.y * 3.0 - uTime * 0.7)) * 0.5 + 0.5;
+          float noise3 = snoise(vec2(uv.x * 7.0, uv.y * 5.0 - uTime * 1.2)) * 0.5 + 0.5;
+          
+          // Combine noises for organic movement
+          float combinedNoise = noise1 * 0.5 + noise2 * 0.3 + noise3 * 0.2;
+          
+          // Apply noise to flame shape
+          float flame = flameShape * horizontalTaper * combinedNoise;
+          flame *= uHeight; // Breathing modulation
+          
+          // Add flicker
+          flame += uFlicker * 0.05;
+          
+          // Soft edges
+          flame = smoothstep(0.1, 0.7, flame);
+          
+          // LOCKED ORANGE-AMBER COLOR GRADIENT
+          // Dark chocolate base -> bright orange -> amber gold
+          vec3 color1 = vec3(0.82, 0.41, 0.12); // #D2691E - chocolate orange (bottom)
+          vec3 color2 = vec3(1.0, 0.55, 0.26);  // #FF8C42 - bright orange (middle)
+          vec3 color3 = vec3(1.0, 0.72, 0.30);  // #FFB84D - amber gold (top)
+          
+          // Gradient based on height and intensity
+          vec3 flameColor;
+          float gradientPos = uv.y + (1.0 - flame) * 0.3;
+          
+          if (gradientPos < 0.5) {
+            flameColor = mix(color1, color2, gradientPos * 2.0);
+          } else {
+            flameColor = mix(color2, color3, (gradientPos - 0.5) * 2.0);
+          }
+          
+          // Add brightness variation based on noise (subtle)
+          flameColor *= (0.9 + combinedNoise * 0.2);
+          
+          // Modulate by intensity
+          flameColor *= (0.6 + uIntensity * 0.4);
+          
+          // Smooth alpha with soft falloff
+          float alpha = flame * (1.0 - uv.y * 0.3);
+          alpha = clamp(alpha, 0.0, 0.85); // Cap alpha to prevent solid mass
+          
+          // Output color directly (no premultiplication)
+          gl_FragColor = vec4(flameColor, alpha);
+        }
+      `,
+      transparent: true,
+      blending: THREE.NormalBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      premultipliedAlpha: false,
+    });
+  }, []);
 
   useFrame((state, delta) => {
     timeRef.current += delta;
-
-    let targetCoreScale = 0.4;
-    let targetCoreOpacity = 0.5;
-    let targetCoreEmissiveIntensity = 0.06;
-    let targetCoreColor = new THREE.Color(currentCoreColor);
-    let targetCoreEmissiveColor = new THREE.Color(currentCoreEmissiveColor);
-
-    let targetFlameScaleX = 0.7;
-    let targetFlameScaleY = 0.8;
-    let targetFlameOpacity = 0.4;
-    let targetFlameEmissiveIntensity = 0.05;
-    let targetFlameColor = new THREE.Color(currentFlameColor);
-    let targetFlameEmissiveColor = new THREE.Color(currentFlameEmissiveColor);
-
-    let targetLightIntensity = 0.3;
-    let targetLightColor = new THREE.Color(currentLightColor);
-
-    if (isRunning) {
-      switch (phase) {
-        case 'inhale':
-          targetCoreScale = 0.4 + (phaseProgress * 0.6);
-          targetCoreOpacity = 0.5 + (phaseProgress * 0.2);
-          targetCoreEmissiveIntensity = 0.06 + (phaseProgress * 0.12);
-          targetCoreColor.lerpColors(new THREE.Color('#D2691E'), new THREE.Color('#FF8C42'), phaseProgress);
-          targetCoreEmissiveColor.lerpColors(new THREE.Color('#FF4500'), new THREE.Color('#FF6347'), phaseProgress);
-
-          targetFlameScaleX = 0.7 + (phaseProgress * 0.3);
-          targetFlameScaleY = 0.8 + (phaseProgress * 1.0);
-          targetFlameOpacity = 0.4 + (phaseProgress * 0.2);
-          targetFlameEmissiveIntensity = 0.05 + (phaseProgress * 0.12);
-          targetFlameColor.lerpColors(new THREE.Color('#FF8C42'), new THREE.Color('#FFB84D'), phaseProgress);
-          targetFlameEmissiveColor.lerpColors(new THREE.Color('#FF6B35'), new THREE.Color('#FFA500'), phaseProgress);
-
-          targetLightIntensity = 0.3 + (phaseProgress * 0.4);
-          targetLightColor.lerpColors(new THREE.Color('#FF8C42'), new THREE.Color('#FFB84D'), phaseProgress);
-          break;
-        case 'hold':
-        case 'holdAfter':
-          const pulse = Math.sin(timeRef.current * 2.5) * 0.01;
-          targetCoreScale = 1.0 + pulse;
-          targetCoreOpacity = 0.7;
-          targetCoreEmissiveIntensity = 0.18 + pulse * 0.02;
-          targetCoreColor = new THREE.Color('#FF8C42');
-          targetCoreEmissiveColor = new THREE.Color('#FF6347');
-
-          targetFlameScaleX = 1.0 + pulse * 0.05;
-          targetFlameScaleY = 1.8 + pulse * 0.1;
-          targetFlameOpacity = 0.6;
-          targetFlameEmissiveIntensity = 0.17 + pulse * 0.02;
-          targetFlameColor = new THREE.Color('#FFB84D');
-          targetFlameEmissiveColor = new THREE.Color('#FFA500');
-
-          targetLightIntensity = 0.7 + pulse * 0.05;
-          targetLightColor = new THREE.Color('#FFB84D');
-          break;
-        case 'exhale':
-          targetCoreScale = 1.0 - (phaseProgress * 0.6);
-          targetCoreOpacity = 0.7 - (phaseProgress * 0.2);
-          targetCoreEmissiveIntensity = 0.18 - (phaseProgress * 0.12);
-          targetCoreColor.lerpColors(new THREE.Color('#FF8C42'), new THREE.Color('#D2691E'), phaseProgress);
-          targetCoreEmissiveColor.lerpColors(new THREE.Color('#FF6347'), new THREE.Color('#FF4500'), phaseProgress);
-
-          targetFlameScaleX = 1.0 - (phaseProgress * 0.3);
-          targetFlameScaleY = 1.8 - (phaseProgress * 1.0);
-          targetFlameOpacity = 0.6 - (phaseProgress * 0.2);
-          targetFlameEmissiveIntensity = 0.17 - (phaseProgress * 0.12);
-          targetFlameColor.lerpColors(new THREE.Color('#FFB84D'), new THREE.Color('#FF8C42'), phaseProgress);
-          targetFlameEmissiveColor.lerpColors(new THREE.Color('#FFA500'), new THREE.Color('#FF6B35'), phaseProgress);
-
-          targetLightIntensity = 0.7 - (phaseProgress * 0.4);
-          targetLightColor.lerpColors(new THREE.Color('#FFB84D'), new THREE.Color('#FF8C42'), phaseProgress);
-          break;
-        default:
-          break;
+    
+    if (shaderMaterialRef.current) {
+      shaderMaterialRef.current.uniforms.uTime.value = timeRef.current;
+      
+      let targetIntensity = 0.4;
+      let targetHeight = 0.8;
+      let targetFlicker = 0.0;
+      
+      if (isRunning) {
+        switch (phase) {
+          case 'inhale':
+            targetIntensity = 0.4 + (phaseProgress * 0.4);
+            targetHeight = 0.8 + (phaseProgress * 1.0);
+            targetFlicker = phaseProgress * 0.2;
+            break;
+          case 'hold':
+          case 'holdAfter':
+            const pulse = Math.sin(timeRef.current * 2.5);
+            targetIntensity = 0.8 + pulse * 0.05;
+            targetHeight = 1.8 + pulse * 0.1;
+            targetFlicker = 0.2 + pulse * 0.05;
+            break;
+          case 'exhale':
+            targetIntensity = 0.8 - (phaseProgress * 0.4);
+            targetHeight = 1.8 - (phaseProgress * 1.0);
+            targetFlicker = 0.2 - (phaseProgress * 0.2);
+            break;
+          default:
+            break;
+        }
       }
-    }
-
-    const lerpSpeed = delta * 3;
-
-    // Update state variables
-    setCurrentCoreScale(THREE.MathUtils.lerp(currentCoreScale, targetCoreScale, lerpSpeed));
-    setCurrentCoreOpacity(THREE.MathUtils.lerp(currentCoreOpacity, targetCoreOpacity, lerpSpeed));
-    setCurrentCoreEmissiveIntensity(THREE.MathUtils.lerp(currentCoreEmissiveIntensity, targetCoreEmissiveIntensity, lerpSpeed));
-    setCurrentCoreColor(currentCoreColor.lerp(targetCoreColor, lerpSpeed));
-    setCurrentCoreEmissiveColor(currentCoreEmissiveColor.lerp(targetCoreEmissiveColor, lerpSpeed));
-
-    setCurrentFlameScaleX(THREE.MathUtils.lerp(currentFlameScaleX, targetFlameScaleX, lerpSpeed));
-    setCurrentFlameScaleY(THREE.MathUtils.lerp(currentFlameScaleY, targetFlameScaleY, lerpSpeed));
-    setCurrentFlameOpacity(THREE.MathUtils.lerp(currentFlameOpacity, targetFlameOpacity, lerpSpeed));
-    setCurrentFlameEmissiveIntensity(THREE.MathUtils.lerp(currentFlameEmissiveIntensity, targetFlameEmissiveIntensity, lerpSpeed));
-    setCurrentFlameColor(currentFlameColor.lerp(targetFlameColor, lerpSpeed));
-    setCurrentFlameEmissiveColor(currentFlameEmissiveColor.lerp(targetFlameEmissiveColor, lerpSpeed));
-
-    setCurrentLightIntensity(THREE.MathUtils.lerp(currentLightIntensity, targetLightIntensity, delta * 3));
-    setCurrentLightColor(currentLightColor.lerp(targetLightColor, lerpSpeed));
-
-    // Apply updated properties directly (optional, but can be smoother)
-    if (coreMeshRef.current && coreMeshRef.current.material) {
-      coreMeshRef.current.scale.set(currentCoreScale, currentCoreScale * 1.5, currentCoreScale);
-      coreMeshRef.current.material.opacity = currentCoreOpacity;
-      coreMeshRef.current.material.emissiveIntensity = currentCoreEmissiveIntensity;
-      coreMeshRef.current.material.color = currentCoreColor;
-      coreMeshRef.current.material.emissive = currentCoreEmissiveColor;
-    }
-
-    if (pointLightRef.current) {
-      pointLightRef.current.intensity = currentLightIntensity;
-      pointLightRef.current.color = currentLightColor;
+      
+      // Smooth transitions
+      const lerpSpeed = 2.0 * delta;
+      shaderMaterialRef.current.uniforms.uIntensity.value = THREE.MathUtils.lerp(
+        shaderMaterialRef.current.uniforms.uIntensity.value,
+        targetIntensity,
+        lerpSpeed
+      );
+      shaderMaterialRef.current.uniforms.uHeight.value = THREE.MathUtils.lerp(
+        shaderMaterialRef.current.uniforms.uHeight.value,
+        targetHeight,
+        lerpSpeed
+      );
+      shaderMaterialRef.current.uniforms.uFlicker.value = THREE.MathUtils.lerp(
+        shaderMaterialRef.current.uniforms.uFlicker.value,
+        targetFlicker,
+        lerpSpeed
+      );
     }
   });
 
   return (
     <group position={[0, -1.5, 0]} scale={0.5}>
-      {/* Central Glowing Orb */}
-      <mesh ref={coreMeshRef} scale={[currentCoreScale, currentCoreScale * 1.5, currentCoreScale]}>
-        <sphereGeometry args={[1, 64, 128]} />
-        <meshStandardMaterial
+      {/* Central core orb - warm orange */}
+      <mesh scale={[0.8, 1.2, 0.8]}>
+        <sphereGeometry args={[1, 32, 32]} />
+        <meshBasicMaterial
+          color="#D2691E"
           transparent
-          color={currentCoreColor}
-          emissive={currentCoreEmissiveColor}
-          emissiveIntensity={currentCoreEmissiveIntensity}
-          opacity={currentCoreOpacity}
-          blending={THREE.NormalBlending}
-          side={THREE.DoubleSide}
-          depthWrite={false}
-          alphaTest={0.1}
+          opacity={0.6}
         />
       </mesh>
 
-      {/* Textured Flame Billboards - layered for depth */}
-      <Suspense fallback={null}>
-        <BillboardFlame
-          texture={flameTexture}
-          position={[0, 0.3, 0]}
-          scale={[currentFlameScaleX, currentFlameScaleY, 1]}
-          rotationZ={0}
-          opacity={currentFlameOpacity}
-          emissiveIntensity={currentFlameEmissiveIntensity}
-          color={currentFlameColor}
-          emissiveColor={currentFlameEmissiveColor}
-          time={timeRef.current}
-        />
-        <BillboardFlame
-          texture={flameTexture}
-          position={[0, 0.35, 0.05]}
-          scale={[currentFlameScaleX * 0.9, currentFlameScaleY * 0.9, 1]}
-          rotationZ={Math.PI / 4}
-          opacity={currentFlameOpacity * 0.9}
-          emissiveIntensity={currentFlameEmissiveIntensity * 0.9}
-          color={currentFlameColor}
-          emissiveColor={currentFlameEmissiveColor}
-          time={timeRef.current + 5}
-        />
-        <BillboardFlame
-          texture={flameTexture}
-          position={[0, 0.25, -0.05]}
-          scale={[currentFlameScaleX * 0.95, currentFlameScaleY * 0.95, 1]}
-          rotationZ={-Math.PI / 4}
-          opacity={currentFlameOpacity * 0.95}
-          emissiveIntensity={currentFlameEmissiveIntensity * 0.95}
-          color={currentFlameColor}
-          emissiveColor={currentFlameEmissiveColor}
-          time={timeRef.current + 10}
-        />
-      </Suspense>
+      {/* Shader-based flame */}
+      <mesh ref={flameMeshRef} position={[0, 0.3, 0]}>
+        <planeGeometry args={[1.5, 3.5, 32, 64]} />
+        <primitive object={shaderMaterial} ref={shaderMaterialRef} attach="material" />
+      </mesh>
 
+      {/* Subtle point light */}
       <pointLight
-        ref={pointLightRef}
-        position={[0, 0.3, 0]}
-        intensity={currentLightIntensity}
-        distance={18}
-        color={currentLightColor}
+        position={[0, 0.5, 0]}
+        intensity={0.5}
+        distance={15}
+        color="#FF8C42"
         decay={2}
       />
-      <Suspense fallback={null}>
-        <SoulParticles phase={phase} isRunning={isRunning} time={timeRef.current} />
-      </Suspense>
     </group>
   );
 };
