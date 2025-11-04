@@ -187,9 +187,9 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
   });
 
   return (
-    <group position={[0, -1.5, 0]} scale={0.5}>
+    <group position={[0, -1.5, 0]} scale={0.8}>
       {/* Central core orb - warm orange */}
-      <mesh scale={[0.8, 1.2, 0.8]}>
+      <mesh scale={[0.5, 0.8, 0.5]}>
         <sphereGeometry args={[1, 32, 32]} />
         <meshBasicMaterial
           color="#D2691E"
@@ -198,17 +198,17 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
         />
       </mesh>
 
-      {/* Shader-based flame */}
-      <mesh ref={flameMeshRef} position={[0, 0.3, 0]}>
-        <planeGeometry args={[1.5, 3.5, 32, 64]} />
+      {/* Shader-based flame - positioned directly above core */}
+      <mesh ref={flameMeshRef} position={[0, 0.8, 0]}>
+        <planeGeometry args={[0.8, 2.0, 32, 64]} />
         <primitive object={shaderMaterial} ref={shaderMaterialRef} attach="material" />
       </mesh>
 
       {/* Subtle point light */}
       <pointLight
-        position={[0, 0.5, 0]}
-        intensity={0.5}
-        distance={15}
+        position={[0, 0.8, 0]}
+        intensity={0.4}
+        distance={12}
         color="#FF8C42"
         decay={2}
       />
