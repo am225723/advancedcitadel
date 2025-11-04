@@ -76,26 +76,27 @@ Transformed the soul flame from orange-red to a stunning ethereal white-gold app
 **Enhanced Breathing Dynamics:**
 - **Idle State**: Gentle base glow (0.4 core scale, 0.7-0.8 flame scale)
 - **Inhale Phase**: Dramatic growth from 0.4 → 1.0 core scale, flame height grows from 0.8 → 1.8 (125% vertical expansion)
-- **Hold Phase**: Maximum intensity with subtle pulse (scale 1.0, emissive 0.7, bloom 0.5)
+- **Hold Phase**: Maximum intensity with subtle pulse (scale 1.0, emissive 0.4, bloom 0.3)
 - **Exhale Phase**: Smooth shrinking back to idle state (1.0 → 0.4 scale)
 
 **Post-Processing Enhancements:**
-- Bloom intensity: 0.2 idle → 0.5 hold (carefully controlled for visible texture)
-- High luminance threshold (0.85) prevents blown-out appearance
-- Tight bloom radius (0.6) maintains visible flame texture with soft ethereal halo
+- Bloom intensity: 0.15 idle → 0.3 hold (minimal for visible flame texture)
+- Very high luminance threshold (0.9) prevents blown-out appearance
+- Tight bloom radius (0.5) maintains visible flame texture with subtle ethereal halo
 - Enhanced vignette for better focus on flame center
 
 **Visual Improvements:**
 - Re-enabled GeometricOverlay for subtle rotating golden rings
-- Conservative emissive intensities (0.3 → 0.7 range) preserve flame texture visibility
-- Point light (0.8 → 1.2 intensity) provides gentle ambient glow without washout
+- Minimal emissive intensities (0.15 → 0.4 range) preserve clear flame texture visibility
+- Point light (0.5 → 0.8 intensity) provides subtle ambient glow without washout
 - Dramatic scale changes make breathing highly visible and meditative
 
-**Bug Fixes (Multiple Iterations):**
-- Iteratively reduced brightness values to eliminate white blob washout
-- Final emissive/bloom values balance ethereal glow with visible texture
-- Flame now displays clear white-gold texture with soft halo instead of blown-out blob
-- Higher luminance threshold (0.85) ensures only brightest elements bloom
+**Bug Fixes (Multiple Iterations - ~75% Brightness Reduction):**
+- Extreme brightness reduction after multiple user reports of white blob washout
+- Final emissive values reduced to 0.15-0.4 range (from original 1.5-2.5)
+- Bloom reduced to 0.15-0.3 with 0.9 threshold (from original 0.5-1.8 with 0.3 threshold)
+- Point light reduced to 0.5-0.8 (from original 1.8-3.0)
+- Flame now displays clear white-gold texture with controlled soft glow instead of blown-out blob
 
 **Result**: A luminous, ethereal white-gold flame with clearly visible texture that dramatically expands and contracts with breathing, creating a visually striking and therapeutically engaging experience without blown-out brightness.
 
