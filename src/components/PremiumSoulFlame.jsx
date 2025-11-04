@@ -110,11 +110,11 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
             flameColor = mix(color2, color3, (gradientPos - 0.5) * 2.0);
           }
           
-          // Add brightness variation based on noise (subtle)
-          flameColor *= (0.9 + combinedNoise * 0.2);
+          // Add brightness variation based on noise (very subtle)
+          flameColor *= (0.8 + combinedNoise * 0.1);
           
-          // Modulate by intensity
-          flameColor *= (0.6 + uIntensity * 0.4);
+          // Modulate by intensity (keep darker)
+          flameColor *= (0.5 + uIntensity * 0.3);
           
           // Smooth alpha with soft falloff
           float alpha = flame * (1.0 - uv.y * 0.3);

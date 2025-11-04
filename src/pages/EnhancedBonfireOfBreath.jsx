@@ -418,15 +418,8 @@ const EnhancedBonfireOfBreath = () => {
             </AnimatePresence>
           </Suspense>
 
-          {/* Post-processing (re-enabled) with conservative settings */}
+          {/* Post-processing - BLOOM DISABLED to show pure shader colors */}
           <EffectComposer>
-            <Bloom
-              intensity={0.05}
-              luminanceThreshold={0.98}
-              luminanceSmoothing={0.99}
-              mipmapBlur
-              radius={0.3}
-            />
             <Vignette
               eskil={false}
               offset={0.1}
@@ -435,10 +428,6 @@ const EnhancedBonfireOfBreath = () => {
                   ? 1.3
                   : 1.15
               }
-            />
-            <ChromaticAberration
-              blendFunction={BlendFunction.NORMAL}
-              offset={[0.0001, 0.0001]}
             />
           </EffectComposer>
         </Canvas>
