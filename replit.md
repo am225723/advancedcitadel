@@ -62,55 +62,53 @@ A `.env.example` file is provided as a template.
 
 ## Recent Changes
 
-### November 4, 2025 - Bonfire of Breath Visual Overhaul
+### November 4, 2025 - Bonfire of Breath Complete Shader Rewrite
 
-**Ethereal White-Gold Flame Redesign:**
-Transformed the soul flame from orange-red to a stunning ethereal white-gold appearance, matching reference imagery with dramatic breathing-reactive behavior:
+**Custom Shader Implementation:**
+Completely rewrote the flame visualization using custom GLSL shaders to guarantee accurate orange-amber fire colors without washout.
 
-**Color Palette Update:**
-- Base flame: Warm orange (#FF8C42) transitioning to bright amber (#FFB84D)
-- Core: Dark chocolate orange (#D2691E) to bright orange (#FF8C42)
-- Emissive glow: Orange-red (#FF4500, #FF6B35) to tomato (#FF6347, #FFA500)
-- Point light: Warm orange-amber glow (#FF8C42, #FFB84D)
-- Traditional fire colors matching reference imagery
+**Shader-Based Approach:**
+After multiple failed iterations with textured billboards and emissive materials (which always produced white washout regardless of opacity/bloom settings), implemented a custom GLSL fragment shader with complete color control:
 
-**Enhanced Breathing Dynamics:**
-- **Idle State**: Gentle base glow (0.4 core scale, 0.7-0.8 flame scale)
-- **Inhale Phase**: Dramatic growth from 0.4 → 1.0 core scale, flame height grows from 0.8 → 1.8 (125% vertical expansion)
-- **Hold Phase**: Maximum intensity with subtle pulse (scale 1.0, emissive 0.4, bloom 0.3)
-- **Exhale Phase**: Smooth shrinking back to idle state (1.0 → 0.4 scale)
+**Locked Color Gradient (Cannot Wash Out):**
+- Bottom: #D2691E (chocolate orange) - vec3(0.82, 0.41, 0.12)
+- Middle: #FF8C42 (bright orange) - vec3(1.0, 0.55, 0.26)
+- Top: #FFB84D (amber gold) - vec3(1.0, 0.72, 0.30)
+- Colors defined directly in shader, no external materials or post-processing can modify them
 
-**Post-Processing Enhancements:**
-- Bloom intensity: 0.15 idle → 0.3 hold (minimal for visible flame texture)
-- Very high luminance threshold (0.9) prevents blown-out appearance
-- Tight bloom radius (0.5) maintains visible flame texture with subtle ethereal halo
-- Enhanced vignette for better focus on flame center
+**Procedural Flame Generation:**
+- 3-layer simplex noise for organic movement (noise1, noise2, noise3)
+- Vertical tapering: taller at bottom, narrower at top
+- Horizontal tapering: flame silhouette naturally narrows toward tip
+- Noise-driven UV distortion animated by time uniform
+- Smooth edge falloff using smoothstep
 
-**Visual Improvements:**
-- Re-enabled GeometricOverlay for subtle rotating golden rings
-- Minimal emissive intensities (0.15 → 0.4 range) preserve clear flame texture visibility
-- Point light (0.5 → 0.8 intensity) provides subtle ambient glow without washout
-- Dramatic scale changes make breathing highly visible and meditative
+**Breathing Animation via Uniforms:**
+- **uIntensity**: 0.4 idle → 0.8 hold (brightness modulation)
+- **uHeight**: 0.8 idle → 1.8 hold (125% vertical expansion during inhale)
+- **uFlicker**: 0.0 idle → 0.2 hold (subtle shimmer effect)
+- Smooth lerp transitions between phases (2.0 * delta speed)
 
-**Bug Fixes (Multiple Root Causes):**
-- **CRITICAL FIX 1 - AdditiveBlending**: Changed material blending from THREE.AdditiveBlending to THREE.NormalBlending to prevent brightness stacking
-- **CRITICAL FIX 2 - Opacity**: Reduced opacity from 0.9-0.95 to 0.4-0.6 to allow texture colors to show through instead of appearing as solid white mass
-- **CRITICAL FIX 3 - Bloom**: Minimized bloom to fixed 0.05 intensity with 0.98 threshold to eliminate white washout
-- Final ultra-low brightness values:
-  - Core opacity: 0.5 → 0.7, emissive: 0.06 → 0.18 (hold phase)
-  - Flame opacity: 0.4 → 0.6, emissive: 0.05 → 0.17 (hold phase)
-  - Point light: 0.3 → 0.7 (hold phase)
-  - Bloom: 0.05 fixed (threshold 0.98)
+**Alpha Handling (Critical for Color Accuracy):**
+- Alpha calculated from flame shape with vertical falloff
+- Capped at 0.85 max to prevent solid mass
+- Output directly without premultiplication (premultipliedAlpha: false)
+- NormalBlending ensures single alpha application (no double-multiply desaturation)
 
-**Size and Positioning Fixes:**
-- Reduced flame overall scale to 0.5 (50% of original size)
-- Moved flame group down to y: -1.5
-- Centered all flame billboards at x: 0 (eliminated horizontal offset)
-- Flame billboards positioned at y: 0.3, 0.35, 0.25 with z-depth layering
-- Moved countdown number forward (z: 2) with larger font (2.0) and black outline
-- Ensures perfect centering and countdown visibility
+**Simplified Scene:**
+- Single shader plane (1.5 x 3.5, 32x64 segments for smooth curves)
+- Simple core orb with meshBasicMaterial (no emissive)
+- Minimal point light (0.5 intensity, #FF8C42 color)
+- No billboard stacking, no texture loading, no emissive materials
 
-**Result**: A luminous, ethereal white-gold flame with clearly visible texture that dramatically expands and contracts with breathing. Properly sized and positioned with all UI elements clearly visible.
+**Advantages Over Previous Billboard Approach:**
+- Impossible to wash out (colors locked in shader code)
+- No dependencies on post-processing bloom
+- No stacking transparency issues
+- Full control over color output pipeline
+- More performant (single plane vs 3 billboards + particles)
+
+**Result**: Clean orange-amber fire gradient that cannot be washed out by any post-processing or material settings. Dramatic breathing animation clearly visible through height and intensity modulation.
 
 ### October 25, 2025
 
