@@ -53,18 +53,18 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
   // --- END CRITICAL FIX ---
 
   const [currentFlameOpacity, setCurrentFlameOpacity] = useState(0.85);
-  const [currentFlameEmissiveIntensity, setCurrentFlameEmissiveIntensity] = useState(0.3);
-  const [currentFlameColor, setCurrentFlameColor] = useState(new THREE.Color('#FFFAF0'));
-  const [currentFlameEmissiveColor, setCurrentFlameEmissiveColor] = useState(new THREE.Color('#FFE8B8'));
+  const [currentFlameEmissiveIntensity, setCurrentFlameEmissiveIntensity] = useState(0.08);
+  const [currentFlameColor, setCurrentFlameColor] = useState(new THREE.Color('#FF8C42'));
+  const [currentFlameEmissiveColor, setCurrentFlameEmissiveColor] = useState(new THREE.Color('#FF6B35'));
 
   const [currentCoreScale, setCurrentCoreScale] = useState(0.4);
   const [currentCoreOpacity, setCurrentCoreOpacity] = useState(0.7);
-  const [currentCoreEmissiveIntensity, setCurrentCoreEmissiveIntensity] = useState(0.4);
-  const [currentCoreColor, setCurrentCoreColor] = useState(new THREE.Color('#FFFAF0'));
-  const [currentCoreEmissiveColor, setCurrentCoreEmissiveColor] = useState(new THREE.Color('#FFE8B8'));
+  const [currentCoreEmissiveIntensity, setCurrentCoreEmissiveIntensity] = useState(0.1);
+  const [currentCoreColor, setCurrentCoreColor] = useState(new THREE.Color('#D2691E'));
+  const [currentCoreEmissiveColor, setCurrentCoreEmissiveColor] = useState(new THREE.Color('#FF4500'));
 
-  const [currentLightIntensity, setCurrentLightIntensity] = useState(1.0);
-  const [currentLightColor, setCurrentLightColor] = useState(new THREE.Color('#FFE8B8'));
+  const [currentLightIntensity, setCurrentLightIntensity] = useState(0.4);
+  const [currentLightColor, setCurrentLightColor] = useState(new THREE.Color('#FF8C42'));
 
   const flameTextureUrl = 'https://brywmjhsrnebfmhrhlmi.supabase.co/storage/v1/object/public/Citadel/flame_texture.png';
   const flameTexture = useLoader(TextureLoader, flameTextureUrl);
@@ -85,18 +85,18 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
 
     let targetCoreScale = 0.4;
     let targetCoreOpacity = 0.7;
-    let targetCoreEmissiveIntensity = 0.4;
+    let targetCoreEmissiveIntensity = 0.1;
     let targetCoreColor = new THREE.Color(currentCoreColor);
     let targetCoreEmissiveColor = new THREE.Color(currentCoreEmissiveColor);
 
     let targetFlameScaleX = 0.7;
     let targetFlameScaleY = 0.8;
     let targetFlameOpacity = 0.85;
-    let targetFlameEmissiveIntensity = 0.3;
+    let targetFlameEmissiveIntensity = 0.08;
     let targetFlameColor = new THREE.Color(currentFlameColor);
     let targetFlameEmissiveColor = new THREE.Color(currentFlameEmissiveColor);
 
-    let targetLightIntensity = 1.0;
+    let targetLightIntensity = 0.4;
     let targetLightColor = new THREE.Color(currentLightColor);
 
     if (isRunning) {
@@ -104,55 +104,55 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
         case 'inhale':
           targetCoreScale = 0.4 + (phaseProgress * 0.6);
           targetCoreOpacity = 0.7 + (phaseProgress * 0.15);
-          targetCoreEmissiveIntensity = 0.4 + (phaseProgress * 0.4);
-          targetCoreColor.lerpColors(new THREE.Color('#FFFAF0'), new THREE.Color('#FFFFFF'), phaseProgress);
-          targetCoreEmissiveColor.lerpColors(new THREE.Color('#FFE8B8'), new THREE.Color('#FFF4D0'), phaseProgress);
+          targetCoreEmissiveIntensity = 0.1 + (phaseProgress * 0.15);
+          targetCoreColor.lerpColors(new THREE.Color('#D2691E'), new THREE.Color('#FF8C42'), phaseProgress);
+          targetCoreEmissiveColor.lerpColors(new THREE.Color('#FF4500'), new THREE.Color('#FF6347'), phaseProgress);
 
           targetFlameScaleX = 0.7 + (phaseProgress * 0.3);
           targetFlameScaleY = 0.8 + (phaseProgress * 1.0);
           targetFlameOpacity = 0.85 + (phaseProgress * 0.1);
-          targetFlameEmissiveIntensity = 0.3 + (phaseProgress * 0.4);
-          targetFlameColor.lerpColors(new THREE.Color('#FFFAF0'), new THREE.Color('#FFFFFF'), phaseProgress);
-          targetFlameEmissiveColor.lerpColors(new THREE.Color('#FFE8B8'), new THREE.Color('#FFF4D0'), phaseProgress);
+          targetFlameEmissiveIntensity = 0.08 + (phaseProgress * 0.14);
+          targetFlameColor.lerpColors(new THREE.Color('#FF8C42'), new THREE.Color('#FFB84D'), phaseProgress);
+          targetFlameEmissiveColor.lerpColors(new THREE.Color('#FF6B35'), new THREE.Color('#FFA500'), phaseProgress);
 
-          targetLightIntensity = 1.0 + (phaseProgress * 0.8);
-          targetLightColor.lerpColors(new THREE.Color('#FFE8B8'), new THREE.Color('#FFF4D0'), phaseProgress);
+          targetLightIntensity = 0.4 + (phaseProgress * 0.4);
+          targetLightColor.lerpColors(new THREE.Color('#FF8C42'), new THREE.Color('#FFB84D'), phaseProgress);
           break;
         case 'hold':
         case 'holdAfter':
-          const pulse = Math.sin(timeRef.current * 2.5) * 0.03;
+          const pulse = Math.sin(timeRef.current * 2.5) * 0.01;
           targetCoreScale = 1.0 + pulse;
           targetCoreOpacity = 0.85;
-          targetCoreEmissiveIntensity = 0.8 + pulse * 0.1;
-          targetCoreColor = new THREE.Color('#FFFFFF');
-          targetCoreEmissiveColor = new THREE.Color('#FFF4D0');
+          targetCoreEmissiveIntensity = 0.25 + pulse * 0.03;
+          targetCoreColor = new THREE.Color('#FF8C42');
+          targetCoreEmissiveColor = new THREE.Color('#FF6347');
 
           targetFlameScaleX = 1.0 + pulse * 0.05;
           targetFlameScaleY = 1.8 + pulse * 0.1;
           targetFlameOpacity = 0.95;
-          targetFlameEmissiveIntensity = 0.7 + pulse * 0.1;
-          targetFlameColor = new THREE.Color('#FFFFFF');
-          targetFlameEmissiveColor = new THREE.Color('#FFF4D0');
+          targetFlameEmissiveIntensity = 0.22 + pulse * 0.03;
+          targetFlameColor = new THREE.Color('#FFB84D');
+          targetFlameEmissiveColor = new THREE.Color('#FFA500');
 
-          targetLightIntensity = 1.8 + pulse * 0.2;
-          targetLightColor = new THREE.Color('#FFF4D0');
+          targetLightIntensity = 0.8 + pulse * 0.08;
+          targetLightColor = new THREE.Color('#FFB84D');
           break;
         case 'exhale':
           targetCoreScale = 1.0 - (phaseProgress * 0.6);
           targetCoreOpacity = 0.85 - (phaseProgress * 0.15);
-          targetCoreEmissiveIntensity = 0.8 - (phaseProgress * 0.4);
-          targetCoreColor.lerpColors(new THREE.Color('#FFFFFF'), new THREE.Color('#FFFAF0'), phaseProgress);
-          targetCoreEmissiveColor.lerpColors(new THREE.Color('#FFF4D0'), new THREE.Color('#FFE8B8'), phaseProgress);
+          targetCoreEmissiveIntensity = 0.25 - (phaseProgress * 0.15);
+          targetCoreColor.lerpColors(new THREE.Color('#FF8C42'), new THREE.Color('#D2691E'), phaseProgress);
+          targetCoreEmissiveColor.lerpColors(new THREE.Color('#FF6347'), new THREE.Color('#FF4500'), phaseProgress);
 
           targetFlameScaleX = 1.0 - (phaseProgress * 0.3);
           targetFlameScaleY = 1.8 - (phaseProgress * 1.0);
           targetFlameOpacity = 0.95 - (phaseProgress * 0.1);
-          targetFlameEmissiveIntensity = 0.7 - (phaseProgress * 0.4);
-          targetFlameColor.lerpColors(new THREE.Color('#FFFFFF'), new THREE.Color('#FFFAF0'), phaseProgress);
-          targetFlameEmissiveColor.lerpColors(new THREE.Color('#FFF4D0'), new THREE.Color('#FFE8B8'), phaseProgress);
+          targetFlameEmissiveIntensity = 0.22 - (phaseProgress * 0.14);
+          targetFlameColor.lerpColors(new THREE.Color('#FFB84D'), new THREE.Color('#FF8C42'), phaseProgress);
+          targetFlameEmissiveColor.lerpColors(new THREE.Color('#FFA500'), new THREE.Color('#FF6B35'), phaseProgress);
 
-          targetLightIntensity = 1.8 - (phaseProgress * 0.8);
-          targetLightColor.lerpColors(new THREE.Color('#FFF4D0'), new THREE.Color('#FFE8B8'), phaseProgress);
+          targetLightIntensity = 0.8 - (phaseProgress * 0.4);
+          targetLightColor.lerpColors(new THREE.Color('#FFB84D'), new THREE.Color('#FF8C42'), phaseProgress);
           break;
         default:
           break;

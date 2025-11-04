@@ -68,10 +68,11 @@ A `.env.example` file is provided as a template.
 Transformed the soul flame from orange-red to a stunning ethereal white-gold appearance, matching reference imagery with dramatic breathing-reactive behavior:
 
 **Color Palette Update:**
-- Base flame: Creamy white (#FFFAF0) transitioning to pure white (#FFFFFF) 
-- Emissive glow: Warm gold (#FFE8B8) to luminous cream (#FFF4D0)
-- Point light: Soft golden glow (#FFE8B8)
-- Removed all orange/red tones for cleaner, more spiritual aesthetic
+- Base flame: Warm orange (#FF8C42) transitioning to bright amber (#FFB84D)
+- Core: Dark chocolate orange (#D2691E) to bright orange (#FF8C42)
+- Emissive glow: Orange-red (#FF4500, #FF6B35) to tomato (#FF6347, #FFA500)
+- Point light: Warm orange-amber glow (#FF8C42, #FFB84D)
+- Traditional fire colors matching reference imagery
 
 **Enhanced Breathing Dynamics:**
 - **Idle State**: Gentle base glow (0.4 core scale, 0.7-0.8 flame scale)

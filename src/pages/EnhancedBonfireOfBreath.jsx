@@ -424,26 +424,26 @@ const EnhancedBonfireOfBreath = () => {
               intensity={
                 isRunning
                   ? (phase === 'hold' || phase === 'holdAfter'
-                      ? 0.5
+                      ? 0.15
                       : phase === 'inhale'
-                        ? 0.3 + (phaseProgress * 0.2)
+                        ? 0.08 + (phaseProgress * 0.07)
                         : phase === 'exhale'
-                          ? 0.5 - (phaseProgress * 0.2)
-                          : 0.3)
-                  : 0.3
+                          ? 0.15 - (phaseProgress * 0.07)
+                          : 0.08)
+                  : 0.08
               }
-              luminanceThreshold={0.85}
-              luminanceSmoothing={0.9}
+              luminanceThreshold={0.94}
+              luminanceSmoothing={0.97}
               mipmapBlur
-              radius={0.6}
+              radius={0.4}
             />
             <Vignette
               eskil={false}
               offset={0.1}
               darkness={
                 isRunning && (phase === 'hold' || phase === 'holdAfter')
-                  ? 1.4
-                  : 1.2
+                  ? 1.3
+                  : 1.15
               }
             />
             <ChromaticAberration
