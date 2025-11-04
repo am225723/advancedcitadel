@@ -91,14 +91,23 @@ Transformed the soul flame from orange-red to a stunning ethereal white-gold app
 - Point light (0.5 → 0.8 intensity) provides subtle ambient glow without washout
 - Dramatic scale changes make breathing highly visible and meditative
 
-**Bug Fixes (Multiple Iterations - ~75% Brightness Reduction):**
-- Extreme brightness reduction after multiple user reports of white blob washout
-- Final emissive values reduced to 0.15-0.4 range (from original 1.5-2.5)
-- Bloom reduced to 0.15-0.3 with 0.9 threshold (from original 0.5-1.8 with 0.3 threshold)
-- Point light reduced to 0.5-0.8 (from original 1.8-3.0)
-- Flame now displays clear white-gold texture with controlled soft glow instead of blown-out blob
+**Bug Fixes (Root Cause: AdditiveBlending):**
+- **CRITICAL FIX**: Changed material blending from THREE.AdditiveBlending to THREE.NormalBlending
+- AdditiveBlending was causing brightness to stack exponentially when layers overlapped
+- Affected both core orb and all 3 flame billboard materials
+- After fixing blending, restored reasonable brightness values:
+  - Core emissive: 0.4 → 0.8 (hold phase)
+  - Flame emissive: 0.3 → 0.7 (hold phase)
+  - Point light: 1.0 → 1.8 (hold phase)
+  - Bloom: 0.3 → 0.5 (hold phase, threshold 0.85)
 
-**Result**: A luminous, ethereal white-gold flame with clearly visible texture that dramatically expands and contracts with breathing, creating a visually striking and therapeutically engaging experience without blown-out brightness.
+**Size and Positioning Fixes:**
+- Reduced flame overall scale to 0.5 (50% of original size)
+- Moved flame down from y: -0.5 to y: -1.5
+- Moved countdown number forward (z: 2) with larger font (2.0) and black outline
+- Ensures countdown is always visible above the flame
+
+**Result**: A luminous, ethereal white-gold flame with clearly visible texture that dramatically expands and contracts with breathing. Properly sized and positioned with all UI elements clearly visible.
 
 ### October 25, 2025
 

@@ -194,7 +194,7 @@ const PremiumSoulFlame = ({ phase, phaseProgress, isRunning }) => {
   });
 
   return (
-    <group position={[0, -0.5, 0]}>
+    <group position={[0, -1.5, 0]} scale={0.5}>
       {/* Central Glowing Orb */}
       <mesh ref={coreMeshRef} scale={[currentCoreScale, currentCoreScale * 1.5, currentCoreScale]}>
         <sphereGeometry args={[1, 64, 128]} />

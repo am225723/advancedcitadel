@@ -399,9 +399,11 @@ const EnhancedBonfireOfBreath = () => {
                     <>
                       <Text
                         color="#FFE8B3"
-                        fontSize={1.5}
-                        position={[0, -0.6, 0]}
+                        fontSize={2.0}
+                        position={[0, 0.2, 2]}
                         anchorX="center"
+                        outlineWidth={0.05}
+                        outlineColor="#000000"
                       >
                         {Math.ceil(timeLeft)}
                       </Text>
