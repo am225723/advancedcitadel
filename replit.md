@@ -92,21 +92,23 @@ Transformed the soul flame from orange-red to a stunning ethereal white-gold app
 - Point light (0.5 → 0.8 intensity) provides subtle ambient glow without washout
 - Dramatic scale changes make breathing highly visible and meditative
 
-**Bug Fixes (Root Cause: AdditiveBlending):**
-- **CRITICAL FIX**: Changed material blending from THREE.AdditiveBlending to THREE.NormalBlending
-- AdditiveBlending was causing brightness to stack exponentially when layers overlapped
-- Affected both core orb and all 3 flame billboard materials
-- After fixing blending, restored reasonable brightness values:
-  - Core emissive: 0.4 → 0.8 (hold phase)
-  - Flame emissive: 0.3 → 0.7 (hold phase)
-  - Point light: 1.0 → 1.8 (hold phase)
-  - Bloom: 0.3 → 0.5 (hold phase, threshold 0.85)
+**Bug Fixes (Multiple Root Causes):**
+- **CRITICAL FIX 1 - AdditiveBlending**: Changed material blending from THREE.AdditiveBlending to THREE.NormalBlending to prevent brightness stacking
+- **CRITICAL FIX 2 - Opacity**: Reduced opacity from 0.9-0.95 to 0.4-0.6 to allow texture colors to show through instead of appearing as solid white mass
+- **CRITICAL FIX 3 - Bloom**: Minimized bloom to fixed 0.05 intensity with 0.98 threshold to eliminate white washout
+- Final ultra-low brightness values:
+  - Core opacity: 0.5 → 0.7, emissive: 0.06 → 0.18 (hold phase)
+  - Flame opacity: 0.4 → 0.6, emissive: 0.05 → 0.17 (hold phase)
+  - Point light: 0.3 → 0.7 (hold phase)
+  - Bloom: 0.05 fixed (threshold 0.98)
 
 **Size and Positioning Fixes:**
 - Reduced flame overall scale to 0.5 (50% of original size)
-- Moved flame down from y: -0.5 to y: -1.5
+- Moved flame group down to y: -1.5
+- Centered all flame billboards at x: 0 (eliminated horizontal offset)
+- Flame billboards positioned at y: 0.3, 0.35, 0.25 with z-depth layering
 - Moved countdown number forward (z: 2) with larger font (2.0) and black outline
-- Ensures countdown is always visible above the flame
+- Ensures perfect centering and countdown visibility
 
 **Result**: A luminous, ethereal white-gold flame with clearly visible texture that dramatically expands and contracts with breathing. Properly sized and positioned with all UI elements clearly visible.
 

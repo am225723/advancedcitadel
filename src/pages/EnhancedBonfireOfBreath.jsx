@@ -421,21 +421,11 @@ const EnhancedBonfireOfBreath = () => {
           {/* Post-processing (re-enabled) with conservative settings */}
           <EffectComposer>
             <Bloom
-              intensity={
-                isRunning
-                  ? (phase === 'hold' || phase === 'holdAfter'
-                      ? 0.15
-                      : phase === 'inhale'
-                        ? 0.08 + (phaseProgress * 0.07)
-                        : phase === 'exhale'
-                          ? 0.15 - (phaseProgress * 0.07)
-                          : 0.08)
-                  : 0.08
-              }
-              luminanceThreshold={0.94}
-              luminanceSmoothing={0.97}
+              intensity={0.05}
+              luminanceThreshold={0.98}
+              luminanceSmoothing={0.99}
               mipmapBlur
-              radius={0.4}
+              radius={0.3}
             />
             <Vignette
               eskil={false}
