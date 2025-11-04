@@ -60,7 +60,40 @@ A `.env.example` file is provided as a template.
 - Custom plugins for visual editing and error handling
 - CORS enabled with Cross-Origin-Embedder-Policy headers
 
-## Recent Changes (October 25, 2025)
+## Recent Changes
+
+### November 4, 2025 - Bonfire of Breath Visual Overhaul
+
+**Ethereal White-Gold Flame Redesign:**
+Transformed the soul flame from orange-red to a stunning ethereal white-gold appearance, matching reference imagery with dramatic breathing-reactive behavior:
+
+**Color Palette Update:**
+- Base flame: Creamy white (#FFFAF0) transitioning to pure white (#FFFFFF) 
+- Emissive glow: Warm gold (#FFE8B8) to luminous cream (#FFF4D0)
+- Point light: Soft golden glow (#FFE8B8)
+- Removed all orange/red tones for cleaner, more spiritual aesthetic
+
+**Enhanced Breathing Dynamics:**
+- **Idle State**: Gentle base glow (0.4 core scale, 0.7-0.8 flame scale)
+- **Inhale Phase**: Dramatic growth from 0.4 → 1.0 core scale, flame height grows from 0.8 → 1.8 (125% vertical expansion)
+- **Hold Phase**: Maximum intensity with subtle pulse (scale 1.0, emissive 2.5, bloom 1.8)
+- **Exhale Phase**: Smooth shrinking back to idle state (1.0 → 0.4 scale)
+
+**Post-Processing Enhancements:**
+- Bloom intensity increased dramatically: 0.5 idle → 1.8 hold (360% increase)
+- Lower luminance threshold (0.3) for softer, more diffuse glow
+- Larger bloom radius (0.9) for ethereal halo effect
+- Enhanced vignette for better focus on flame center
+
+**Visual Improvements:**
+- Re-enabled GeometricOverlay for subtle rotating golden rings
+- Brighter emissive intensities (1.2 → 2.5 range vs previous 0.4 → 1.0)
+- Stronger point light (1.8 → 3.0 intensity during phases)
+- More pronounced scale changes make breathing highly visible and meditative
+
+**Result**: A luminous, ethereal flame that dramatically expands and contracts with breathing, creating a visually striking and therapeutically engaging experience.
+
+### October 25, 2025
 
 ### Critical Shader Bug Fixes
 After diagnosing "blown-out white blob" rendering issues, three critical shader bugs were identified and resolved:

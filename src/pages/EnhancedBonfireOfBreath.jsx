@@ -359,8 +359,7 @@ const EnhancedBonfireOfBreath = () => {
               phaseProgress={phaseProgress}
               isRunning={isRunning}
             />
-            {/* GeometricOverlay can be added back later if desired */}
-            {/* <GeometricOverlay phase={phase} phaseProgress={phaseProgress} /> */}
+            <GeometricOverlay phase={phase} phaseProgress={phaseProgress} isRunning={isRunning} />
             <BreathingParticles // Assuming this component exists and is imported
               phase={phase}
               phaseProgress={phaseProgress}
@@ -423,31 +422,31 @@ const EnhancedBonfireOfBreath = () => {
               intensity={
                 isRunning
                   ? (phase === 'hold' || phase === 'holdAfter'
-                      ? 0.2
+                      ? 1.8
                       : phase === 'inhale'
-                        ? 0.08 + (phaseProgress * 0.12)
+                        ? 0.8 + (phaseProgress * 1.0)
                         : phase === 'exhale'
-                          ? 0.2 - (phaseProgress * 0.12)
-                          : 0.05)
-                  : 0.05
+                          ? 1.8 - (phaseProgress * 1.0)
+                          : 0.5)
+                  : 0.5
               }
-              luminanceThreshold={0.9}
-              luminanceSmoothing={0.8}
+              luminanceThreshold={0.3}
+              luminanceSmoothing={0.9}
               mipmapBlur
-              radius={0.3}
+              radius={0.9}
             />
             <Vignette
               eskil={false}
-              offset={0.12}
+              offset={0.1}
               darkness={
                 isRunning && (phase === 'hold' || phase === 'holdAfter')
-                  ? 1.4
-                  : 1.2
+                  ? 1.5
+                  : 1.3
               }
             />
             <ChromaticAberration
               blendFunction={BlendFunction.NORMAL}
-              offset={[0.0004, 0.0004]}
+              offset={[0.0002, 0.0002]}
             />
           </EffectComposer>
         </Canvas>
