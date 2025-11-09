@@ -61,7 +61,7 @@
     ));
     DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
-    const DropdownMenuItem = React.forwardRef(({ className, inset, ...props }, ref) => (
+    const DropdownMenuItem = React.forwardRef(({ className, inset, dismiss, ...props }, ref) => (
       <DropdownMenuPrimitive.Item
         ref={ref}
         className={cn(
