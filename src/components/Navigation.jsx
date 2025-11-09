@@ -10,8 +10,8 @@ import WardenNotes from '@/components/WardenNotes';
 const navItems = [
   { path: '/', label: 'Dashboard', icon: Sun },
   { path: '/codex', label: 'The Codex', icon: BookMarked },
-  { path: '/journal-guided', label: 'The Reforge', icon: Sparkles },
-  { path: '/reframe-guided', label: "Scribe's Chronicle", icon: BrainCircuit },
+  { path: '/reframe-guided', label: 'The Reforge', icon: Sparkles },
+  { path: '/journal-guided', label: "Scribe's Chronicle", icon: BrainCircuit },
   { path: '/forward-path', label: 'Path of the Undaunted', icon: Footprints },
   { path: '/anchor', label: 'Anchor & Mantra', icon: Anchor },
   { path: '/garage', label: 'The Garage', icon: Car },
