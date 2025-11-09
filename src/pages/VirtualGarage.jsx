@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Car, Palette, Wrench, Gauge, Waves, Map } from 'lucide-react';
+import { Car, Palette, Wrench, Gauge, Waves, Map, Lock, CheckCircle, Sparkles, BookOpen } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
 import CarModel from '@/components/CarModel';
-import { allGarageParts } from '@/lib/garage_parts';
+import { allGarageParts, partTiers, getUnlockProgress } from '@/lib/garage_parts';
 import CarWashGame from '@/components/games/CarWashGame';
 import EngineTuning from '@/components/games/EngineTuning';
 import CleaningExterior from '@/components/games/CleaningExterior';
@@ -148,20 +148,25 @@ const VirtualGarage = () => {
                 <Card className="bg-slate-900/80 border-slate-700 p-6 space-y-4 h-full">
                   <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
                     <Wrench className="w-6 h-6 text-yellow-600" />
-                    <span>Modifications</span>
+                    <span>Unlocked Parts ({modifications.length}/{allGarageParts.length})</span>
                   </h3>
-                  <div className="space-y-3">
-                    {modifications.map((mod, index) => (
-                      <div key={index} className="p-3 bg-slate-950/50 border border-slate-800 rounded-lg">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="text-white font-semibold">{mod.name}</p>
-                            <p className="text-sm text-slate-400">{mod.category}</p>
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                    {modifications.length > 0 ? (
+                      modifications.map((mod, index) => (
+                        <div key={index} className="p-3 bg-slate-950/50 border border-slate-800 rounded-lg">
+                          <div className="flex justify-between items-start mb-1">
+                            <div>
+                              <p className="text-white font-semibold">{mod.name}</p>
+                              <p className="text-xs text-slate-400">{mod.category}</p>
+                            </div>
+                            <span className="text-green-400 text-sm font-bold">{mod.boost}</span>
                           </div>
-                          <span className="text-green-400 text-sm font-bold">{mod.boost}</span>
+                          <p className="text-xs text-slate-500 italic mt-1">{mod.skillMapping}</p>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-slate-500 text-center py-4 italic">Complete exercises to unlock your first upgrade!</p>
+                    )}
                   </div>
                 </Card>
               </motion.div>
@@ -210,7 +215,162 @@ const VirtualGarage = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Card className="bg-gradient-to-br from-slate-900 to-black border-gold-accent/30 p-8 space-y-6">
+                <div>
+                  <h3 className="text-3xl font-bold text-gold-accent flex items-center space-x-2 mb-2">
+                    <BookOpen className="w-7 h-7" />
+                    <span>Blueprint Compendium</span>
+                  </h3>
+                  <p className="text-slate-400 text-sm">Your path to mastery. Complete exercises to unlock therapeutic upgrades.</p>
+                </div>
+
+                {['Starter', 'Knight', 'Legendary'].map((tier) => {
+                  const tierParts = allGarageParts.filter(part => part.tier === tier);
+                  const tierInfo = partTiers[tier];
+                  
+                  return (
+                    <div key={tier} className="space-y-3">
+                      <div className="flex items-center gap-3 mb-3">
+                        <h4 className={`text-xl font-bold ${tierInfo.color}`}>{tier} Tier</h4>
+                        <div className="flex-1 h-px bg-slate-700"></div>
+                      </div>
+                      <p className="text-xs text-slate-500 mb-3 italic">{tierInfo.description}</p>
+                      
+                      <div className="grid gap-3">
+                        {tierParts.map((part) => {
+                          const progress = getUnlockProgress(user, part);
+                          const isUnlocked = progress.unlocked;
+                          
+                          return (
+                            <div
+                              key={part.name}
+                              className={`p-4 rounded-lg border ${
+                                isUnlocked 
+                                  ? `${tierInfo.borderColor} ${tierInfo.bgColor}` 
+                                  : 'border-slate-800 bg-slate-900/30'
+                              } transition-all`}
+                            >
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <h5 className={`font-bold ${isUnlocked ? 'text-white' : 'text-slate-400'}`}>
+                                      {part.name}
+                                    </h5>
+                                    {isUnlocked && (
+                                      <CheckCircle className="w-4 h-4 text-green-500" />
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-slate-500">{part.category}</p>
+                                </div>
+                                <span className={`text-sm font-bold ${isUnlocked ? 'text-green-400' : 'text-slate-600'}`}>
+                                  {part.boost}
+                                </span>
+                              </div>
+                              
+                              <p className="text-xs text-slate-400 mb-3">{part.description}</p>
+                              
+                              {!isUnlocked && (
+                                <>
+                                  {part.unlockType === 'level_and_xp' ? (
+                                    <>
+                                      <div className="space-y-2 mb-2">
+                                        <div>
+                                          <div className="flex justify-between text-xs mb-1">
+                                            <span className="text-slate-500">Level Progress</span>
+                                            <span className={tierInfo.color}>
+                                              {progress.levelProgress}/{part.unlockValue.level}
+                                            </span>
+                                          </div>
+                                          <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                                            <motion.div
+                                              initial={{ width: 0 }}
+                                              animate={{ 
+                                                width: `${Math.min(100, (progress.levelProgress / part.unlockValue.level) * 100)}%` 
+                                              }}
+                                              transition={{ duration: 0.5, ease: "easeOut" }}
+                                              className="h-full bg-gradient-to-r from-gold-accent to-amber-500"
+                                            />
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div className="flex justify-between text-xs mb-1">
+                                            <span className="text-slate-500">XP Progress</span>
+                                            <span className={tierInfo.color}>
+                                              {progress.xpProgress}/{part.unlockValue.xp}
+                                            </span>
+                                          </div>
+                                          <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                                            <motion.div
+                                              initial={{ width: 0 }}
+                                              animate={{ 
+                                                width: `${Math.min(100, (progress.xpProgress / part.unlockValue.xp) * 100)}%` 
+                                              }}
+                                              transition={{ duration: 0.5, ease: "easeOut" }}
+                                              className="h-full bg-gradient-to-r from-gold-accent to-amber-500"
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-start gap-2 text-xs">
+                                        <Lock className="w-3 h-3 text-slate-500 mt-0.5" />
+                                        <span className="text-slate-500">{part.unlockRequirement}</span>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className="mb-2">
+                                        <div className="flex justify-between text-xs mb-1">
+                                          <span className="text-slate-500">Progress</span>
+                                          <span className={tierInfo.color}>
+                                            {progress.progress}/{progress.total}
+                                          </span>
+                                        </div>
+                                        <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                                          <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ 
+                                              width: `${Math.min(100, (progress.progress / progress.total) * 100)}%` 
+                                            }}
+                                            transition={{ duration: 0.5, ease: "easeOut" }}
+                                            className={`h-full bg-gradient-to-r ${
+                                              tier === 'Starter' ? 'from-slate-400 to-slate-500' :
+                                              tier === 'Knight' ? 'from-blue-400 to-blue-600' :
+                                              'from-gold-accent to-amber-500'
+                                            }`}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="flex items-start gap-2 text-xs">
+                                        <Lock className="w-3 h-3 text-slate-500 mt-0.5" />
+                                        <span className="text-slate-500">{part.unlockRequirement}</span>
+                                      </div>
+                                    </>
+                                  )}
+                                </>
+                              )}
+                              
+                              {isUnlocked && (
+                                <p className="text-xs text-green-500 flex items-center gap-1">
+                                  <Sparkles className="w-3 h-3" />
+                                  <span className="italic">{part.skillMapping}</span>
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
             >
               <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-purple-900/50 p-8 space-y-6">
                 <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
