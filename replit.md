@@ -62,6 +62,46 @@ A `.env.example` file is provided as a template.
 
 ## Recent Changes
 
+### November 9, 2025 - AI Journal Feelings Analysis & Gamification Overhaul
+
+**AI Journal Enhancements:**
+Completely overhauled the AI Journal (Scribe's Chronicle) with comprehensive feelings analysis:
+
+- **Emotion Identification:** AI now identifies and displays primary emotions with visual badges
+- **Intensity Meters:** Visual representation of emotion intensity levels
+- **Cognitive Themes:** Identifies thinking patterns (catastrophizing, all-or-nothing, rumination, etc.)
+- **Behavioral Themes:** Recognizes behavioral patterns (avoidance, withdrawal, hypervigilance, etc.)
+- **Somatic Cues:** Detects physical symptoms associated with emotions
+- **DBT Therapeutic Coaching:** Provides targeted DBT skill recommendations based on identified patterns
+- **Enhanced UI:** Dropdown menu for quick access to feelings analysis and journal insights
+- **Better Data Display:** Improved formatting with section headers and visual hierarchy
+
+**Gamification System Improvements:**
+Transformed the Virtual Garage progression system with clear unlock requirements:
+
+- **Blueprint Compendium:** New three-tiered display system showing all 7 car parts:
+  - **Starter Tier:** Accessible to beginners (Transmission, Radiator)
+  - **Knight Tier:** Mid-level progression (Exhaust, Brakes)
+  - **Legendary Tier:** Advanced achievements (Engine, Turbo, Carbon Spoiler)
+- **Clear Unlock Requirements:** Each part displays specific requirements:
+  - XP thresholds
+  - Level requirements
+  - Exercise/journal/exposure completion counts
+  - Streak requirements (for Legendary tier)
+- **CBT/DBT Skill Mappings:** Each part shows which therapeutic skills it represents
+- **Progress Tracking:** Separate progress bars for each Legendary tier item
+- **Percentage Clamping:** Fixed overflow bug where progress could exceed 100%
+
+**Bug Fixes:**
+- Fixed Navigation routing bug where "Scribe's Chronicle" and "The Reforge" routes were reversed
+- Fixed React "Invalid hook call" warning by properly filtering the `dismiss` prop in DropdownMenuItem component
+- Removed duplicate Perplexity edge function setup files (functions already exist in Supabase)
+
+**Technical Improvements:**
+- Proper prop destructuring in Radix UI dropdown components to prevent DOM warnings
+- Enhanced feelings display with expandable sections
+- Improved data structure for gamification progression tracking
+
 ### November 4, 2025 - Bonfire of Breath Complete Shader Rewrite
 
 **Custom Shader Implementation:**
