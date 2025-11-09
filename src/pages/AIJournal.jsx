@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { BookOpen, Sparkles, Trash2, PlusCircle, ChevronsRight } from 'lucide-react';
+import { BookOpen, Sparkles, Trash2, PlusCircle, ChevronsRight, Heart, Brain, Activity } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -138,19 +138,27 @@ const AIJournal = () => {
         throw new Error("Received an unexpected response from the AI.");
       }
 
-      let insightToSave = { title: "AI Analysis", response: "" };
+      let insightToSave = { title: "AI Analysis", response: "", type: analysisType, data: null };
       switch (analysisType) {
         case 'summarize':
-          insightToSave = { title: "AI Summary", response: data.summary };
+          insightToSave = { title: "AI Summary", response: data.summary, type: analysisType };
           break;
         case 'insights':
-          insightToSave = { title: "Key Insights", response: data.insights.join('\n• ') };
+          insightToSave = { title: "Key Insights", response: data.insights.join('\n• '), type: analysisType };
           break;
         case 'next_steps':
-          insightToSave = { title: "Suggested Next Steps", response: data.actions.join('\n• ') };
+          insightToSave = { title: "Suggested Next Steps", response: data.actions.join('\n• '), type: analysisType };
+          break;
+        case 'feelings':
+          insightToSave = { 
+            title: "Emotional Analysis", 
+            response: "",
+            type: 'feelings',
+            data: data
+          };
           break;
         case 'mechanic_question':
-          insightToSave = { title: "Key Insights", response: data.insights.join('\n• ') };
+          insightToSave = { title: "Key Insights", response: data.insights.join('\n• '), type: analysisType };
           break;
         default:
           insightToSave.response = "Analysis complete.";
@@ -261,21 +269,31 @@ const AIJournal = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="bg-dark-steel border-gold-accent/30">
                         <DropdownMenuItem
-                          onClick={() => getAnalysis(item.id, item.content, 'summarize')}
+                          onClick={() => getAnalysis(item.id, item.content, 'feelings')}
                           className="text-slate-200 hover:text-gold-accent"
                         >
-                          Summarize
+                          <Heart className="w-4 h-4 mr-2" />
+                          Identify Feelings
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => getAnalysis(item.id, item.content, 'insights')}
                           className="text-slate-200 hover:text-gold-accent"
                         >
+                          <Brain className="w-4 h-4 mr-2" />
                           Key Insights
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => getAnalysis(item.id, item.content, 'summarize')}
+                          className="text-slate-200 hover:text-gold-accent"
+                        >
+                          <BookOpen className="w-4 h-4 mr-2" />
+                          Summarize
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => getAnalysis(item.id, item.content, 'next_steps')}
                           className="text-slate-200 hover:text-gold-accent"
                         >
+                          <ChevronsRight className="w-4 h-4 mr-2" />
                           Next Steps
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -307,13 +325,105 @@ const AIJournal = () => {
                 )}
 
                 {item.insights && (
-                  <Card className="p-4 bg-dark-steel/80 border-gold-accent/30 mt-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Sparkles className="w-4 h-4 text-gold-accent" />
-                      <h4 className="font-semibold text-gold-accent">{item.insights.title}</h4>
-                    </div>
-                    <p className="text-slate-300 text-sm whitespace-pre-wrap">{item.insights.response}</p>
-                  </Card>
+                  <>
+                    {item.insights.type === 'feelings' && item.insights.data ? (
+                      <Card className="p-5 bg-gradient-to-br from-rose-950/40 to-dark-steel/80 border-rose-500/30 mt-4 space-y-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Heart className="w-5 h-5 text-rose-400" />
+                          <h4 className="font-semibold text-rose-300 text-lg">{item.insights.title}</h4>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-sm text-slate-400 mb-2">Primary Emotions</p>
+                            {item.insights.data.primary_emotions?.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {item.insights.data.primary_emotions.map((emotion, idx) => (
+                                  <span key={idx} className="px-3 py-1 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full text-sm font-medium">
+                                    {emotion}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-slate-500 text-sm italic">No clear emotions detected. Try adding more detail about how you felt.</p>
+                            )}
+                          </div>
+
+                          {item.insights.data.secondary_emotions?.length > 0 && (
+                            <div>
+                              <p className="text-sm text-slate-400 mb-2">Secondary Emotions</p>
+                              <div className="flex flex-wrap gap-2">
+                                {item.insights.data.secondary_emotions.map((emotion, idx) => (
+                                  <span key={idx} className="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full text-sm">
+                                    {emotion}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {item.insights.data.intensity !== undefined && (
+                            <div>
+                              <p className="text-sm text-slate-400 mb-2">Emotional Intensity</p>
+                              <div className="flex items-center gap-3">
+                                <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                                  <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${Math.min(Math.max(item.insights.data.intensity, 0), 10) * 10}%` }}
+                                    transition={{ duration: 1, ease: "easeOut" }}
+                                    className="h-full bg-gradient-to-r from-rose-500 to-orange-500"
+                                  />
+                                </div>
+                                <span className="text-rose-300 font-semibold text-sm">{Math.min(Math.max(item.insights.data.intensity, 0), 10)}/10</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {item.insights.data.themes?.length > 0 && (
+                            <div>
+                              <p className="text-sm text-slate-400 mb-2 flex items-center gap-2"><Brain className="w-4 h-4" />Themes</p>
+                              <ul className="space-y-1 text-slate-300 text-sm">
+                                {item.insights.data.themes.map((theme, idx) => (
+                                  <li key={idx} className="flex items-start gap-2">
+                                    <span className="text-gold-accent mt-0.5">•</span>
+                                    <span>{theme}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {item.insights.data.somatic_cues?.length > 0 && (
+                            <div>
+                              <p className="text-sm text-slate-400 mb-2 flex items-center gap-2"><Activity className="w-4 h-4" />Body Sensations</p>
+                              <ul className="space-y-1 text-slate-300 text-sm">
+                                {item.insights.data.somatic_cues.map((cue, idx) => (
+                                  <li key={idx} className="flex items-start gap-2">
+                                    <span className="text-cyan-400 mt-0.5">•</span>
+                                    <span>{cue}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mt-4 pt-4 border-t border-rose-500/20">
+                          <p className="text-xs text-slate-400 leading-relaxed">
+                            <strong className="text-rose-300">DBT Tip:</strong> Naming emotions is a core skill. Use these insights to practice emotional awareness and regulation. Notice the body sensations and themes connected to your feelings.
+                          </p>
+                        </div>
+                      </Card>
+                    ) : (
+                      <Card className="p-4 bg-dark-steel/80 border-gold-accent/30 mt-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Sparkles className="w-4 h-4 text-gold-accent" />
+                          <h4 className="font-semibold text-gold-accent">{item.insights.title}</h4>
+                        </div>
+                        <p className="text-slate-300 text-sm whitespace-pre-wrap">{item.insights.response}</p>
+                      </Card>
+                    )}
+                  </>
                 )}
               </Card>
             ))
