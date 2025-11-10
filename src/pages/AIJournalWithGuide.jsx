@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { BookOpen, Sparkles, Trash2, PlusCircle, ChevronsRight, Users } from 'lucide-react';
+import { BookOpen, Sparkles, Trash2, PlusCircle, ChevronsRight, Users, Heart } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,7 @@ import {
   saveGuideInteraction 
 } from '@/lib/guideService';
 import { getPersona } from '@/lib/personaConfig';
+import JournalFeelingsPanel from '@/components/JournalFeelingsPanel';
 
 const AIJournalWithGuide = () => {
   const [title, setTitle] = useState('');
@@ -149,7 +150,29 @@ const AIJournalWithGuide = () => {
   const getGuideAnalysis = async (entryId, entryContent) => {
     setAnalysisLoading(entryId);
     try {
-      // Get guide response
+      // 1. Get Perplexity feelings analysis
+      const { data: analysisData, error: analysisError } = await supabase.functions.invoke('perplexity-journal-ai', {
+        body: { content: entryContent, mode: 'feelings' },
+      });
+
+      if (analysisError) throw new Error(analysisError.message);
+      
+      // 2. Store the feelings analysis in insights column
+      const feelingsInsight = {
+        title: "Emotional Analysis",
+        response: "",
+        type: 'feelings',
+        data: analysisData
+      };
+
+      const { error: updateInsightsError } = await supabase
+        .from('journal_entries')
+        .update({ insights: feelingsInsight })
+        .eq('id', entryId);
+
+      if (updateInsightsError) throw updateInsightsError;
+
+      // 3. Get guide response with analysis context
       const response = await getGuideJournalResponse(
         activeGuideId,
         entryContent,
@@ -158,10 +181,15 @@ const AIJournalWithGuide = () => {
           xp: user?.xp,
           displayName: user?.display_name,
           completedExercises: user?.completed_exercises,
+          emotions: analysisData?.primary_emotions || [],
+          secondaryEmotions: analysisData?.secondary_emotions || [],
+          emotionalIntensity: analysisData?.intensity,
+          cognitiveThemes: analysisData?.themes || [],
+          somaticCues: analysisData?.somatic_cues || [],
         }
       );
 
-      // Save the interaction
+      // 4. Save the guide interaction
       await saveGuideInteraction(
         session.user.id,
         activeGuideId,
@@ -170,8 +198,8 @@ const AIJournalWithGuide = () => {
         response
       );
 
-      // Save AI insight to journal entry
-      const { error } = await supabase
+      // 5. Update journal entry with guide's response in ai_insights
+      const { error: updateAIError } = await supabase
         .from('journal_entries')
         .update({
           ai_insights: [
@@ -185,15 +213,15 @@ const AIJournalWithGuide = () => {
         })
         .eq('id', entryId);
 
-      if (error) throw error;
+      if (updateAIError) throw updateAIError;
 
       toast({
-        title: `${activeGuide.name} Responds`,
-        description: "Your guide has provided their wisdom.",
+        title: `Analysis Complete!`,
+        description: `${activeGuide.name} has reviewed your emotional analysis. +30 XP earned.`,
       });
 
-      // Award XP for getting analysis
-      addXP(5);
+      // Award XP for getting both analysis and guide response
+      addXP(30);
       
       fetchEntries();
     } catch (error) {
@@ -342,6 +370,13 @@ const AIJournalWithGuide = () => {
                   </div>
                 )}
 
+                {/* Feelings Analysis Panel */}
+                {entryItem.insights && (
+                  <div className="mt-4">
+                    <JournalFeelingsPanel insights={entryItem.insights} />
+                  </div>
+                )}
+
                 {/* Guide Insights */}
                 {entryItem.ai_insights && entryItem.ai_insights.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-slate-700 space-y-3">
@@ -351,7 +386,7 @@ const AIJournalWithGuide = () => {
                           <Sparkles className="w-4 h-4 text-gold-accent" />
                           <span className="font-semibold text-gold-accent">{insight.guide}'s Guidance</span>
                         </div>
-                        <p className="text-slate-300 italic font-garamond">{insight.response}</p>
+                        <p className="text-slate-300 italic font-garamond whitespace-pre-wrap">{insight.response}</p>
                       </div>
                     ))}
                   </div>

@@ -12,16 +12,19 @@ import { Input } from '@/components/ui/input';
 import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/lib/customSupabaseClient';
 import { 
   getActiveGuide, 
   getGuideReframeResponse, 
   saveGuideInteraction 
 } from '@/lib/guideService';
 import { getPersona } from '@/lib/personaConfig';
+import ReframeAnalysisPanel from '@/components/ReframeAnalysisPanel';
 
 const CognitiveReframingWithGuide = () => {
   const [thought, setThought] = useState('');
   const [context, setContext] = useState('');
+  const [cbtAnalysis, setCbtAnalysis] = useState(null);
   const [guideResponse, setGuideResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeGuideId, setActiveGuideId] = useState('solaire');
@@ -70,10 +73,24 @@ const CognitiveReframingWithGuide = () => {
     }
 
     setLoading(true);
+    setCbtAnalysis(null);
     setGuideResponse(null);
 
     try {
-      // Get guide's reframing response
+      // 1. Get Perplexity CBT analysis
+      const { data: analysisData, error: analysisError } = await supabase.functions.invoke('perplexity-reframe-forge', {
+        body: { negative_thought: thought, context },
+      });
+
+      if (analysisError) throw new Error(analysisError.message);
+      if (!analysisData) {
+        throw new Error("Received an unexpected response from the AI.");
+      }
+
+      // 2. Store the CBT analysis in state
+      setCbtAnalysis(analysisData);
+
+      // 3. Get guide's reframing response with analysis context
       const response = await getGuideReframeResponse(
         activeGuideId,
         thought,
@@ -83,10 +100,15 @@ const CognitiveReframingWithGuide = () => {
           xp: user?.xp,
           displayName: user?.display_name,
           completedExercises: user?.completed_exercises,
+          cognitiveDistortions: analysisData?.cognitive_distortions || [],
+          evidenceFor: analysisData?.evidence_for || [],
+          evidenceAgainst: analysisData?.evidence_against || [],
+          balancedReframe: analysisData?.balanced_reframe,
+          tinyAction: analysisData?.tiny_action,
         }
       );
 
-      // Save the interaction
+      // 4. Save the interaction
       await saveGuideInteraction(
         session.user.id,
         activeGuideId,
@@ -109,8 +131,8 @@ const CognitiveReframingWithGuide = () => {
       }
 
       toast({ 
-        title: `${activeGuide.name} Responds ✨`, 
-        description: "+20 XP earned for mental flexibility." 
+        title: `Analysis Complete! ✨`, 
+        description: `${activeGuide.name} has reviewed the CBT analysis. +20 XP earned.`,
       });
     } catch (error) {
       toast({ 
@@ -195,6 +217,17 @@ const CognitiveReframingWithGuide = () => {
           </Button>
         </Card>
 
+        {/* CBT Analysis Panel */}
+        {cbtAnalysis && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <ReframeAnalysisPanel analysis={cbtAnalysis} />
+          </motion.div>
+        )}
+
         {/* Guide Response */}
         {guideResponse && (
           <motion.div 
@@ -234,6 +267,7 @@ const CognitiveReframingWithGuide = () => {
                 onClick={() => {
                   setThought('');
                   setContext('');
+                  setCbtAnalysis(null);
                   setGuideResponse(null);
                 }}
                 className="flex-1 bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700"
