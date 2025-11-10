@@ -1,253 +1,27 @@
 # The Citadel (Therapeutic Garage)
 
 ## Overview
-The Citadel is a mental health and therapeutic web application that provides a gamified mental health support experience. The app uses a medieval fortress/garage metaphor to make therapeutic tools and techniques more engaging and accessible.
-
-**Current Status:** Successfully configured for Replit environment (October 25, 2025)
-
-## Project Architecture
-
-### Technology Stack
-- **Frontend Framework:** React 18.2.0
-- **Build Tool:** Vite 7.1.9
-- **Styling:** Tailwind CSS with custom animations
-- **3D Graphics:** Three.js with React Three Fiber
-- **UI Components:** Radix UI primitives
-- **Routing:** React Router DOM v6
-- **Database/Auth:** Supabase (PostgreSQL backend with authentication)
-- **Charts:** Recharts
-- **Animations:** Framer Motion
-
-### Project Structure
-```
-src/
-├── components/
-│   ├── games/          # Therapeutic mini-games (CarWash, OilChange, etc.)
-│   ├── ui/             # Reusable UI components (Radix UI)
-│   └── [various]       # Specialized components (AIPersona, CarModel, etc.)
-├── contexts/           # React contexts for auth and user state
-├── lib/                # Utilities and configurations
-├── pages/              # Route pages (Dashboard, AIJournal, VirtualGarage, etc.)
-└── main.jsx            # Application entry point
-```
-
-### Key Features
-- User authentication (login/signup)
-- Virtual garage with therapeutic activities
-- AI-powered journaling
-- Mindfulness and breathing exercises ("Bonfire of Breath")
-- Cognitive reframing tools
-- Exposure ladder for gradual desensitization
-- Admin dashboard for user management
-- Warden notes system
-
-## Configuration
-
-### Environment Variables
-The application requires Supabase credentials. These should be set as secrets:
-- `VITE_SUPABASE_URL` - Supabase project URL
-- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous/public API key
-
-A `.env.example` file is provided as a template.
-
-### Development Server
-- **Port:** 5000
-- **Host:** 0.0.0.0 (allows Replit proxy access)
-- **Command:** `npm run dev`
-
-### Vite Configuration
-- Already configured with `allowedHosts: true` for Replit's iframe proxy
-- Custom plugins for visual editing and error handling
-- CORS enabled with Cross-Origin-Embedder-Policy headers
-
-## Recent Changes
-
-### November 9, 2025 - AI Journal Feelings Analysis & Gamification Overhaul
-
-**AI Journal Enhancements:**
-Completely overhauled the AI Journal (Scribe's Chronicle) with comprehensive feelings analysis:
-
-- **Emotion Identification:** AI now identifies and displays primary emotions with visual badges
-- **Intensity Meters:** Visual representation of emotion intensity levels
-- **Cognitive Themes:** Identifies thinking patterns (catastrophizing, all-or-nothing, rumination, etc.)
-- **Behavioral Themes:** Recognizes behavioral patterns (avoidance, withdrawal, hypervigilance, etc.)
-- **Somatic Cues:** Detects physical symptoms associated with emotions
-- **DBT Therapeutic Coaching:** Provides targeted DBT skill recommendations based on identified patterns
-- **Enhanced UI:** Dropdown menu for quick access to feelings analysis and journal insights
-- **Better Data Display:** Improved formatting with section headers and visual hierarchy
-
-**Gamification System Improvements:**
-Transformed the Virtual Garage progression system with clear unlock requirements:
-
-- **Blueprint Compendium:** New three-tiered display system showing all 7 car parts:
-  - **Starter Tier:** Accessible to beginners (Transmission, Radiator)
-  - **Knight Tier:** Mid-level progression (Exhaust, Brakes)
-  - **Legendary Tier:** Advanced achievements (Engine, Turbo, Carbon Spoiler)
-- **Clear Unlock Requirements:** Each part displays specific requirements:
-  - XP thresholds
-  - Level requirements
-  - Exercise/journal/exposure completion counts
-  - Streak requirements (for Legendary tier)
-- **CBT/DBT Skill Mappings:** Each part shows which therapeutic skills it represents
-- **Progress Tracking:** Separate progress bars for each Legendary tier item
-- **Percentage Clamping:** Fixed overflow bug where progress could exceed 100%
-
-**Bug Fixes:**
-- Fixed Navigation routing bug where "Scribe's Chronicle" and "The Reforge" routes were reversed
-- Fixed React "Invalid hook call" warning by properly filtering the `dismiss` prop in DropdownMenuItem component
-- Removed duplicate Perplexity edge function setup files (functions already exist in Supabase)
-
-**Technical Improvements:**
-- Proper prop destructuring in Radix UI dropdown components to prevent DOM warnings
-- Enhanced feelings display with expandable sections
-- Improved data structure for gamification progression tracking
-
-### November 4, 2025 - Bonfire of Breath Complete Shader Rewrite
-
-**Custom Shader Implementation:**
-Completely rewrote the flame visualization using custom GLSL shaders to guarantee accurate orange-amber fire colors without washout.
-
-**Shader-Based Approach:**
-After multiple failed iterations with textured billboards and emissive materials (which always produced white washout regardless of opacity/bloom settings), implemented a custom GLSL fragment shader with complete color control:
-
-**Locked Color Gradient (Cannot Wash Out):**
-- Bottom: #D2691E (chocolate orange) - vec3(0.82, 0.41, 0.12)
-- Middle: #FF8C42 (bright orange) - vec3(1.0, 0.55, 0.26)
-- Top: #FFB84D (amber gold) - vec3(1.0, 0.72, 0.30)
-- Colors defined directly in shader, no external materials or post-processing can modify them
-
-**Procedural Flame Generation:**
-- 3-layer simplex noise for organic movement (noise1, noise2, noise3)
-- Vertical tapering: taller at bottom, narrower at top
-- Horizontal tapering: flame silhouette naturally narrows toward tip
-- Noise-driven UV distortion animated by time uniform
-- Smooth edge falloff using smoothstep
-
-**Breathing Animation via Uniforms:**
-- **uIntensity**: 0.4 idle → 0.8 hold (brightness modulation)
-- **uHeight**: 0.8 idle → 1.8 hold (125% vertical expansion during inhale)
-- **uFlicker**: 0.0 idle → 0.2 hold (subtle shimmer effect)
-- Smooth lerp transitions between phases (2.0 * delta speed)
-
-**Alpha Handling (Critical for Color Accuracy):**
-- Alpha calculated from flame shape with vertical falloff
-- Capped at 0.85 max to prevent solid mass
-- Output directly without premultiplication (premultipliedAlpha: false)
-- NormalBlending ensures single alpha application (no double-multiply desaturation)
-
-**Simplified Scene:**
-- Single shader plane (1.5 x 3.5, 32x64 segments for smooth curves)
-- Simple core orb with meshBasicMaterial (no emissive)
-- Minimal point light (0.5 intensity, #FF8C42 color)
-- No billboard stacking, no texture loading, no emissive materials
-
-**Advantages Over Previous Billboard Approach:**
-- Impossible to wash out (colors locked in shader code)
-- No dependencies on post-processing bloom
-- No stacking transparency issues
-- Full control over color output pipeline
-- More performant (single plane vs 3 billboards + particles)
-
-**Result**: Clean orange-amber fire gradient that cannot be washed out by any post-processing or material settings. Dramatic breathing animation clearly visible through height and intensity modulation.
-
-### October 25, 2025
-
-### Critical Shader Bug Fixes
-After diagnosing "blown-out white blob" rendering issues, three critical shader bugs were identified and resolved:
-
-1. **Excessive Brightness (Fixed)** - Layer colors multiplied by large scalars (1.8, 1.3, 0.7) then added together, causing RGB > 1.0. Fixed by normalizing weights to weighted average and adding alpha premultiplication.
-
-2. **Inverted Alpha Falloff (Fixed)** - `smoothstep()` edge parameters were backwards, preventing proper alpha falloff. Fixed by correcting smoothstep ranges and changing from max() to weighted sum.
-
-3. **Missing 3D Noise Function (Fixed)** - Fragment shader called `snoise()` but only had `snoise_2d()` defined, causing compilation failure. Fixed by adding complete 3D simplex noise function.
-
-### Photorealistic Flame Enhancements
-Based on user-provided reference images, completely overhauled the soul flame for photorealism:
-
-**Shader Enhancements:**
-- Implemented layered volumetric rendering (core, mid-layer, wispy edges)
-- Added Worley/Voronoi noise for realistic cellular flame structure
-- 4-octave turbulent noise for multi-scale organic motion
-- Temperature-based color gradients: white-gold → amber → orange-red → blue-violet
-- Height-based opacity falloff with exponential dissipation for wispy top
-- Fresnel effect for edge translucency
-- Increased geometry resolution to 48×96 for smoother appearance
-
-**Particle System Overhaul:**
-- Enhanced to 300 embers (inhale) and 200 sparks (exhale)
-- Custom soft-sprite shaders with circular gradients and exponential glow
-- Realistic physics: gravity, drag, swirl, acceleration
-- Size attenuation based on camera distance
-- GPU-friendly instanced rendering
-
-**Dynamic Post-Processing:**
-- Phase-responsive bloom (0.6 idle → 1.5 hold)
-- Adaptive luminance threshold (0.5 → 0.3 during hold)
-- Dynamic vignette darkness (1.2 → 1.4 during hold)
-- Subtle chromatic aberration for photographic realism
-
-**Performance:** Estimated 8-12ms per frame (60+ FPS on modern hardware)
-
-### Bug Fix: Missing Fonts Causing Canvas Failure
-- **Issue**: Text components in Canvas were referencing non-existent font files
-- **Fix**: Removed font props from all Text components - they now use default fonts
-- **Result**: Canvas now renders properly with all premium components visible
-
-### Premium Breathing Widget Implementation (Initial)
-1. Created **PremiumSoulFlame** component with advanced GLSL shaders:
-   - Volumetric flame rendering using custom vertex/fragment shaders
-   - Curl noise displacement for realistic fluid motion
-   - Dynamic color gradients (orange/red edges to white-gold core)
-   - Phase-reactive lighting system with point lights
-   - Smooth transitions between breathing states
-   
-2. Created **ProceduralStarfield** component:
-   - 8,000 procedurally generated stars with varied colors
-   - Custom shader for star twinkling effects
-   - Gentle rotation and breathing animations
-   - Blue, yellow, and white star variations
-   
-3. Created **GeometricOverlay** component:
-   - Sacred geometry circles (3 concentric rings)
-   - Rotating geometric patterns
-   - Radial lines connecting inner and outer circles
-   - Subtle golden glow effect
-   
-4. Created **BreathingParticles** component:
-   - Ember particles during inhale (converge toward flame)
-   - Spark particles during exhale (rise and fade out)
-   - Physics-based particle motion
-   - Lifecycle management with respawning
-   
-5. Updated **EnhancedBonfireOfBreath** page:
-   - Integrated all new premium components
-   - Replaced old components with shader-based visuals
-   - Updated phase text to match design (INHALE, HOLD, EXHALE, REST)
-   - Maintained all existing functionality (audio, haptics, timers)
-
-### Replit Environment Setup
-1. Updated dev server to use port 5000 (Replit standard)
-2. Changed host binding from `::` to `0.0.0.0` for proper network access
-3. Moved Supabase credentials to environment variables (from hardcoded values)
-4. Added comprehensive .gitignore for build artifacts and env files
-5. Created .env.example template for environment setup
-6. Configured Dev Server workflow
-7. All dependencies installed successfully
-
-### Security Improvements
-- Refactored Supabase client to use environment variables instead of hardcoded credentials
-- Added fallback values for backward compatibility during transition
-
-## Known Issues
-- Some React Router future flag warnings (cosmetic, not breaking)
-- Uses deprecated react-helmet (UNSAFE_componentWillMount warning)
-- One moderate npm security vulnerability in dependencies
+The Citadel is a mental health and therapeutic web application that provides a gamified mental health support experience. It uses a medieval fortress/garage metaphor to make therapeutic tools and techniques more engaging and accessible, offering features like a virtual garage, AI-powered journaling, mindfulness exercises, and cognitive reframing tools. The project aims to provide an immersive and interactive platform for mental wellness.
 
 ## User Preferences
 None documented yet.
 
-## Development Notes
-- The app uses a unique therapeutic metaphor combining automotive garage mechanics with mental health exercises
-- Extensive use of 3D graphics for immersive experience
-- Supabase handles both database and authentication
-- Custom Vite plugins for enhanced development experience
+## System Architecture
+The application is built with a modern web stack:
+- **Frontend:** React 18.2.0 with Vite 7.1.9, styled using Tailwind CSS and Radix UI primitives.
+- **3D Graphics:** Three.js integrated via React Three Fiber for immersive 3D environments, including a virtual garage and advanced shader-based visualizations for mindfulness exercises.
+- **State Management & Routing:** React Context for global state (authentication, user), and React Router DOM v6 for navigation.
+- **Backend & Database:** Supabase (PostgreSQL) for user authentication and data storage.
+- **Data Visualization:** Recharts for data representation.
+- **Animations:** Framer Motion for UI animations.
+
+**Key Architectural Features:**
+- **Gamified Engagement:** Therapeutic mini-games and a progression system where users unlock "car parts" based on therapeutic activity completion and XP.
+- **AI Integration:** AI-powered journaling ("Scribe's Chronicle") and cognitive reframing ("The Reforge") with a dual-response system. This system involves structured analysis (e.g., emotion identification, CBT analysis) followed by character-driven therapeutic feedback from various "Guide Personas" (e.g., Solaire, Siegward) each embodying different therapeutic approaches.
+- **Immersive 3D Experiences:** Custom GLSL shaders are used for realistic visualizations, such as the "Bonfire of Breath" mindfulness exercise, featuring procedural flame generation and dynamic breathing animations.
+- **Modular Component Design:** Organized into `components/` (UI, games), `contexts/`, `lib/` (utilities), and `pages/` for maintainability.
+- **Environment Configuration:** Relies on environment variables for sensitive data like Supabase credentials, configured for a Replit development environment (port 5000, host 0.0.0.0).
+
+## External Dependencies
+- **Supabase:** Used for PostgreSQL database services and user authentication.
+- **Perplexity AI:** Integrated for AI-driven feelings analysis, cognitive theme identification, and structured CBT analysis within the journaling and reframing features.
