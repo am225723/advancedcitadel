@@ -28,7 +28,7 @@ const CognitiveReframingWithGuide = () => {
   const [guideResponse, setGuideResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeGuideId, setActiveGuideId] = useState('solaire');
-  const [activeGuide, setActiveGuide] = useState(null);
+  const [activeGuide, setActiveGuide] = useState(getPersona('solaire'));
   const { user, addXP, unlockPart, recordExerciseType } = useUser();
   const { session } = useAuth();
 
@@ -40,7 +40,7 @@ const CognitiveReframingWithGuide = () => {
     if (session?.user?.id) {
       const guideId = await getActiveGuide(session.user.id);
       setActiveGuideId(guideId);
-      setActiveGuide(getPersona(guideId));
+      setActiveGuide(getPersona(guideId) || getPersona('solaire'));
     }
   };
 
@@ -132,7 +132,7 @@ const CognitiveReframingWithGuide = () => {
 
       toast({ 
         title: `Analysis Complete! ✨`, 
-        description: `${activeGuide.name} has reviewed the CBT analysis. +20 XP earned.`,
+        description: `${activeGuide?.name || 'Your guide'} has reviewed the CBT analysis. +20 XP earned.`,
       });
     } catch (error) {
       toast({ 

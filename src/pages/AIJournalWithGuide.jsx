@@ -35,7 +35,7 @@ const AIJournalWithGuide = () => {
   const [loading, setLoading] = useState(false);
   const [analysisLoading, setAnalysisLoading] = useState(null);
   const [activeGuideId, setActiveGuideId] = useState('solaire');
-  const [activeGuide, setActiveGuide] = useState(null);
+  const [activeGuide, setActiveGuide] = useState(getPersona('solaire'));
   const { user, addXP, unlockPart, recordExerciseType, updateJournalStreak } = useUser();
   const { session } = useAuth();
 
@@ -48,7 +48,7 @@ const AIJournalWithGuide = () => {
     if (session?.user?.id) {
       const guideId = await getActiveGuide(session.user.id);
       setActiveGuideId(guideId);
-      setActiveGuide(getPersona(guideId));
+      setActiveGuide(getPersona(guideId) || getPersona('solaire'));
     }
   };
 
@@ -206,8 +206,8 @@ const AIJournalWithGuide = () => {
         .update({
           ai_insights: [
             {
-              guide: activeGuide.name,
-              title: `${activeGuide.name}'s Guidance`,
+              guide: activeGuide?.name || 'Guide',
+              title: `${activeGuide?.name || 'Guide'}'s Guidance`,
               response: response,
               timestamp: new Date().toISOString(),
             }
@@ -219,7 +219,7 @@ const AIJournalWithGuide = () => {
 
       toast({
         title: `Analysis Complete!`,
-        description: `${activeGuide.name} has reviewed your emotional analysis. +30 XP earned.`,
+        description: `${activeGuide?.name || 'Your guide'} has reviewed your emotional analysis. +30 XP earned.`,
       });
 
       // Award XP for getting both analysis and guide response
