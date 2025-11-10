@@ -102,17 +102,19 @@ const AIJournalWithGuide = () => {
 
       toast({
         title: "Entry Saved!",
-        description: "Your journal entry has been saved. +10 XP earned."
+        description: "Entry saved! Getting guide analysis..."
       });
       
-      addXP(10);
       recordExerciseType('Journal');
       updateJournalStreak();
 
+      const savedEntry = data[0];
       setTitle('');
       setEntry('');
       setTags('');
-      fetchEntries();
+      
+      // Automatically analyze the new entry
+      await handleAnalyzeExisting(savedEntry.id, savedEntry.content);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -147,7 +149,7 @@ const AIJournalWithGuide = () => {
     }
   };
 
-  const getGuideAnalysis = async (entryId, entryContent) => {
+  const handleAnalyzeExisting = async (entryId, entryContent) => {
     setAnalysisLoading(entryId);
     try {
       // 1. Get Perplexity feelings analysis
@@ -221,7 +223,7 @@ const AIJournalWithGuide = () => {
       });
 
       // Award XP for getting both analysis and guide response
-      addXP(30);
+      addXP(30, 'Journal');
       
       fetchEntries();
     } catch (error) {
@@ -392,21 +394,23 @@ const AIJournalWithGuide = () => {
                   </div>
                 )}
 
-                {/* Get Guide Analysis Button */}
-                <Button
-                  onClick={() => getGuideAnalysis(entryItem.id, entryItem.content)}
-                  disabled={analysisLoading === entryItem.id}
-                  className="w-full bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700"
-                >
-                  {analysisLoading === entryItem.id ? (
-                    'Consulting your guide...'
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Get {activeGuide?.name}'s Guidance
-                    </>
-                  )}
-                </Button>
+                {/* Analyze with Guide Button - only show for entries without insights */}
+                {!entryItem.insights && (
+                  <Button
+                    onClick={() => handleAnalyzeExisting(entryItem.id, entryItem.content)}
+                    disabled={analysisLoading === entryItem.id}
+                    className="w-full bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700"
+                  >
+                    {analysisLoading === entryItem.id ? (
+                      'Consulting your guide...'
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Analyze with {activeGuide?.name}
+                      </>
+                    )}
+                  </Button>
+                )}
               </Card>
             ))
           )}
