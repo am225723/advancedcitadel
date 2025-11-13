@@ -3,9 +3,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import WelcomeMessage from '@/components/WelcomeMessage';
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useUser } from '@/contexts/UserContext';
-import { BookOpen, Shield, Anchor, BookMarked, BrainCircuit, Flame, Car, Footprints, Scroll } from 'lucide-react';
+import { BookOpen, Shield, Anchor, BookMarked, BrainCircuit, Flame, Car, Footprints, Scroll, Sparkles } from 'lucide-react';
 
 const ToolCard = ({ title, description, icon, imageUrl, path, delay }) => {
   const navigate = useNavigate();
@@ -72,8 +72,71 @@ const ToolCard = ({ title, description, icon, imageUrl, path, delay }) => {
   );
 };
 
+const MoodBuffIndicator = ({ buff }) => {
+  if (!buff || new Date(buff.expires_at) <= new Date()) return null;
+
+  const moodIcons = {
+    confidence: { icon: '☀️', color: '#FFD700', name: 'Confidence' },
+    calm: { icon: '🕊️', color: '#87CEEB', name: 'Calm' },
+    resilience: { icon: '🛡️', color: '#4B0082', name: 'Resilience' },
+    focus: { icon: '🎯', color: '#C0C0C0', name: 'Focus' },
+    clarity: { icon: '💎', color: '#8B4513', name: 'Clarity' }
+  };
+
+  const buffInfo = moodIcons[buff.type] || { icon: '✨', color: '#FFD700', name: buff.type };
+  const expiresAt = new Date(buff.expires_at);
+  const now = new Date();
+  const timeRemaining = Math.max(0, Math.floor((expiresAt - now) / 1000 / 60));
+  const hours = Math.floor(timeRemaining / 60);
+  const minutes = timeRemaining % 60;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="mb-6"
+    >
+      <Card className="border-2 bg-gradient-to-br from-black/60 via-slate-900/50 to-black/70 backdrop-blur-md"
+        style={{ borderColor: `${buffInfo.color}40` }}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="text-4xl"
+            >
+              {buffInfo.icon}
+            </motion.div>
+            <div className="flex-1">
+              <h3 className="text-lg font-cinzel font-bold text-gold-accent flex items-center gap-2">
+                <Sparkles className="w-5 h-5" />
+                Active Mood Buff: {buffInfo.name}
+              </h3>
+              <p className="text-sm text-slate-400">
+                Time remaining: {hours > 0 && `${hours}h `}{minutes}m
+              </p>
+            </div>
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center"
+              style={{
+                background: `radial-gradient(circle, ${buffInfo.color}40, transparent)`,
+                boxShadow: `0 0 20px ${buffInfo.color}60`
+              }}
+            >
+              <Sparkles className="w-6 h-6" style={{ color: buffInfo.color }} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+
 const Dashboard = () => {
-  const { user } = useUser();
+  const { user, getActiveMoodBuff } = useUser();
+  const activeMoodBuff = getActiveMoodBuff ? getActiveMoodBuff() : null;
   const baseTools = [
     { title: "The Codex", path: "/codex", description: "Consult the ancient tome of wisdom.", icon: BookMarked, imageUrl: "/images/books/codex.png", delay: 0.1 },
     { title: "The Reforge", path: "/journal-guided", description: "Transform your thoughts with guided journaling.", icon: BrainCircuit, imageUrl: "/images/books/reforge.png", delay: 0.2 },
@@ -98,6 +161,8 @@ const Dashboard = () => {
       className="font-cinzel max-w-[1800px] mx-auto"
     >
       <WelcomeMessage user={user} />
+      
+      {activeMoodBuff && <MoodBuffIndicator buff={activeMoodBuff} />}
       
       <div className="mt-12">
         <motion.div

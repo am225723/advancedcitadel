@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { toast } from '@/components/ui/use-toast';
 import { unlockGuide as unlockGuideService } from '@/lib/guideService';
 import { getPersona } from '@/lib/personaConfig';
+import { getMeditation } from '@/lib/meditationConfig';
 
 const UserContext = createContext(undefined);
 
@@ -260,8 +261,99 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const getActiveMoodBuff = () => {
+    if (!user || !user.active_mood_buff) return null;
+    
+    const buff = user.active_mood_buff;
+    const expiresAt = new Date(buff.expires_at);
+    const now = new Date();
+    
+    if (expiresAt > now) {
+      return buff;
+    }
+    
+    return null;
+  };
+
+  const completeMeditation = async (meditationId, durationSeconds) => {
+    if (!user) return;
+
+    const meditation = getMeditation(meditationId);
+    if (!meditation) {
+      console.error('Meditation not found:', meditationId);
+      return;
+    }
+
+    try {
+      const moodBuffExpiresAt = new Date();
+      moodBuffExpiresAt.setSeconds(moodBuffExpiresAt.getSeconds() + meditation.moodBuffDuration);
+
+      const { error: sessionError } = await supabase
+        .from('meditation_sessions')
+        .insert({
+          user_id: user.id,
+          meditation_id: meditationId,
+          guide_id: meditation.guideId,
+          duration_seconds: durationSeconds,
+          mood_buff_type: meditation.moodBuffType,
+          mood_buff_expires_at: moodBuffExpiresAt.toISOString(),
+          xp_earned: meditation.xpReward
+        });
+
+      if (sessionError) {
+        console.error('Error recording meditation session:', sessionError);
+        throw sessionError;
+      }
+
+      const activeMoodBuff = {
+        type: meditation.moodBuffType,
+        expires_at: moodBuffExpiresAt.toISOString()
+      };
+
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .update({
+          meditation_count: (user.meditation_count || 0) + 1,
+          active_mood_buff: activeMoodBuff,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (profileError) {
+        console.error('Error updating user profile:', profileError);
+        throw profileError;
+      }
+
+      await addXP(meditation.xpReward);
+
+      toast({
+        title: "Meditation Complete! ✨",
+        description: `You have earned ${meditation.xpReward} XP and gained a ${meditation.moodBuffType} buff for 4 hours.`,
+        duration: 5000,
+      });
+
+    } catch (error) {
+      console.error('Error completing meditation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save meditation progress. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, loading, addXP, updateCarColor, unlockPart, recordExerciseType, updateJournalStreak }}>
+    <UserContext.Provider value={{ 
+      user, 
+      loading, 
+      addXP, 
+      updateCarColor, 
+      unlockPart, 
+      recordExerciseType, 
+      updateJournalStreak,
+      completeMeditation,
+      getActiveMoodBuff
+    }}>
       {children}
     </UserContext.Provider>
   );
