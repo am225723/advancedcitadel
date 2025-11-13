@@ -49,8 +49,8 @@ const AIPersona = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('gemini-persona-chat', {
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('perplexity-persona-chat', {
+        body: {
           userContext: {
             level: user?.level,
             xp: user?.xp,
@@ -58,7 +58,7 @@ const AIPersona = () => {
             completedExercises: user?.completed_exercises,
           },
           messageHistory: [...messages, userMessage],
-        }),
+        },
       });
 
       if (error) throw error;
@@ -73,7 +73,7 @@ const AIPersona = () => {
         title: "The Knight is Silent",
         description: "Your message could not reach the ether. Please try again.",
       });
-      const errorMessage = { role: 'assistant', content: "My apologies, a momentary lapse in connection to the Citadel's archives. Could you repeat your query?" };
+      const errorMessage = { role: 'assistant', content: "Hark, Undead. I am unable to channel my guidance at this moment. Rest at the bonfire and try again presently." };
       setMessages(prev => [...prev.slice(0, -1), errorMessage]);
     } finally {
       setIsLoading(false);
