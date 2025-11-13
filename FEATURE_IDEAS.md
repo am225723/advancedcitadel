@@ -14,6 +14,26 @@ Create a daily mood and habit tracker themed around the "bonfire" concept from *
 
 Develop a library of quick, actionable coping skills and grounding techniques, presented as "sips" from an "Estus Flask." Each "sip" would provide a simple, easy-to-follow exercise for managing anxiety, stress, or overwhelming emotions. The library would be easily accessible from anywhere in the app, providing in-the-moment support when users need it most.
 
+**How It Works:**
+- A persistent "Estus Flask" icon would be visible on all main screens.
+- Tapping the icon would open a modal with a curated list of coping skills categorized for different needs.
+- Selecting a skill (taking a "sip") would launch a full-screen, step-by-step guide for the exercise.
+
+**Skill Categories and Examples:**
+- **Grounding Techniques (for dissociation or panic):**
+    - *The 5-4-3-2-1 Method:* Users are guided to identify 5 things they can see, 4 things they can touch, 3 things they can hear, 2 things they can smell, and 1 thing they can taste.
+    - *Body Scan:* A guided exercise to bring awareness to different parts of the body.
+- **Breathing Exercises (for anxiety and stress):**
+    - *Box Breathing:* Visual cues guide the user to inhale for 4 seconds, hold for 4, exhale for 4, and hold for 4.
+    - *4-7-8 Breathing:* A guided session for this calming breathing technique.
+- **Cognitive Skills (for negative thought patterns):**
+    - *Thought Challenge:* A simple prompt asking the user to identify a negative thought and then find evidence for and against it.
+    - *Mindful Observation:* An exercise to observe thoughts without judgment, letting them pass like clouds.
+
+**Customization:**
+- Users could "attune" their Estus Flask by favoriting their most-used skills for quick access.
+- The app could suggest specific "sips" based on the user's mood logs from the "Bonfire Check-in" system.
+
 ## 4. "Boss Battle" Goal Setting
 
 Implement a goal-setting feature where users can define personal challenges as "boss battles." Each "boss" would represent a significant goal, which could be broken down into smaller, manageable "phases" or "attack patterns." Completing each phase would provide a sense of accomplishment and progress, gamifying the process of tackling large, intimidating goals.
@@ -21,6 +41,18 @@ Implement a goal-setting feature where users can define personal challenges as "
 ## 5. "NPC" Guided Meditations
 
 Add a series of guided audio meditations voiced by the *Dark Souls* characters. Each meditation would be aligned with the character's therapeutic theme; for example, Solaire could lead a meditation on finding inner light, while Siegward could guide a session on patience and self-compassion. This would provide a unique, immersive way for users to engage with mindfulness practices.
+
+**Thematic Meditations:**
+- **Solaire of Astora ("Finding Your Sun"):** A loving-kindness meditation focused on self-compassion and identifying personal strengths.
+- **Siegward of Catarina ("A Moment's Respite"):** A mindfulness meditation on the importance of rest and savoring small moments of peace.
+- **Artorias the Abysswalker ("Facing the Abyss"):** A guided practice for acknowledging and accepting difficult emotions without being consumed by them.
+- **Sir Alonne ("The Honorable Path"):** A meditation on aligning actions with personal values and cultivating self-discipline.
+- **Patches the Hyena ("Spotting the Traps"):** A mindfulness exercise focused on identifying and disengaging from cognitive distortions.
+
+**Integration and Progression:**
+- Meditations could be unlocked as the user levels up or completes specific challenges, providing a sense of progression.
+- Completing a meditation could provide a temporary "buff," such as a boost in mood or a small amount of XP.
+- The user's active guide could suggest specific meditations based on their journal entries or mood logs, creating a personalized experience.
 
 ## 6. "Dark Sign" Relapse Management Tool
 
