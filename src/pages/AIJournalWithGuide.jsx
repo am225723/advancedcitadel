@@ -30,7 +30,6 @@ import JournalFeelingsPanel from '@/components/JournalFeelingsPanel';
 const AIJournalWithGuide = () => {
   const [title, setTitle] = useState('');
   const [entry, setEntry] = useState('');
-  const [tags, setTags] = useState('');
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [analysisLoading, setAnalysisLoading] = useState(null);
@@ -93,7 +92,6 @@ const AIJournalWithGuide = () => {
             user_id: session?.user?.id,
             title: title.trim(),
             content: entry.trim(),
-            tags: tags.trim() || null,
           }
         ])
         .select();
