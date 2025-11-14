@@ -1,0 +1,90 @@
+A new version of Supabase CLI is available: v2.58.5 (currently installed v2.22.12)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli
+~/workspace$ supabase functions deploy perplexity-persona-chat
+Bundling Function: perplexity-persona-chat
+WARN: failed to read file: open /home/runner/workspace/supabase/functions/perplexity-persona-chat/index.ts: no such file or directory
+failed to inspect docker image: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+Docker Desktop is a prerequisite for local development. Follow the official docs to install: https://docs.docker.com/desktop
+~/workspace$ supabase db update
+Manage Postgres databases
+
+Usage:
+  supabase db [command]
+
+Available Commands:
+  diff        Diffs the local database for schema changes
+  dump        Dumps data or schemas from the remote database
+  lint        Checks local database for typing error
+  pull        Pull schema from the remote database
+  push        Push new migrations to the remote database
+  reset       Resets the local database to current migrations
+  start       Starts local Postgres database
+
+Flags:
+  -h, --help   help for db
+
+Global Flags:
+      --create-ticket                                  create a support ticket for any CLI error
+      --debug                                          output debug logs to stderr
+      --dns-resolver [ native | https ]                lookup domain names using the specified resolver (default native)
+      --experimental                                   enable experimental features
+      --network-id string                              use the specified docker network instead of a generated one
+  -o, --output [ env | pretty | json | toml | yaml ]   output format of status variables (default pretty)
+      --workdir string                                 path to a Supabase project directory
+
+Use "supabase db [command] --help" for more information about a command.
+A new version of Supabase CLI is available: v2.58.5 (currently installed v2.22.12)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli
+~/workspace$ supabase db diff
+Connecting to local database...
+failed to connect to postgres: failed to connect to `host=127.0.0.1 user=postgres database=postgres`: dial error (dial tcp 127.0.0.1:54322: connect: connection refused)
+Try rerunning the command with --debug to troubleshoot the error.
+~/workspace$ supabase link --project-ref brywmjhsrnebfmhrhlmi
+Enter your database password (or leave blank to skip): 
+Connecting to remote database...
+NOTICE (42P06): schema "supabase_migrations" already exists, skipping
+Failed to save database password: Keyring is not supported on WSL
+Finished supabase link.
+WARNING: Local config differs from linked project. Try updating supabase/config.toml
+diff supabase/config.toml brywmjhsrnebfmhrhlmi
+--- supabase/config.toml
++++ brywmjhsrnebfmhrhlmi
+@@ -13,7 +13,7 @@
+ [db]
+ port = 54322
+ shadow_port = 54320
+-major_version = 15
++major_version = 17
+ root_key = ""
+ [db.pooler]
+ enabled = false
+@@ -53,8 +53,8 @@
+ 
+ [auth]
+ enabled = true
+-site_url = "http://127.0.0.1:3000"
+-additional_redirect_urls = ["https://127.0.0.1:3000"]
++site_url = "https://citadel-aleixanders-projects.vercel.app/"
++additional_redirect_urls = ["https://citadel-aleixanders-projects.vercel.app/", "https://citadel-aleixanders-projects.vercel.app/**", "https://citadel-*-aleixanders-projects.vercel.app", "https://citadel-*-aleixanders-projects.vercel.app/**", "https://citadel-aleix.vercel.app/", "https://citadel-aleix.vercel.app/**", "https://citadel-*-aleix.vercel.app", "https://citadel-*-aleix.vercel.app/**"]
+ jwt_expiry = 3600
+ enable_refresh_token_rotation = true
+ refresh_token_reuse_interval = 10
+@@ -77,8 +77,8 @@
+ [auth.mfa]
+ max_enrolled_factors = 10
+ [auth.mfa.totp]
+-enroll_enabled = false
+-verify_enabled = false
++enroll_enabled = true
++verify_enabled = true
+ [auth.mfa.phone]
+ enroll_enabled = false
+ verify_enabled = false
+
+A new version of Supabase CLI is available: v2.58.5 (currently installed v2.22.12)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli
+~/workspace$ supabase functions deploy perplexity-persona-chat
+Bundling Function: perplexity-persona-chat
+WARN: failed to read file: open /home/runner/workspace/supabase/functions/perplexity-persona-chat/index.ts: no such file or directory
+failed to inspect docker image: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+Docker Desktop is a prerequisite for local development. Follow the official docs to install: https://docs.docker.com/desktop
