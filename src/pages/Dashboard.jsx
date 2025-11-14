@@ -1,11 +1,12 @@
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import WelcomeMessage from '@/components/WelcomeMessage';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useUser } from '@/contexts/UserContext';
-import { BookOpen, Shield, Anchor, BookMarked, BrainCircuit, Flame, Car, Footprints, Scroll, Sparkles } from 'lucide-react';
+import { BookOpen, Shield, Anchor, BookMarked, BrainCircuit, Flame, Car, Footprints, Scroll, Sparkles, Moon, ChevronDown, ChevronUp } from 'lucide-react';
+import { supabase } from '@/lib/customSupabaseClient';
 
 const ToolCard = ({ title, description, icon, imageUrl, path, delay }) => {
   const navigate = useNavigate();
@@ -134,22 +135,120 @@ const MoodBuffIndicator = ({ buff }) => {
   );
 };
 
+const WardenNotesSection = () => {
+  const [notes, setNotes] = useState([]);
+  const [isOpen, setIsOpen] = useState(true);
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      const { data } = await supabase.from('warden_notes').select('*').eq('is_active', true).order('created_at', { ascending: false });
+      setNotes(data || []);
+    };
+    fetchNotes();
+
+    const channel = supabase.channel('warden-notes-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'warden_notes' }, payload => {
+        fetchNotes();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  if (notes.length === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 1.1 }}
+      className="mt-12 px-4"
+    >
+      <Card className="relative overflow-hidden border-2 border-slate-800/80 bg-gradient-to-br from-black/60 via-slate-900/50 to-black/70 backdrop-blur-md hover:border-gold-accent/50 transition-all duration-500">
+        <div className="absolute inset-0 bg-gradient-to-br from-gold-accent/5 via-transparent to-transparent opacity-50"></div>
+        
+        <div className="absolute top-0 left-0 w-40 h-40 bg-gold-accent/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl"></div>
+
+        <CardHeader className="relative z-10">
+          <button 
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-full flex items-center justify-between group cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <Scroll className="w-6 h-6 text-gold-accent" />
+              <CardTitle className="text-2xl font-cinzel font-bold text-gold-accent tracking-wide">
+                Messages from Warden Aleix
+              </CardTitle>
+            </div>
+            {isOpen ? (
+              <ChevronUp className="w-5 h-5 text-gold-accent/70 group-hover:text-gold-accent transition-colors" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gold-accent/70 group-hover:text-gold-accent transition-colors" />
+            )}
+          </button>
+        </CardHeader>
+
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <CardContent className="relative z-10 space-y-4 pb-6">
+                {notes.map((note, index) => (
+                  <motion.div
+                    key={note.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    className="p-4 rounded-lg bg-slate-900/50 border border-gold-accent/20 hover:border-gold-accent/40 transition-colors duration-300"
+                  >
+                    <h3 className="font-cinzel font-bold text-gold-accent mb-2 text-lg">
+                      {note.title}
+                    </h3>
+                    <p className="font-garamond text-slate-300 leading-relaxed">
+                      {note.content}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-2 font-cinzel">
+                      {new Date(note.created_at).toLocaleDateString('en-US', { 
+                        month: 'long', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </p>
+                  </motion.div>
+                ))}
+              </CardContent>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Card>
+    </motion.div>
+  );
+};
+
 const Dashboard = () => {
   const { user, getActiveMoodBuff } = useUser();
   const activeMoodBuff = getActiveMoodBuff ? getActiveMoodBuff() : null;
   const baseTools = [
     { title: "The Codex", path: "/codex", description: "Consult the ancient tome of wisdom.", icon: BookMarked, imageUrl: "/images/books/codex.png", delay: 0.1 },
-    { title: "The Reforge", path: "/journal-guided", description: "Transform your thoughts with guided journaling.", icon: BrainCircuit, imageUrl: "/images/books/reforge.png", delay: 0.2 },
-    { title: "Scribe's Chronicle", path: "/reframe-guided", description: "Reshape negative patterns with guided reframing.", icon: Scroll, imageUrl: "/images/books/scribes-chronicle.png", delay: 0.3 },
-    { title: "Path of the Undaunted", path: "/forward-path", description: "Confront fears with courage and strategy.", icon: Footprints, imageUrl: "/images/books/path-undaunted.png", delay: 0.4 },
-    { title: "Anchor & Mantra", path: "/anchor", description: "Find your center with grounding techniques.", icon: Anchor, imageUrl: "/images/books/anchor-mantra.png", delay: 0.5 },
-    { title: "The Garage", path: "/garage", description: "Tune your engine of resilience.", icon: Car, imageUrl: "/images/books/garage.png", delay: 0.6 },
-    { title: "Bonfire of Breath", path: "/bonfire-enhanced", description: "Rekindle your inner flame.", icon: Flame, imageUrl: "/images/books/bonfire.png", delay: 0.7 },
-    { title: "The Safe", path: "/safe", description: "Secure your most sensitive reflections.", icon: Shield, imageUrl: "/images/books/safe.png", delay: 0.8 },
+    { title: "The Reforge", path: "/reframe-guided", description: "Transform your thoughts with guided journaling.", icon: BrainCircuit, imageUrl: "/images/books/reforge.png", delay: 0.2 },
+    { title: "Scribe's Chronicle", path: "/journal-guided", description: "Reshape negative patterns with guided reframing.", icon: Scroll, imageUrl: "/images/books/scribes-chronicle.png", delay: 0.3 },
+    { title: "Sanctuary of Stillness", path: "/meditations", description: "Guided meditations with character-voiced guidance.", icon: Moon, imageUrl: "/images/books/sanctuary.png", delay: 0.4 },
+    { title: "Path of the Undaunted", path: "/forward-path", description: "Confront fears with courage and strategy.", icon: Footprints, imageUrl: "/images/books/path-undaunted.png", delay: 0.5 },
+    { title: "Anchor & Mantra", path: "/anchor", description: "Find your center with grounding techniques.", icon: Anchor, imageUrl: "/images/books/anchor-mantra.png", delay: 0.6 },
+    { title: "The Garage", path: "/garage", description: "Tune your engine of resilience.", icon: Car, imageUrl: "/images/books/garage.png", delay: 0.7 },
+    { title: "Bonfire of Breath", path: "/bonfire-enhanced", description: "Rekindle your inner flame.", icon: Flame, imageUrl: "/images/books/bonfire.png", delay: 0.8 },
+    { title: "The Safe", path: "/safe", description: "Secure your most sensitive reflections.", icon: Shield, imageUrl: "/images/books/safe.png", delay: 0.9 },
   ];
 
   const tools = user?.role === 'admin' 
-    ? [...baseTools, { title: "Warden's Notes", path: "/warden-notes", description: "Read and respond to messages from users.", icon: Scroll, imageUrl: "/images/books/scribes-chronicle.png", delay: 0.9 }]
+    ? [...baseTools, { title: "Warden's Notes", path: "/warden-notes", description: "Read and respond to messages from users.", icon: Scroll, imageUrl: "/images/books/scribes-chronicle.png", delay: 1.0 }]
     : baseTools;
 
   return (
@@ -183,6 +282,8 @@ const Dashboard = () => {
           ))}
         </div>
       </div>
+
+      <WardenNotesSection />
     </motion.div>
   );
 };

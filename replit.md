@@ -157,4 +157,15 @@ The system analyzes emotions from recent journal entries and recommends meditati
 - `database_migrations_meditations.sql` - Database schema migration
 
 ### Recent Changes
+- **2024-11-14:** Major system updates and fixes:
+  - Fixed database schema (removed tags column, added admin RPC functions)
+  - Created Perplexity persona chat edge function for AI Knight companion
+  - Updated navigation tiles (Forge→/reframe-guided, Chronicle→/journal-guided, added Sanctuary)
+  - Implemented auto-collapsing responsive sidepanel with localStorage persistence
+  - Moved Warden's Notes from sidebar to Dashboard page with enhanced styling
+  - Added ElevenLabs voice configuration documentation and UI
+  - Created comprehensive deployment guides for Supabase Edge Functions
+  - Implemented admin XP/level management UI (requires secure backend deployment)
+  - Verified and documented all XP tracking across features (22 XP-awarding actions)
+  
 - **2024-11-13:** Added character-voiced meditation feature with 5 meditations, mood buff system, personalized recommendations, and optional ElevenLabs TTS integration.

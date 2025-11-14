@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Play, Clock, Star, Sparkles, Award, Timer } from 'lucide-react';
+import { Lock, Play, Clock, Star, Sparkles, Award, Timer, Mic2, Info, ExternalLink } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/contexts/UserContext';
@@ -9,6 +9,7 @@ import { toast } from '@/components/ui/use-toast';
 import MeditationPlayer from '@/components/MeditationPlayer';
 import { MEDITATIONS, getUnlockedMeditations, getRecommendedMeditations } from '@/lib/meditationConfig';
 import { getPersona } from '@/lib/personaConfig';
+import { VOICE_RECOMMENDATIONS } from '@/lib/textToSpeechService';
 
 const MoodBuffIcon = ({ buffType }) => {
   const icons = {
@@ -21,8 +22,59 @@ const MoodBuffIcon = ({ buffType }) => {
   return <span className="text-2xl">{icons[buffType] || '✨'}</span>;
 };
 
+const TTSInfoBanner = () => {
+  const hasApiKey = import.meta.env.ELEVENLABS_API_KEY;
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-6"
+    >
+      <Card className="border-2 border-blue-900/50 bg-gradient-to-r from-blue-950/40 via-slate-900/40 to-purple-950/40 backdrop-blur-md">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0">
+              <Mic2 className="w-6 h-6 text-blue-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-cinzel text-blue-300 mb-2 flex items-center gap-2">
+                <Info className="w-4 h-4" />
+                Voice-Guided Meditations Available
+              </h3>
+              <p className="text-sm text-slate-300 mb-3">
+                {hasApiKey ? (
+                  <>
+                    <span className="text-green-400 font-semibold">✓ ElevenLabs TTS Enabled</span> - Your meditations can be narrated by character-specific voices for a more immersive experience.
+                  </>
+                ) : (
+                  <>
+                    Enhance your meditation experience with <strong>character-voiced audio</strong> using ElevenLabs TTS. 
+                    Each guide has a unique voice tailored to their personality. <span className="text-amber-400">Optional - meditations work great without audio too!</span>
+                  </>
+                )}
+              </p>
+              {!hasApiKey && (
+                <div className="bg-slate-800/50 border border-slate-700 rounded-md p-3 text-xs text-slate-400">
+                  <p className="mb-2"><strong className="text-slate-300">To enable voice meditation:</strong></p>
+                  <ol className="list-decimal list-inside space-y-1 ml-2">
+                    <li>Get a free API key from <a href="https://elevenlabs.io" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline inline-flex items-center gap-1">ElevenLabs <ExternalLink className="w-3 h-3" /></a></li>
+                    <li>Add <code className="bg-slate-900 px-1 py-0.5 rounded text-amber-400">ELEVENLABS_API_KEY</code> to your Replit Secrets</li>
+                    <li>See <code className="bg-slate-900 px-1 py-0.5 rounded text-amber-400">ELEVENLABS_VOICE_SETUP.md</code> for detailed instructions</li>
+                  </ol>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+
 const MeditationCard = ({ meditation, isLocked, completionCount, onStart }) => {
   const persona = getPersona(meditation.guideId);
+  const voiceInfo = VOICE_RECOMMENDATIONS[meditation.guideId];
   
   return (
     <motion.div
@@ -82,9 +134,26 @@ const MeditationCard = ({ meditation, isLocked, completionCount, onStart }) => {
         </CardHeader>
         
         <CardContent>
-          <p className="text-xs text-slate-500 mb-3 italic">
-            Guided by {persona?.name}
-          </p>
+          <div className="mb-3 space-y-2">
+            <p className="text-xs text-slate-500 italic">
+              Guided by {persona?.name}
+            </p>
+            {voiceInfo && (
+              <div className="bg-slate-800/40 border border-slate-700/50 rounded-md p-2">
+                <div className="flex items-start gap-2">
+                  <Mic2 className="w-3 h-3 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-blue-300 font-semibold mb-0.5">
+                      {voiceInfo.recommendedVoice.split(' - ')[0]}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      {voiceInfo.recommendedVoice.split(' - ')[1]}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
           <Button
             onClick={onStart}
             disabled={isLocked}
@@ -221,6 +290,8 @@ const MeditationsPage = () => {
           Find peace within through guided meditation with the ancient guides
         </p>
       </motion.div>
+
+      <TTSInfoBanner />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
         <Card className="border-2 border-slate-800 bg-gradient-to-br from-black/60 via-slate-900/50 to-black/70 backdrop-blur-md">

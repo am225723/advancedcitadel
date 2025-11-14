@@ -149,7 +149,6 @@ The `src/pages/BonfireOfBreath.jsx` file has structural issues that prevent prop
      user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
      title TEXT NOT NULL,
      content TEXT NOT NULL,
-     tags TEXT,
      insights JSONB,
      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

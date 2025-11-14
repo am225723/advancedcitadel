@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import Dashboard from '@/pages/Dashboard';
@@ -65,6 +65,36 @@ function App() {
   const { session } = useAuth();
   const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1280px)');
+    
+    const handleScreenChange = (e) => {
+      if (e.matches) {
+        const savedPreference = localStorage.getItem('sidebarCollapsed');
+        if (savedPreference !== null) {
+          setIsSidebarCollapsed(savedPreference === 'true');
+        }
+      } else {
+        setIsSidebarCollapsed(true);
+      }
+    };
+    
+    handleScreenChange(mediaQuery);
+    
+    mediaQuery.addEventListener('change', handleScreenChange);
+    
+    return () => {
+      mediaQuery.removeEventListener('change', handleScreenChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1280px)');
+    if (mediaQuery.matches) {
+      localStorage.setItem('sidebarCollapsed', String(isSidebarCollapsed));
+    }
+  }, [isSidebarCollapsed]);
 
   return (
     <>

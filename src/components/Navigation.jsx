@@ -5,7 +5,6 @@ import { Menu, X, Shield, Sun, Anchor, Scroll, Settings, Footprints, Car, Flame,
 import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
-import WardenNotes from '@/components/WardenNotes';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: Sun },
@@ -94,7 +93,6 @@ const Navigation = ({ isCollapsed, setCollapsed }) => {
       </nav>
 
       <div className={`p-4 border-t border-slate-700/50 space-y-4 ${isCollapsed && !isMobile ? 'flex flex-col items-center' : ''}`}>
-        {!isCollapsed || isMobile ? <WardenNotes /> : null}
         {userData && (
           <AnimatePresence>
           {!isCollapsed || isMobile ? (

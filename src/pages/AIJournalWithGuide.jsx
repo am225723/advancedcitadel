@@ -109,7 +109,6 @@ const AIJournalWithGuide = () => {
       const savedEntry = data[0];
       setTitle('');
       setEntry('');
-      setTags('');
       
       // Automatically analyze the new entry
       await handleAnalyzeExisting(savedEntry.id, savedEntry.content);
@@ -301,17 +300,6 @@ const AIJournalWithGuide = () => {
                 className="bg-dark-steel/70 border-slate-700 min-h-[200px] mt-2" 
               />
             </div>
-            
-            <div>
-              <label htmlFor="tags-input" className="text-lg font-semibold text-white">Tags (Optional)</label>
-              <Input 
-                id="tags-input"
-                value={tags} 
-                onChange={(e) => setTags(e.target.value)} 
-                placeholder="e.g., anxiety, work, relationships" 
-                className="bg-dark-steel/70 border-slate-700 mt-2" 
-              />
-            </div>
           </div>
           
           <Button 
@@ -359,16 +347,6 @@ const AIJournalWithGuide = () => {
                 </div>
                 
                 <p className="text-slate-300 whitespace-pre-wrap font-garamond">{entryItem.content}</p>
-                
-                {entryItem.tags && (
-                  <div className="flex flex-wrap gap-2">
-                    {entryItem.tags.split(',').map((tag, i) => (
-                      <span key={i} className="px-3 py-1 text-xs rounded-full bg-slate-700 text-slate-300">
-                        {tag.trim()}
-                      </span>
-                    ))}
-                  </div>
-                )}
 
                 {/* Feelings Analysis Panel */}
                 {entryItem.insights && (
