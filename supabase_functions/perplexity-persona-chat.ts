@@ -72,7 +72,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-small-128k-online', // Fast, cost-effective model
+        model: 'llama-3.1-sonar-large-128k-online', // More capable model for better therapeutic responses
         messages: messages,
         temperature: 0.7,
         max_tokens: 500, // Keep responses concise
