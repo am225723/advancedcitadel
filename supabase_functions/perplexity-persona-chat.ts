@@ -1,8 +1,14 @@
 // Supabase Edge Function: perplexity-persona-chat
 // Deploy this to your Supabase project: Edge Functions
+// Deploy command: supabase functions deploy perplexity-persona-chat
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { corsHeaders } from '../_shared/cors.ts'
+
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions';
 

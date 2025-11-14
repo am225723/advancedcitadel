@@ -64,7 +64,7 @@ supabase functions deploy perplexity-persona-chat
 supabase functions list
 ```
 
-#### 2. Deploy Other Functions (if you have them)
+#### 2. Deploy Other Functions (if you have them)  
 If you have existing `perplexity-journal-ai` or `perplexity-reframe-forge` functions:
 
 ```bash
