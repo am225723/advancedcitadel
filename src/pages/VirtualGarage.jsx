@@ -103,9 +103,9 @@ const VirtualGarage = () => {
               <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-blue-900/50 p-8 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-950/20 to-transparent" />
                 <div className="relative car-3d-container h-96">
-                  <CarModel />
+                  <CarModel color={selectedColor || user?.car_color} />
                   <div className="absolute top-4 right-4 px-4 py-2 bg-blue-950/80 backdrop-blur-sm border border-blue-700 rounded-lg">
-                    <span className="text-blue-400 font-bold">{user?.car_color || 'Default'}</span>
+                    <span className="text-blue-400 font-bold">{selectedColor || user?.car_color || 'Default'}</span>
                   </div>
                 </div>
               </Card>
