@@ -294,6 +294,9 @@ const TachometerLock = ({ onSuccess }) => {
     
     if (Math.abs(rpm - currentTarget) <= tolerance) {
       if (checkpointIndex === targetRpms.length - 1) {
+        if (gainNode) {
+          gainNode.gain.setTargetAtTime(0, audioContext.currentTime, 0.3);
+        }
         toast({
           title: `Checkpoint ${checkpointIndex + 1}/3 ✓`,
           description: "All checkpoints cleared! Unlocking..."
@@ -440,24 +443,24 @@ const TachometerLock = ({ onSuccess }) => {
             animate={{ rotate: needleRotation }}
             transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
           >
-            {/* Wider shadow needle - points to numbers at radius 66 */}
+            {/* Wider shadow needle - points to tick marks at radius 80 */}
             <line
               x1="120"
               y1="120"
               x2="120"
-              y2="54"
+              y2="40"
               stroke={isInRedzone ? "#dc2626" : "#1a1a1a"}
               strokeWidth="3.5"
               strokeLinecap="round"
               filter="url(#needle-glow)"
               opacity="0.9"
             />
-            {/* Precise center needle - exactly 66 units from center */}
+            {/* Precise center needle - exactly 80 units from center to align with major tick marks */}
             <line
               x1="120"
               y1="120"
               x2="120"
-              y2="54"
+              y2="40"
               stroke={isInRedzone ? "#ef4444" : "#2a2a2a"}
               strokeWidth="1.5"
               strokeLinecap="round"
