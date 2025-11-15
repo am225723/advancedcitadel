@@ -23,7 +23,7 @@ const MoodBuffIcon = ({ buffType }) => {
 };
 
 const TTSInfoBanner = () => {
-  const hasApiKey = import.meta.env.ELEVENLABS_API_KEY;
+  const hasApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
   
   return (
     <motion.div
@@ -59,7 +59,7 @@ const TTSInfoBanner = () => {
                   <p className="mb-2"><strong className="text-slate-300">To enable voice meditation:</strong></p>
                   <ol className="list-decimal list-inside space-y-1 ml-2">
                     <li>Get a free API key from <a href="https://elevenlabs.io" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline inline-flex items-center gap-1">ElevenLabs <ExternalLink className="w-3 h-3" /></a></li>
-                    <li>Add <code className="bg-slate-900 px-1 py-0.5 rounded text-amber-400">ELEVENLABS_API_KEY</code> to your Replit Secrets</li>
+                    <li>Add <code className="bg-slate-900 px-1 py-0.5 rounded text-amber-400">VITE_ELEVENLABS_API_KEY</code> to your Replit Secrets</li>
                     <li>See <code className="bg-slate-900 px-1 py-0.5 rounded text-amber-400">ELEVENLABS_VOICE_SETUP.md</code> for detailed instructions</li>
                   </ol>
                 </div>
