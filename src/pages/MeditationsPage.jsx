@@ -9,7 +9,7 @@ import { toast } from '@/components/ui/use-toast';
 import MeditationPlayer from '@/components/MeditationPlayer';
 import { MEDITATIONS, getUnlockedMeditations, getRecommendedMeditations } from '@/lib/meditationConfig';
 import { getPersona } from '@/lib/personaConfig';
-import { VOICE_RECOMMENDATIONS } from '@/lib/textToSpeechService';
+import { VOICE_RECOMMENDATIONS, VOICE_IDS, generateMeditationAudio, getCachedAudioPath } from '@/lib/textToSpeechService';
 
 const MoodBuffIcon = ({ buffType }) => {
   const icons = {
@@ -227,14 +227,64 @@ const MeditationsPage = () => {
   };
 
   const handleStartMeditation = async (meditation) => {
+    const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+    
+    if (!apiKey) {
+      toast({
+        title: "Silent Meditation Mode",
+        description: `"${meditation.title}" will play without audio. Add VITE_ELEVENLABS_API_KEY for character-voiced meditation.`,
+        duration: 4000,
+      });
+      setActiveMeditation(meditation);
+      setAudioUrl(null);
+      return;
+    }
+
+    const cachedAudio = getCachedAudioPath(meditation.id);
+    if (cachedAudio) {
+      setAudioUrl(cachedAudio);
+      setActiveMeditation(meditation);
+      toast({
+        title: "Sanctuary Ready",
+        description: `"${meditation.title}" loaded with character voice.`,
+        duration: 2000,
+      });
+      return;
+    }
+
     toast({
-      title: "Preparing Sanctuary...",
-      description: `Loading "${meditation.title}" meditation. For full experience, use ElevenLabs TTS (API key required).`,
-      duration: 3000,
+      title: "Generating Voice Meditation...",
+      description: `Creating character-voiced audio for "${meditation.title}". This may take a moment.`,
+      duration: 5000,
     });
 
-    setActiveMeditation(meditation);
-    setAudioUrl(null);
+    try {
+      const voiceId = VOICE_IDS[meditation.guideId];
+      if (!voiceId) {
+        throw new Error(`No voice ID configured for ${meditation.guideId}`);
+      }
+
+      const generatedAudioUrl = await generateMeditationAudio(meditation, apiKey, voiceId);
+      
+      setAudioUrl(generatedAudioUrl);
+      setActiveMeditation(meditation);
+      
+      toast({
+        title: "Voice Meditation Ready! ✨",
+        description: `"${meditation.title}" is ready with ${getPersona(meditation.guideId)?.name}'s voice.`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error generating meditation audio:', error);
+      toast({
+        variant: "destructive",
+        title: "Voice Generation Failed",
+        description: `Could not generate audio: ${error.message}. Opening silent meditation mode.`,
+        duration: 5000,
+      });
+      setActiveMeditation(meditation);
+      setAudioUrl(null);
+    }
   };
 
   const handleMeditationComplete = async (meditation, durationSeconds) => {

@@ -3,6 +3,15 @@
 
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1';
 
+// Default ElevenLabs voice IDs (premade voices - always available)
+export const VOICE_IDS = {
+  solaire: 'TxGEqnHWrfWFTfGW9XjX', // Josh - Warm, uplifting
+  siegward: 'ErXwobaYiN019PkySvjV', // Antoni - Calm, reassuring
+  artorias: 'VR6AewLTigWG4xSOukaG', // Arnold - Deep, resonant
+  alonne: 'N2lVS1w4EtoT3dr4eOWO', // Callum - Disciplined, precise
+  patches: 'IKne3meq5aSn9XLyUdCD', // Charlie - Slightly raspy, cunning
+};
+
 const VOICE_RECOMMENDATIONS = {
   solaire: {
     name: 'Solaire of Astora',
