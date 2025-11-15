@@ -214,13 +214,16 @@ export const getGuideInteractionHistory = async (userId, limit = 10) => {
  */
 export const getGuideJournalResponse = async (guideId, journalContent, userContext) => {
   try {
-    // Get the persona configuration for this guide
-    const { getPersona } = await import('./personaConfig');
+    // Get the persona configuration and prompt for this guide
+    const { getPersona, getPersonaPrompt } = await import('./personaConfig');
     const persona = getPersona(guideId);
     
     if (!persona) {
       throw new Error(`Guide persona not found for ID: ${guideId}`);
     }
+
+    // Get the system prompt for this persona
+    const systemPrompt = getPersonaPrompt(guideId);
 
     // Prepare the message history for the journal entry
     const messageHistory = [
@@ -231,7 +234,7 @@ export const getGuideJournalResponse = async (guideId, journalContent, userConte
     ];
 
     // Call the AI guide response function with the persona's system prompt
-    const response = await getAIGuideResponse(persona.systemPrompt, messageHistory, userContext);
+    const response = await getAIGuideResponse(systemPrompt, messageHistory, userContext);
     
     return response.response;
   } catch (error) {
@@ -250,13 +253,16 @@ export const getGuideJournalResponse = async (guideId, journalContent, userConte
  */
 export const getGuideReframeResponse = async (guideId, thought, context, userContext) => {
   try {
-    // Get the persona configuration for this guide
-    const { getPersona } = await import('./personaConfig');
+    // Get the persona configuration and prompt for this guide
+    const { getPersona, getPersonaPrompt } = await import('./personaConfig');
     const persona = getPersona(guideId);
     
     if (!persona) {
       throw new Error(`Guide persona not found for ID: ${guideId}`);
     }
+
+    // Get the system prompt for this persona
+    const systemPrompt = getPersonaPrompt(guideId);
 
     // Prepare the message history for the reframing exercise
     const messageHistory = [
@@ -267,7 +273,7 @@ export const getGuideReframeResponse = async (guideId, thought, context, userCon
     ];
 
     // Call the AI guide response function with the persona's system prompt
-    const response = await getAIGuideResponse(persona.systemPrompt, messageHistory, userContext);
+    const response = await getAIGuideResponse(systemPrompt, messageHistory, userContext);
     
     return response.response;
   } catch (error) {
