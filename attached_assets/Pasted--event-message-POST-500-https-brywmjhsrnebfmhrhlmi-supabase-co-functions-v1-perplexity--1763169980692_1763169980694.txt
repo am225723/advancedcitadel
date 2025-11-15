@@ -1,0 +1,102 @@
+{
+  "event_message": "POST | 500 | https://brywmjhsrnebfmhrhlmi.supabase.co/functions/v1/perplexity-persona-chat",
+  "id": "0097a2bd-79e4-4a1b-b2b8-198217329cc8",
+  "metadata": [
+    {
+      "deployment_id": "brywmjhsrnebfmhrhlmi_85c9ee3f-c0b9-4b1a-9455-6a0e12207e15_4",
+      "execution_id": "1fdc0d43-f2bc-41ae-a7ce-08952fa050bb",
+      "execution_time_ms": 286,
+      "function_id": "85c9ee3f-c0b9-4b1a-9455-6a0e12207e15",
+      "project_ref": "brywmjhsrnebfmhrhlmi",
+      "request": [
+        {
+          "headers": [
+            {
+              "accept": "*/*",
+              "accept_encoding": "gzip, br",
+              "connection": "Keep-Alive",
+              "content_length": "318",
+              "cookie": null,
+              "host": "brywmjhsrnebfmhrhlmi.supabase.co",
+              "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+              "x_client_info": "supabase-js-web/2.75.0"
+            }
+          ],
+          "host": "brywmjhsrnebfmhrhlmi.supabase.co",
+          "method": "POST",
+          "pathname": "/functions/v1/perplexity-persona-chat",
+          "port": null,
+          "protocol": "https:",
+          "sb": [
+            {
+              "apikey": [],
+              "auth_user": "7d798fe2-2111-496a-bb5b-4b023df3db3f",
+              "jwt": [
+                {
+                  "apikey": [
+                    {
+                      "invalid": null,
+                      "payload": [
+                        {
+                          "algorithm": "HS256",
+                          "expires_at": 2075190364,
+                          "issuer": "supabase",
+                          "key_id": null,
+                          "role": "anon",
+                          "session_id": null,
+                          "signature_prefix": "K6PpEH",
+                          "subject": null
+                        }
+                      ]
+                    }
+                  ],
+                  "authorization": [
+                    {
+                      "invalid": null,
+                      "payload": [
+                        {
+                          "algorithm": "HS256",
+                          "expires_at": 1763173301,
+                          "issuer": "https://brywmjhsrnebfmhrhlmi.supabase.co/auth/v1",
+                          "key_id": "66StRqbhMQOinEgl",
+                          "role": "authenticated",
+                          "session_id": "5daf975a-ea5a-4259-a327-029532b8ed79",
+                          "signature_prefix": "1qH9IH",
+                          "subject": "7d798fe2-2111-496a-bb5b-4b023df3db3f"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "search": null,
+          "url": "https://brywmjhsrnebfmhrhlmi.supabase.co/functions/v1/perplexity-persona-chat"
+        }
+      ],
+      "response": [
+        {
+          "headers": [
+            {
+              "content_length": "121",
+              "content_type": "application/json",
+              "date": "Sat, 15 Nov 2025 01:21:54 GMT",
+              "sb_request_id": "019a851a-befa-7ea6-b208-c2150f999645",
+              "server": "cloudflare",
+              "vary": "Accept-Encoding",
+              "x_envoy_upstream_service_time": null,
+              "x_sb_compute_multiplier": null,
+              "x_sb_edge_region": "us-east-1",
+              "x_sb_resource_multiplier": null,
+              "x_served_by": "supabase-edge-runtime"
+            }
+          ],
+          "status_code": 500
+        }
+      ],
+      "version": "4"
+    }
+  ],
+  "timestamp": 1763169714200000
+}
