@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
@@ -7,10 +7,13 @@ import { supabase } from '@/lib/customSupabaseClient';
 const GearShifterLock = ({ onSuccess }) => {
   const [sequence, setSequence] = useState([]);
   const [currentGear, setCurrentGear] = useState('N');
-  const [holdingGear, setHoldingGear] = useState(null);
-  const [holdProgress, setHoldProgress] = useState(0);
   const [targetSequence, setTargetSequence] = useState([1, 3, 5, 2, 4]);
   const [loading, setLoading] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
+  const [knobPosition, setKnobPosition] = useState({ x: 120, y: 180 });
+  
+  const svgRef = useRef(null);
+  const dragStartRef = useRef({ x: 0, y: 0 });
 
   const gearPositions = {
     'N': { x: 120, y: 180 },
@@ -45,37 +48,74 @@ const GearShifterLock = ({ onSuccess }) => {
     }
   };
 
-  const handleGearPress = (gear) => {
-    if (gear === 'R' || gear === 'N') return;
+  const getSVGCoordinates = (clientX, clientY) => {
+    if (!svgRef.current) return { x: 0, y: 0 };
     
-    setHoldingGear(gear);
-    setHoldProgress(0);
+    const svg = svgRef.current;
+    const pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+    return { x: svgP.x, y: svgP.y };
+  };
 
-    const interval = setInterval(() => {
-      setHoldProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          confirmGearShift(gear);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 50);
+  const getNearestGear = (x, y) => {
+    let nearest = 'N';
+    let minDist = Infinity;
+    
+    Object.entries(gearPositions).forEach(([gear, pos]) => {
+      const dist = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
+      if (dist < minDist && dist < 40) {
+        minDist = dist;
+        nearest = gear;
+      }
+    });
+    
+    return nearest;
+  };
 
-    const cleanup = () => {
-      clearInterval(interval);
-      setHoldingGear(null);
-      setHoldProgress(0);
-    };
+  const handleDragStart = (e) => {
+    setIsDragging(true);
+    const coords = e.touches 
+      ? getSVGCoordinates(e.touches[0].clientX, e.touches[0].clientY)
+      : getSVGCoordinates(e.clientX, e.clientY);
+    
+    dragStartRef.current = coords;
+  };
 
-    document.addEventListener('mouseup', cleanup, { once: true });
-    document.addEventListener('touchend', cleanup, { once: true });
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    const coords = e.touches
+      ? getSVGCoordinates(e.touches[0].clientX, e.touches[0].clientY)
+      : getSVGCoordinates(e.clientX, e.clientY);
+    
+    let newX = coords.x;
+    let newY = coords.y;
+    
+    newX = Math.max(28, Math.min(202, newX));
+    newY = Math.max(58, Math.min(302, newY));
+    
+    setKnobPosition({ x: newX, y: newY });
+  };
+
+  const handleDragEnd = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    
+    const nearestGear = getNearestGear(knobPosition.x, knobPosition.y);
+    const targetPos = gearPositions[nearestGear];
+    setKnobPosition(targetPos);
+    
+    if (nearestGear !== currentGear && nearestGear !== 'N' && nearestGear !== 'R') {
+      confirmGearShift(nearestGear);
+    } else {
+      setCurrentGear(nearestGear);
+    }
   };
 
   const confirmGearShift = (gear) => {
-    setHoldingGear(null);
-    setHoldProgress(0);
-    
     const gearNum = parseInt(gear);
     const newSequence = [...sequence, gearNum];
     setSequence(newSequence);
@@ -97,6 +137,7 @@ const GearShifterLock = ({ onSuccess }) => {
         setTimeout(() => {
           setSequence([]);
           setCurrentGear('N');
+          setKnobPosition(gearPositions['N']);
         }, 1500);
       }
     } else {
@@ -110,9 +151,29 @@ const GearShifterLock = ({ onSuccess }) => {
   const reset = () => {
     setSequence([]);
     setCurrentGear('N');
-    setHoldingGear(null);
-    setHoldProgress(0);
+    setKnobPosition(gearPositions['N']);
   };
+
+  useEffect(() => {
+    if (isDragging) {
+      const handleMouseMove = (e) => handleDragMove(e);
+      const handleMouseUp = () => handleDragEnd();
+      const handleTouchMove = (e) => handleDragMove(e);
+      const handleTouchEnd = () => handleDragEnd();
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+      };
+    }
+  }, [isDragging, knobPosition]);
 
   if (loading) {
     return <div className="text-center py-12 text-slate-400">Loading configuration...</div>;
@@ -120,197 +181,192 @@ const GearShifterLock = ({ onSuccess }) => {
 
   return (
     <div className="space-y-8 flex flex-col items-center">
-      {/* Enhanced Shift Gate Assembly */}
       <div className="relative w-80 h-96">
-        <svg viewBox="0 0 240 360" className="w-full h-full">
+        <svg ref={svgRef} viewBox="0 0 240 360" className="w-full h-full">
           <defs>
-            {/* Enhanced metal textures */}
-            <linearGradient id="gate-metal" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#4a4a4a" />
-              <stop offset="30%" stopColor="#5a5a5a" />
+            <linearGradient id="gate-metal-new" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#5a5a5a" />
+              <stop offset="30%" stopColor="#4a4a4a" />
               <stop offset="70%" stopColor="#3a3a3a" />
               <stop offset="100%" stopColor="#2a2a2a" />
             </linearGradient>
-            <linearGradient id="shift-boot" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#2a2a2a" />
-              <stop offset="50%" stopColor="#1a1a1a" />
-              <stop offset="100%" stopColor="#0a0a0a" />
-            </linearGradient>
-            <radialGradient id="knob-gradient" cx="0.4" cy="0.4" r="0.6">
-              <stop offset="0%" stopColor="#7a7a7a" />
-              <stop offset="50%" stopColor="#4a4a4a" />
-              <stop offset="100%" stopColor="#2a2a2a" />
-            </radialGradient>
-            <linearGradient id="knob-leather" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3a3a3a" />
-              <stop offset="40%" stopColor="#2a2a2a" />
-              <stop offset="60%" stopColor="#1a1a1a" />
-              <stop offset="100%" stopColor="#0a0a0a" />
-            </linearGradient>
-            <radialGradient id="gate-slot" cx="0.5" cy="0.5" r="0.5">
-              <stop offset="0%" stopColor="#050505" />
-              <stop offset="80%" stopColor="#0a0a0a" />
+            <radialGradient id="knob-sphere" cx="0.35" cy="0.35" r="0.65">
+              <stop offset="0%" stopColor="#8a8a8a" />
+              <stop offset="40%" stopColor="#5a5a5a" />
+              <stop offset="80%" stopColor="#3a3a3a" />
               <stop offset="100%" stopColor="#1a1a1a" />
             </radialGradient>
-            <filter id="metal-shadow">
-              <feDropShadow dx="0" dy="3" stdDeviation="3" floodOpacity="0.6"/>
+            <radialGradient id="gate-slot-new" cx="0.5" cy="0.5" r="0.5">
+              <stop offset="0%" stopColor="#000000" />
+              <stop offset="70%" stopColor="#0a0a0a" />
+              <stop offset="100%" stopColor="#1a1a1a" />
+            </radialGradient>
+            <filter id="metal-shadow-new">
+              <feDropShadow dx="0" dy="4" stdDeviation="4" floodOpacity="0.7"/>
             </filter>
-            <filter id="deep-inset">
-              <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-              <feOffset dx="0" dy="3" result="offsetblur"/>
+            <filter id="deep-inset-new">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+              <feOffset dx="0" dy="4" result="offsetblur"/>
               <feComponentTransfer>
-                <feFuncA type="linear" slope="0.7"/>
+                <feFuncA type="linear" slope="0.8"/>
               </feComponentTransfer>
               <feMerge>
                 <feMergeNode/>
                 <feMergeNode in="SourceGraphic"/>
               </feMerge>
             </filter>
-            <filter id="knob-glow">
-              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-              <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
           </defs>
 
-          {/* Gate base plate with enhanced detail */}
-          <rect x="10" y="10" width="220" height="340" rx="10" fill="url(#gate-metal)" stroke="#0a0a0a" strokeWidth="3" filter="url(#metal-shadow)"/>
+          {/* Base plate */}
+          <rect x="10" y="10" width="220" height="340" rx="12" fill="url(#gate-metal-new)" stroke="#0a0a0a" strokeWidth="4" filter="url(#metal-shadow-new)"/>
           
-          {/* Brushed metal texture overlay */}
-          <rect x="10" y="10" width="220" height="340" rx="10" fill="url(#gate-metal)" opacity="0.3"/>
+          {/* Brushed metal texture */}
+          <rect x="10" y="10" width="220" height="340" rx="12" 
+            fill="url(#gate-metal-new)" 
+            opacity="0.2"
+            style={{ mixBlendMode: 'overlay' }}
+          />
           
-          {/* Base plate rivets */}
+          {/* Rivets */}
           {[...Array(8)].map((_, i) => {
             const isTop = i < 4;
             const x = 30 + (i % 4) * 55;
             const y = isTop ? 25 : 335;
             return (
               <g key={i}>
-                <circle cx={x} cy={y} r="4" fill="#1a1a1a" stroke="#0a0a0a" strokeWidth="1"/>
-                <circle cx={x} cy={y} r="2" fill="#0a0a0a"/>
+                <circle cx={x} cy={y} r="5" fill="#1a1a1a" stroke="#0a0a0a" strokeWidth="1.5"/>
+                <circle cx={x} cy={y} r="2.5" fill="#0a0a0a"/>
+                <circle cx={x - 1} cy={y - 1} r="1" fill="#3a3a3a" opacity="0.6"/>
               </g>
             );
           })}
           
-          {/* Shift gate slots with deep inset */}
-          <g filter="url(#deep-inset)">
-            {/* Left column (1-2) */}
-            <rect x="28" y="58" width="34" height="244" rx="17" fill="url(#gate-slot)" stroke="#050505" strokeWidth="2"/>
-            <rect x="30" y="60" width="30" height="240" rx="15" fill="none" stroke="#1a1a1a" strokeWidth="0.5" opacity="0.5"/>
+          {/* Shift gate slots */}
+          <g filter="url(#deep-inset-new)">
+            <rect x="26" y="56" width="38" height="248" rx="19" fill="url(#gate-slot-new)" stroke="#000000" strokeWidth="3"/>
+            <rect x="28" y="58" width="34" height="244" rx="17" fill="none" stroke="#1a1a1a" strokeWidth="0.5" opacity="0.5"/>
             
-            {/* Center column (3-4) */}
-            <rect x="98" y="58" width="34" height="244" rx="17" fill="url(#gate-slot)" stroke="#050505" strokeWidth="2"/>
-            <rect x="100" y="60" width="30" height="240" rx="15" fill="none" stroke="#1a1a1a" strokeWidth="0.5" opacity="0.5"/>
+            <rect x="96" y="56" width="38" height="248" rx="19" fill="url(#gate-slot-new)" stroke="#000000" strokeWidth="3"/>
+            <rect x="98" y="58" width="34" height="244" rx="17" fill="none" stroke="#1a1a1a" strokeWidth="0.5" opacity="0.5"/>
             
-            {/* Right column (5-R) */}
-            <rect x="168" y="58" width="34" height="244" rx="17" fill="url(#gate-slot)" stroke="#050505" strokeWidth="2"/>
-            <rect x="170" y="60" width="30" height="240" rx="15" fill="none" stroke="#1a1a1a" strokeWidth="0.5" opacity="0.5"/>
+            <rect x="166" y="56" width="38" height="248" rx="19" fill="url(#gate-slot-new)" stroke="#000000" strokeWidth="3"/>
+            <rect x="168" y="58" width="34" height="244" rx="17" fill="none" stroke="#1a1a1a" strokeWidth="0.5" opacity="0.5"/>
           </g>
 
-          {/* Gear position labels with enhanced styling */}
-          <g className="select-none" style={{ fontFamily: 'Arial, sans-serif', fontWeight: '900', fontSize: '18px' }}>
-            <text x="45" y="48" textAnchor="middle" fill="#e0e0e0" stroke="#0a0a0a" strokeWidth="0.5">1</text>
-            <text x="45" y="332" textAnchor="middle" fill="#e0e0e0" stroke="#0a0a0a" strokeWidth="0.5">2</text>
-            <text x="115" y="48" textAnchor="middle" fill="#e0e0e0" stroke="#0a0a0a" strokeWidth="0.5">3</text>
-            <text x="115" y="332" textAnchor="middle" fill="#e0e0e0" stroke="#0a0a0a" strokeWidth="0.5">4</text>
-            <text x="185" y="48" textAnchor="middle" fill="#e0e0e0" stroke="#0a0a0a" strokeWidth="0.5">5</text>
-            <text x="185" y="332" textAnchor="middle" fill="#dc2626" stroke="#0a0a0a" strokeWidth="0.5">R</text>
+          {/* Gear labels */}
+          <g style={{ fontFamily: 'Arial, sans-serif', fontWeight: '900', fontSize: '20px', userSelect: 'none' }}>
+            <text x="45" y="45" textAnchor="middle" fill="#f0f0f0" stroke="#0a0a0a" strokeWidth="0.5">1</text>
+            <text x="45" y="335" textAnchor="middle" fill="#f0f0f0" stroke="#0a0a0a" strokeWidth="0.5">2</text>
+            <text x="115" y="45" textAnchor="middle" fill="#f0f0f0" stroke="#0a0a0a" strokeWidth="0.5">3</text>
+            <text x="115" y="335" textAnchor="middle" fill="#f0f0f0" stroke="#0a0a0a" strokeWidth="0.5">4</text>
+            <text x="185" y="45" textAnchor="middle" fill="#f0f0f0" stroke="#0a0a0a" strokeWidth="0.5">5</text>
+            <text x="185" y="335" textAnchor="middle" fill="#dc2626" stroke="#0a0a0a" strokeWidth="0.5" fontWeight="900">R</text>
           </g>
 
           {/* Shift pattern diagram */}
-          <g transform="translate(185, 12)" opacity="0.7">
-            <rect width="45" height="45" rx="5" fill="#1a1a1a" stroke="#3a3a3a" strokeWidth="1.5"/>
-            <text x="10" y="14" style={{ fontSize: '7px', fill: '#aaa', fontWeight: 'bold' }}>1  3  5</text>
-            <line x1="9" y1="17" x2="9" y2="32" stroke="#888" strokeWidth="0.8"/>
-            <line x1="23" y1="17" x2="23" y2="32" stroke="#888" strokeWidth="0.8"/>
-            <line x1="36" y1="17" x2="36" y2="32" stroke="#888" strokeWidth="0.8"/>
-            <text x="10" y="40" style={{ fontSize: '7px', fill: '#aaa', fontWeight: 'bold' }}>2  4  R</text>
+          <g transform="translate(182, 10)">
+            <rect width="50" height="50" rx="6" fill="#0a0a0a" stroke="#3a3a3a" strokeWidth="2"/>
+            <text x="12" y="16" style={{ fontSize: '8px', fill: '#bbb', fontWeight: 'bold' }}>1  3  5</text>
+            <line x1="11" y1="19" x2="11" y2="36" stroke="#888" strokeWidth="1"/>
+            <line x1="25" y1="19" x2="25" y2="36" stroke="#888" strokeWidth="1"/>
+            <line x1="39" y1="19" x2="39" y2="36" stroke="#888" strokeWidth="1"/>
+            <text x="12" y="45" style={{ fontSize: '8px', fill: '#bbb', fontWeight: 'bold' }}>2  4  R</text>
           </g>
 
           {/* Shift boot */}
-          <ellipse cx="120" cy="322" rx="38" ry="16" fill="url(#shift-boot)" opacity="0.9" filter="url(#metal-shadow)"/>
-          <ellipse cx="120" cy="320" rx="34" ry="14" fill="#0a0a0a" opacity="0.95"/>
-          <ellipse cx="120" cy="319" rx="30" ry="12" fill="none" stroke="#1a1a1a" strokeWidth="0.5"/>
-          <ellipse cx="120" cy="320" rx="25" ry="10" fill="none" stroke="#2a2a2a" strokeWidth="0.5" strokeDasharray="2,2"/>
+          <ellipse cx="120" cy="325" rx="42" ry="18" fill="#0a0a0a" opacity="0.9" filter="url(#metal-shadow-new)"/>
+          <ellipse cx="120" cy="323" rx="38" ry="16" fill="#000000"/>
+          <ellipse cx="120" cy="322" rx="34" ry="14" fill="none" stroke="#1a1a1a" strokeWidth="0.5"/>
+          <ellipse cx="120" cy="323" rx="28" ry="11" fill="none" stroke="#2a2a2a" strokeWidth="0.5" strokeDasharray="3,2"/>
 
-          {/* Shift knob */}
+          {/* Shift knob (draggable) */}
           <motion.g
             animate={{
-              x: gearPositions[currentGear].x - 120,
-              y: gearPositions[currentGear].y - 180,
+              x: knobPosition.x - 120,
+              y: knobPosition.y - 180,
             }}
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            transition={isDragging ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 35 }}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+            onMouseDown={handleDragStart}
+            onTouchStart={handleDragStart}
           >
             {/* Shift shaft */}
-            <rect x="115" y="155" width="10" height="50" rx="5" fill="url(#knob-gradient)" stroke="#1a1a1a" strokeWidth="0.5" filter="url(#metal-shadow)"/>
-            <rect x="116" y="156" width="8" height="48" rx="4" fill="none" stroke="#5a5a5a" strokeWidth="0.5" opacity="0.5"/>
+            <rect x="115" y="150" width="10" height="55" rx="5" 
+              fill="url(#knob-sphere)" 
+              stroke="#1a1a1a" 
+              strokeWidth="0.8" 
+              filter="url(#metal-shadow-new)"
+            />
+            <rect x="116" y="151" width="8" height="53" rx="4" fill="none" stroke="#6a6a6a" strokeWidth="0.5" opacity="0.6"/>
             
-            {/* Knob ball */}
-            <circle cx="120" cy="152" r="20" fill="url(#knob-leather)" stroke="#2a2a2a" strokeWidth="2" filter="url(#knob-glow)"/>
-            <circle cx="120" cy="152" r="17" fill="none" stroke="#3a3a3a" strokeWidth="0.5"/>
-            <circle cx="120" cy="152" r="14" fill="none" stroke="#2a2a2a" strokeWidth="0.5"/>
+            {/* Knob sphere */}
+            <circle cx="120" cy="150" r="24" fill="url(#knob-sphere)" stroke="#2a2a2a" strokeWidth="3" filter="url(#metal-shadow-new)"/>
+            <circle cx="120" cy="150" r="21" fill="none" stroke="#4a4a4a" strokeWidth="0.5"/>
+            <circle cx="120" cy="150" r="18" fill="none" stroke="#3a3a3a" strokeWidth="0.5"/>
             
-            {/* Leather stitching */}
-            <path d="M 120 137 Q 127 152 120 167" fill="none" stroke="#3a3a3a" strokeWidth="0.8"/>
-            <path d="M 120 137 Q 113 152 120 167" fill="none" stroke="#3a3a3a" strokeWidth="0.8"/>
-            <path d="M 108 145 Q 120 150 132 145" fill="none" stroke="#3a3a3a" strokeWidth="0.6"/>
-            <path d="M 108 159 Q 120 154 132 159" fill="none" stroke="#3a3a3a" strokeWidth="0.6"/>
+            {/* Leather texture */}
+            <path d="M 120 131 Q 128 150 120 169" fill="none" stroke="#3a3a3a" strokeWidth="1"/>
+            <path d="M 120 131 Q 112 150 120 169" fill="none" stroke="#3a3a3a" strokeWidth="1"/>
+            <path d="M 105 142 Q 120 147 135 142" fill="none" stroke="#3a3a3a" strokeWidth="0.7"/>
+            <path d="M 105 158 Q 120 153 135 158" fill="none" stroke="#3a3a3a" strokeWidth="0.7"/>
             
-            {/* Shine */}
-            <ellipse cx="115" cy="145" rx="8" ry="6" fill="white" opacity="0.15"/>
+            {/* Specular highlight */}
+            <ellipse cx="113" cy="142" rx="10" ry="8" fill="white" opacity="0.2"/>
+            <ellipse cx="111" cy="140" rx="6" ry="4" fill="white" opacity="0.25"/>
             
-            {/* Current gear indicator */}
-            <text x="120" y="157" textAnchor="middle" style={{ fontSize: '16px', fontWeight: '900', fill: '#fff', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
+            {/* Gear indicator */}
+            <text x="120" y="156" textAnchor="middle" 
+              style={{ 
+                fontSize: '18px', 
+                fontWeight: '900', 
+                fill: '#fff', 
+                textShadow: '0 2px 6px rgba(0,0,0,0.9)',
+                pointerEvents: 'none'
+              }}
+            >
               {currentGear}
             </text>
           </motion.g>
 
-          {/* Interactive gear zones with hold progress */}
+          {/* Progress indicators */}
           {Object.entries(gearPositions).filter(([gear]) => gear !== 'N' && gear !== 'R').map(([gear, pos]) => {
             const isPassed = sequence.includes(parseInt(gear));
-            const isHolding = holdingGear === gear;
             
             return (
               <g key={gear}>
                 <circle 
                   cx={pos.x} 
                   cy={pos.y} 
-                  r="30" 
-                  fill="transparent"
-                  className="cursor-pointer"
-                  onMouseDown={() => handleGearPress(gear)}
-                  onTouchStart={() => handleGearPress(gear)}
+                  r="8" 
+                  fill={isPassed ? "#22c55e" : "#2a2a2a"}
+                  stroke={isPassed ? "#16a34a" : "#1a1a1a"}
+                  strokeWidth="2"
+                  opacity={isPassed ? "1" : "0.3"}
                 />
-                <circle 
-                  cx={pos.x} 
-                  cy={pos.y} 
-                  r="6" 
-                  fill={isPassed ? "#22c55e" : "#3a3a3a"}
-                  stroke={isPassed ? "#16a34a" : "#2a2a2a"}
-                  strokeWidth="1.5"
-                  opacity={isPassed ? "1" : "0.4"}
-                />
-                {isHolding && (
-                  <circle 
-                    cx={pos.x} 
-                    cy={pos.y} 
-                    r="12" 
-                    fill="none" 
-                    stroke="#fbbf24" 
-                    strokeWidth="3"
-                    strokeDasharray="75.4"
-                    strokeDashoffset={75.4 * (1 - holdProgress / 100)}
-                    transform={`rotate(-90 ${pos.x} ${pos.y})`}
+                {isPassed && (
+                  <path 
+                    d={`M ${pos.x - 3} ${pos.y} L ${pos.x - 1} ${pos.y + 3} L ${pos.x + 4} ${pos.y - 4}`}
+                    stroke="#fff"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    fill="none"
                   />
                 )}
               </g>
             );
           })}
 
-          {/* Mitsubishi Evo IV branding */}
-          <text x="120" y="355" textAnchor="middle" style={{ fontSize: '9px', fontWeight: '900', fill: '#888', letterSpacing: '2px' }}>
+          {/* Branding */}
+          <text x="120" y="355" textAnchor="middle" 
+            style={{ 
+              fontSize: '10px', 
+              fontWeight: '900', 
+              fill: '#999', 
+              letterSpacing: '2.5px',
+              fontFamily: 'Arial, sans-serif'
+            }}
+          >
             MITSUBISHI EVOLUTION IV
           </text>
         </svg>
@@ -343,10 +399,10 @@ const GearShifterLock = ({ onSuccess }) => {
         {/* Instructions */}
         <div className="bg-slate-900/80 border border-slate-700 rounded-lg p-4 max-w-md">
           <p className="text-amber-400 font-bold text-sm mb-2">
-            🎯 Press and Hold Each Gear
+            🎯 Drag the Shifter
           </p>
           <p className="text-slate-400 text-xs">
-            Touch and hold each gear position until the circle fills, then release
+            Touch and drag the shift knob to each gear position in sequence
           </p>
         </div>
 
