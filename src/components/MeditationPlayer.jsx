@@ -72,7 +72,10 @@ const MeditationPlayer = ({ meditation, audioUrl, onComplete, onClose }) => {
     if (isPlaying) {
       audio.pause();
     } else {
-      audio.play();
+      audio.play().catch(error => {
+        console.log('Audio playback prevented:', error);
+        setIsPlaying(false);
+      });
     }
     setIsPlaying(!isPlaying);
   };
