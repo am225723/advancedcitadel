@@ -23,6 +23,8 @@ const MeditationPlayer = ({ meditation, audioUrl, onComplete, onClose }) => {
 
     const updateTime = () => setCurrentTime(audio.currentTime);
     const updateDuration = () => setDuration(audio.duration);
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
     const handleEnded = () => {
       setIsPlaying(false);
       if (!hasCompleted) {
@@ -33,11 +35,16 @@ const MeditationPlayer = ({ meditation, audioUrl, onComplete, onClose }) => {
 
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
     audio.addEventListener('ended', handleEnded);
 
     return () => {
+      audio.pause();
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('ended', handleEnded);
     };
   }, [meditation, onComplete, hasCompleted]);
@@ -65,19 +72,22 @@ const MeditationPlayer = ({ meditation, audioUrl, onComplete, onClose }) => {
     return () => clearInterval(breathingInterval);
   }, []);
 
-  const togglePlayPause = () => {
+  const togglePlayPause = async () => {
     const audio = audioRef.current;
     if (!audio) return;
 
     if (isPlaying) {
       audio.pause();
+      setIsPlaying(false);
     } else {
-      audio.play().catch(error => {
-        console.log('Audio playback prevented:', error);
+      try {
+        setIsPlaying(true);
+        await audio.play();
+      } catch (error) {
+        console.log('Audio playback prevented:', error.message);
         setIsPlaying(false);
-      });
+      }
     }
-    setIsPlaying(!isPlaying);
   };
 
   const handleSeek = (newValue) => {
