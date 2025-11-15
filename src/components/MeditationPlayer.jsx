@@ -40,7 +40,6 @@ const MeditationPlayer = ({ meditation, audioUrl, onComplete, onClose }) => {
     audio.addEventListener('ended', handleEnded);
 
     return () => {
-      audio.pause();
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('play', handlePlay);
@@ -48,6 +47,16 @@ const MeditationPlayer = ({ meditation, audioUrl, onComplete, onClose }) => {
       audio.removeEventListener('ended', handleEnded);
     };
   }, [meditation, onComplete, hasCompleted]);
+
+  useEffect(() => {
+    return () => {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
