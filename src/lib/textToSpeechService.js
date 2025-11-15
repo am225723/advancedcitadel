@@ -145,7 +145,7 @@ export const generateMeditationAudio = async (meditation, apiKey, voiceId) => {
       },
       body: JSON.stringify({
         text: textSegments,
-        model_id: 'eleven_monolingual_v1',
+        model_id: 'eleven_turbo_v2_5',
         voice_settings: voiceSettings
       })
     });
