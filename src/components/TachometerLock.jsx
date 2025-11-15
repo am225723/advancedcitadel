@@ -347,10 +347,10 @@ const TachometerLock = ({ onSuccess }) => {
               <stop offset="1" stopColor="#0a0a0a" />
             </radialGradient>
             <radialGradient id="evo-face" cx="0.5" cy="0.5" r="0.5">
-              <stop offset="0" stopColor="#ffffff" />
-              <stop offset="0.80" stopColor="#f8f8f8" />
-              <stop offset="0.92" stopColor="#f0f0f0" />
-              <stop offset="1" stopColor="#e5e5e5" />
+              <stop offset="0" stopColor="#0f0f0f" />
+              <stop offset="0.80" stopColor="#0a0a0a" />
+              <stop offset="0.92" stopColor="#050505" />
+              <stop offset="1" stopColor="#000000" />
             </radialGradient>
             <linearGradient id="redzone-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#dc2626" />
@@ -358,9 +358,9 @@ const TachometerLock = ({ onSuccess }) => {
               <stop offset="100%" stopColor="#991b1b" />
             </linearGradient>
             <radialGradient id="glass-effect" cx="0.3" cy="0.3" r="0.8">
-              <stop offset="0%" stopColor="rgba(255,255,255,0.2)" />
-              <stop offset="70%" stopColor="rgba(255,255,255,0.05)" />
-              <stop offset="100%" stopColor="rgba(0,0,0,0.1)" />
+              <stop offset="0%" stopColor="rgba(255,255,255,0.15)" />
+              <stop offset="70%" stopColor="rgba(255,255,255,0.03)" />
+              <stop offset="100%" stopColor="rgba(0,0,0,0.2)" />
             </radialGradient>
           </defs>
           
@@ -371,7 +371,7 @@ const TachometerLock = ({ onSuccess }) => {
           <circle cx="120" cy="120" r="103" fill="none" stroke="#1a1a1a" strokeWidth="0.5" />
           
           {/* Gauge face */}
-          <circle cx="120" cy="120" r="100" fill="url(#evo-face)" stroke="#c8c8c8" strokeWidth="0.8" />
+          <circle cx="120" cy="120" r="100" fill="url(#evo-face)" stroke="#2a2a2a" strokeWidth="0.8" />
           
           {/* Redzone arc */}
           <path
@@ -392,10 +392,10 @@ const TachometerLock = ({ onSuccess }) => {
             const y1 = 120 + r1 * Math.sin(angle * Math.PI / 180);
             const x2 = 120 + r2 * Math.cos(angle * Math.PI / 180);
             const y2 = 120 + r2 * Math.sin(angle * Math.PI / 180);
-            const strokeColor = isRedzone ? "#dc2626" : "#0a0a0a";
+            const strokeColor = isRedzone ? "#ef4444" : "#f0f0f0";
             const strokeWidth = isMajor ? "3" : isMid ? "1.8" : "0.9";
             return (
-              <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={strokeColor} strokeWidth={strokeWidth} opacity={isMajor ? "1" : isMid ? "0.85" : "0.6"} strokeLinecap="round" />
+              <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={strokeColor} strokeWidth={strokeWidth} opacity={isMajor ? "1" : isMid ? "0.9" : "0.7"} strokeLinecap="round" />
             );
           })}
 
@@ -411,11 +411,11 @@ const TachometerLock = ({ onSuccess }) => {
                 x={textX} 
                 y={textY + 6} 
                 textAnchor="middle" 
-                fill={isRedzone ? "#dc2626" : "#0a0a0a"} 
+                fill={isRedzone ? "#ef4444" : "#f0f0f0"} 
                 fontSize="19" 
                 fontWeight="900"
                 fontFamily="Arial, sans-serif"
-                style={{ textShadow: isRedzone ? '0 0 3px rgba(220, 38, 38, 0.3)' : 'none' }}
+                style={{ textShadow: isRedzone ? '0 0 4px rgba(239, 68, 68, 0.5)' : '0 0 2px rgba(0, 0, 0, 0.8)' }}
               >
                 {i}
               </text>
@@ -423,11 +423,11 @@ const TachometerLock = ({ onSuccess }) => {
           })}
           
           {/* Labels */}
-          <text x="120" y="98" textAnchor="middle" fill="#222" fontSize="11" fontWeight="900" letterSpacing="2.5">RPM</text>
-          <text x="120" y="109" textAnchor="middle" fill="#555" fontSize="7" fontWeight="700" letterSpacing="1.2">x1000</text>
+          <text x="120" y="98" textAnchor="middle" fill="#e0e0e0" fontSize="11" fontWeight="900" letterSpacing="2.5">RPM</text>
+          <text x="120" y="109" textAnchor="middle" fill="#b0b0b0" fontSize="7" fontWeight="700" letterSpacing="1.2">x1000r/min</text>
           
-          <text x="120" y="152" textAnchor="middle" fill="#1a1a1a" fontSize="9" fontWeight="800" letterSpacing="0.5">MITSUBISHI</text>
-          <text x="120" y="162" textAnchor="middle" fill="#dc2626" fontSize="8" fontWeight="900" letterSpacing="2">EVOLUTION IV</text>
+          <text x="120" y="152" textAnchor="middle" fill="#c0c0c0" fontSize="9" fontWeight="800" letterSpacing="0.5">MITSUBISHI</text>
+          <text x="120" y="162" textAnchor="middle" fill="#ef4444" fontSize="8" fontWeight="900" letterSpacing="2">EVOLUTION IX</text>
 
           {/* Digital RPM readout */}
           <rect x="96" y="170" width="48" height="20" fill="#0a0a0a" rx="3" stroke="#2a2a2a" strokeWidth="1.5" 
@@ -449,7 +449,7 @@ const TachometerLock = ({ onSuccess }) => {
               y1="120"
               x2="120"
               y2="40"
-              stroke={isInRedzone ? "#dc2626" : "#1a1a1a"}
+              stroke={isInRedzone ? "#dc2626" : "#d0d0d0"}
               strokeWidth="3.5"
               strokeLinecap="round"
               filter="url(#needle-glow)"
@@ -461,7 +461,7 @@ const TachometerLock = ({ onSuccess }) => {
               y1="120"
               x2="120"
               y2="40"
-              stroke={isInRedzone ? "#ef4444" : "#2a2a2a"}
+              stroke={isInRedzone ? "#ef4444" : "#f0f0f0"}
               strokeWidth="1.5"
               strokeLinecap="round"
             />
