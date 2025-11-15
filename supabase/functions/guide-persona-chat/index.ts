@@ -63,7 +63,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-large-128k-online', // Use the online model for up-to-date information
+        model: 'sonar-pro', // Advanced search model (replaces deprecated llama-3.1-sonar-large-128k-online)
         messages: messages,
         temperature: 0.7,
         max_tokens: 2000,
