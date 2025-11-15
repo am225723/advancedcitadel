@@ -1,0 +1,45 @@
+​1. Overall Composition
+​The image is a high-contrast, front-on view of a single, circular automotive tachometer (revolution counter) gauge, isolated on a pure black background. The gauge itself is illuminated, with a matte black face.
+​2. Main Gauge Face & Markings
+​Shape: A perfect circle.
+​Background: Matte black.
+​Numbers (Revolutions):
+​The numbers 1, 2, 3, 4, 5, 6, 7, 8, 9 are arranged in an arc, starting from the 8 o'clock position (1) and ending at the 3 o'clock position (9).
+​Font: A bold, sans-serif, slightly blocky automotive-style font.
+​Coloring:
+​Numbers 1 through 6 are white.
+​Numbers 7, 8, and 9 are bright red.
+​Tick Marks:
+​Major Ticks: Thick, white tick marks are placed next to each number (1-9).
+​Quarter Ticks: Between each major number, there are three shorter, thinner white tick marks, dividing the space into four 250 r/min segments.
+​Fine Ticks (0-1): From the 0 position (at 7 o'clock) to the '1', there are nine very short, fine white tick marks, representing 100 r/min increments.
+​Redline Zone:
+​A thick, solid red band begins precisely at the major tick mark for 7 and continues clockwise, passing the 9 to the end of the scale (approx. 3:15 o'clock position). This band forms the background for the red numbers 7, 8, and 9.
+​3. Center Elements
+​Needle Pivot: A black, circular cap is at the exact geometric center of the gauge.
+​Needle:
+​A single, thin, bright red pointer.
+​It originates from the center pivot.
+​Its tip rests exactly at the 0 position (the 7 o'clock position).
+​Unit Text:
+​Positioned directly below the center pivot.
+​The text reads x1000r/min in a white, medium-weight, sans-serif font.
+​4. Digital LCD Display
+​Position: Located at the bottom of the gauge, centered around the 6 o'clock position.
+​Type: A rectangular, orange-backlit LCD screen.
+​Content: All text and numbers are black, in a 7-segment digital font.
+​Top-Left: The word TRIP
+​Mid-Left: The letter A inside a black-bordered box.
+​Top-Right: The trip meter, reading 0.0.
+​Bottom Row: The main odometer, in a larger font, reading 003914.
+​Separator: A thin, horizontal black line separates the top row (TRIP A / 0.0) from the bottom row (003914).
+​5. Indicator Light Panel
+​Position: On the right side of the gauge face, centered at the 3 o'clock position.
+​Layout: A vertical stack of three mode indicators, enclosed in a faint white rectangular border.
+​Indicators (Top to Bottom):
+​TARMAC: The text is white sans-serif. To its left is a circular yellow illuminated dot.
+​GRAVEL: The text is white sans-serif. To its left is a circular unlit, dark grey dot.
+​SNOW: The text is white sans-serif. To its left is a circular unlit, dark grey dot.
+​Warning Light:
+​Located directly below the drive mode panel.
+​The text SRS is visible in white, sans-serif font. The light is off.

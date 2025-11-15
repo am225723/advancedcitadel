@@ -328,12 +328,12 @@ const TachometerLock = ({ onSuccess }) => {
 
   return (
     <div className="space-y-10 flex flex-col items-center">
-      {/* Enhanced tachometer */}
+      {/* Authentic Evo IX Tachometer */}
       <div className="relative w-96 h-96">
         <svg viewBox="0 0 240 240" className="w-full h-full drop-shadow-2xl">
           <defs>
             <filter id="needle-glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+              <feGaussianBlur stdDeviation="3" result="coloredBlur" />
               <feMerge>
                 <feMergeNode in="coloredBlur" />
                 <feMergeNode in="SourceGraphic" />
@@ -352,125 +352,176 @@ const TachometerLock = ({ onSuccess }) => {
               <stop offset="0.92" stopColor="#050505" />
               <stop offset="1" stopColor="#000000" />
             </radialGradient>
-            <linearGradient id="redzone-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#dc2626" />
-              <stop offset="50%" stopColor="#ef4444" />
-              <stop offset="100%" stopColor="#991b1b" />
-            </linearGradient>
             <radialGradient id="glass-effect" cx="0.3" cy="0.3" r="0.8">
-              <stop offset="0%" stopColor="rgba(255,255,255,0.15)" />
-              <stop offset="70%" stopColor="rgba(255,255,255,0.03)" />
-              <stop offset="100%" stopColor="rgba(0,0,0,0.2)" />
+              <stop offset="0%" stopColor="rgba(255,255,255,0.12)" />
+              <stop offset="70%" stopColor="rgba(255,255,255,0.02)" />
+              <stop offset="100%" stopColor="rgba(0,0,0,0.25)" />
             </radialGradient>
           </defs>
           
-          {/* Bezel with enhanced metallic effect */}
+          {/* Bezel - metallic outer ring */}
           <circle cx="120" cy="120" r="115" fill="url(#evo-bezel)" />
           <circle cx="120" cy="120" r="113" fill="none" stroke="#555" strokeWidth="0.5" opacity="0.6" />
           <circle cx="120" cy="120" r="105" fill="#0a0a0a" />
-          <circle cx="120" cy="120" r="103" fill="none" stroke="#1a1a1a" strokeWidth="0.5" />
           
-          {/* Gauge face */}
+          {/* Matte black gauge face */}
           <circle cx="120" cy="120" r="100" fill="url(#evo-face)" stroke="#2a2a2a" strokeWidth="0.8" />
           
-          {/* Redzone arc */}
+          {/* Redzone BAND - thick red background from 7 to 9+ (starts at 75 degrees, ends at 135 degrees) */}
           <path
-            d="M 120 120 L 143.3 206.9 A 90 90 0 0 1 56.4 183.6 L 120 120 Z"
-            fill="url(#redzone-gradient)"
-            opacity="0.75"
+            d="M 120 120 L 190.7 167.3 A 88 88 0 0 1 56.9 184.4 L 120 120 Z"
+            fill="#dc2626"
+            opacity="0.9"
           />
 
-          {/* Tick marks */}
-          {Array.from({ length: 91 }).map((_, i) => {
-            const angle = -135 + i * 3;
-            const isMajor = i % 10 === 0;
-            const isMid = i % 5 === 0 && !isMajor;
-            const isRedzone = i >= 70;
-            const r1 = 100;
-            const r2 = isMajor ? 80 : isMid ? 87 : 92;
-            const x1 = 120 + r1 * Math.cos(angle * Math.PI / 180);
-            const y1 = 120 + r1 * Math.sin(angle * Math.PI / 180);
-            const x2 = 120 + r2 * Math.cos(angle * Math.PI / 180);
-            const y2 = 120 + r2 * Math.sin(angle * Math.PI / 180);
-            const strokeColor = isRedzone ? "#ef4444" : "#f0f0f0";
-            const strokeWidth = isMajor ? "3" : isMid ? "1.8" : "0.9";
-            return (
-              <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={strokeColor} strokeWidth={strokeWidth} opacity={isMajor ? "1" : isMid ? "0.9" : "0.7"} strokeLinecap="round" />
-            );
-          })}
+          {/* Tick marks - major (1-9), quarter (3 between each number), and fine (9 from 0-1) */}
+          {(() => {
+            const ticks = [];
+            // Fine ticks from 0 to 1 (9 ticks, 100rpm each)
+            for (let i = 0; i < 10; i++) {
+              const angle = -135 + i * 3;
+              const r1 = 100;
+              const r2 = 94;
+              const x1 = 120 + r1 * Math.cos(angle * Math.PI / 180);
+              const y1 = 120 + r1 * Math.sin(angle * Math.PI / 180);
+              const x2 = 120 + r2 * Math.cos(angle * Math.PI / 180);
+              const y2 = 120 + r2 * Math.sin(angle * Math.PI / 180);
+              ticks.push(
+                <line key={`fine-${i}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#f5f5f5" strokeWidth="0.8" opacity="0.7" strokeLinecap="round" />
+              );
+            }
+            // Major ticks and quarter ticks for 1-9
+            for (let num = 1; num <= 9; num++) {
+              const baseAngle = -135 + num * 30;
+              // Major tick at number
+              const r1 = 100;
+              const r2 = 78;
+              const x1 = 120 + r1 * Math.cos(baseAngle * Math.PI / 180);
+              const y1 = 120 + r1 * Math.sin(baseAngle * Math.PI / 180);
+              const x2 = 120 + r2 * Math.cos(baseAngle * Math.PI / 180);
+              const y2 = 120 + r2 * Math.sin(baseAngle * Math.PI / 180);
+              ticks.push(
+                <line key={`major-${num}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#f5f5f5" strokeWidth="3.5" opacity="1" strokeLinecap="round" />
+              );
+              // 3 quarter ticks between this number and next (except after 9)
+              if (num < 9) {
+                for (let q = 1; q <= 3; q++) {
+                  const quarterAngle = baseAngle + q * 7.5; // 30 degrees / 4 = 7.5 degrees
+                  const qr2 = 87;
+                  const qx1 = 120 + r1 * Math.cos(quarterAngle * Math.PI / 180);
+                  const qy1 = 120 + r1 * Math.sin(quarterAngle * Math.PI / 180);
+                  const qx2 = 120 + qr2 * Math.cos(quarterAngle * Math.PI / 180);
+                  const qy2 = 120 + qr2 * Math.sin(quarterAngle * Math.PI / 180);
+                  ticks.push(
+                    <line key={`quarter-${num}-${q}`} x1={qx1} y1={qy1} x2={qx2} y2={qy2} stroke="#f5f5f5" strokeWidth="1.8" opacity="0.9" strokeLinecap="round" />
+                  );
+                }
+              }
+            }
+            return ticks;
+          })()}
 
-          {/* Numbers */}
-          {Array.from({ length: 10 }).map((_, i) => {
-            const angle = -135 + i * 30;
-            const textX = 120 + 66 * Math.cos(angle * Math.PI / 180);
-            const textY = 120 + 66 * Math.sin(angle * Math.PI / 180);
-            const isRedzone = i >= 7;
+          {/* Numbers 1-9 (7-9 in red) */}
+          {Array.from({ length: 9 }).map((_, i) => {
+            const num = i + 1;
+            const angle = -135 + num * 30;
+            const textX = 120 + 64 * Math.cos(angle * Math.PI / 180);
+            const textY = 120 + 64 * Math.sin(angle * Math.PI / 180);
+            const isRedzone = num >= 7;
             return (
               <text 
-                key={i} 
+                key={num} 
                 x={textX} 
-                y={textY + 6} 
+                y={textY + 7} 
                 textAnchor="middle" 
-                fill={isRedzone ? "#ef4444" : "#f0f0f0"} 
-                fontSize="19" 
+                fill={isRedzone ? "#ff2020" : "#ffffff"} 
+                fontSize="22" 
                 fontWeight="900"
                 fontFamily="Arial, sans-serif"
-                style={{ textShadow: isRedzone ? '0 0 4px rgba(239, 68, 68, 0.5)' : '0 0 2px rgba(0, 0, 0, 0.8)' }}
+                style={{ textShadow: isRedzone ? '0 0 6px rgba(255, 32, 32, 0.6)' : '0 0 3px rgba(0, 0, 0, 0.9)' }}
               >
-                {i}
+                {num}
               </text>
             );
           })}
           
-          {/* Labels */}
-          <text x="120" y="98" textAnchor="middle" fill="#e0e0e0" fontSize="11" fontWeight="900" letterSpacing="2.5">RPM</text>
-          <text x="120" y="109" textAnchor="middle" fill="#b0b0b0" fontSize="7" fontWeight="700" letterSpacing="1.2">x1000r/min</text>
+          {/* x1000r/min label below center */}
+          <text x="120" y="135" textAnchor="middle" fill="#e0e0e0" fontSize="8" fontWeight="700" letterSpacing="0.5">x1000r/min</text>
+
+          {/* Orange LCD Display */}
+          <g>
+            {/* LCD background */}
+            <rect x="78" y="168" width="84" height="32" rx="2" fill="#ff8c1a" stroke="#cc6600" strokeWidth="1" />
+            
+            {/* Top row - TRIP A and reading */}
+            <text x="84" y="178" fill="#1a1a1a" fontSize="7" fontWeight="700" fontFamily="monospace">TRIP</text>
+            <rect x="102" y="172" width="10" height="8" rx="1" fill="none" stroke="#1a1a1a" strokeWidth="0.5" />
+            <text x="107" y="178" textAnchor="middle" fill="#1a1a1a" fontSize="6" fontWeight="900" fontFamily="monospace">A</text>
+            <text x="156" y="178" textAnchor="end" fill="#1a1a1a" fontSize="8" fontWeight="900" fontFamily="monospace">{(rpm / 1000).toFixed(1)}</text>
+            
+            {/* Divider line */}
+            <line x1="80" y1="182" x2="160" y2="182" stroke="#1a1a1a" strokeWidth="0.5" opacity="0.5" />
+            
+            {/* Bottom row - Static Odometer */}
+            <text x="156" y="194" textAnchor="end" fill="#1a1a1a" fontSize="12" fontWeight="900" fontFamily="monospace">
+              003914
+            </text>
+          </g>
+
+          {/* Drive Mode Indicator Panel */}
+          <g transform="translate(172, 106)">
+            {/* Panel border */}
+            <rect x="0" y="0" width="38" height="34" rx="2" fill="none" stroke="#666" strokeWidth="0.8" />
+            
+            {/* TARMAC indicator */}
+            <circle cx="6" cy="6" r="2.5" fill="#fbbf24" />
+            <text x="12" y="8" fill="#e0e0e0" fontSize="5.5" fontWeight="700" fontFamily="Arial">TARMAC</text>
+            
+            {/* GRAVEL indicator */}
+            <circle cx="6" cy="16" r="2.5" fill="#3a3a3a" stroke="#555" strokeWidth="0.5" />
+            <text x="12" y="18" fill="#888" fontSize="5.5" fontWeight="700" fontFamily="Arial">GRAVEL</text>
+            
+            {/* SNOW indicator */}
+            <circle cx="6" cy="26" r="2.5" fill="#3a3a3a" stroke="#555" strokeWidth="0.5" />
+            <text x="12" y="28" fill="#888" fontSize="5.5" fontWeight="700" fontFamily="Arial">SNOW</text>
+          </g>
           
-          <text x="120" y="152" textAnchor="middle" fill="#c0c0c0" fontSize="9" fontWeight="800" letterSpacing="0.5">MITSUBISHI</text>
-          <text x="120" y="162" textAnchor="middle" fill="#ef4444" fontSize="8" fontWeight="900" letterSpacing="2">EVOLUTION IX</text>
+          {/* SRS warning light */}
+          <text x="190" y="148" fill="#4a4a4a" fontSize="5" fontWeight="700" fontFamily="Arial">SRS</text>
 
-          {/* Digital RPM readout */}
-          <rect x="96" y="170" width="48" height="20" fill="#0a0a0a" rx="3" stroke="#2a2a2a" strokeWidth="1.5" 
-            style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }} />
-          <text x="120" y="185" textAnchor="middle" fill={isInRedzone ? "#dc2626" : "#22c55e"} fontSize="13" fontWeight="900" fontFamily="monospace"
-            style={{ textShadow: `0 0 6px ${isInRedzone ? 'rgba(220, 38, 38, 0.6)' : 'rgba(34, 197, 94, 0.6)'}` }}>
-            {rpm.toFixed(0)}
-          </text>
-
-          {/* Needle with enhanced shadow */}
+          {/* RED Needle */}
           <motion.g
             style={{ transformOrigin: '120px 120px' }}
             animate={{ rotate: needleRotation }}
             transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
           >
-            {/* Wider shadow needle - points to tick marks at radius 80 */}
+            {/* Needle shadow/glow */}
             <line
               x1="120"
               y1="120"
               x2="120"
-              y2="40"
-              stroke={isInRedzone ? "#dc2626" : "#d0d0d0"}
-              strokeWidth="3.5"
+              y2="38"
+              stroke="#dc2626"
+              strokeWidth="3"
               strokeLinecap="round"
               filter="url(#needle-glow)"
-              opacity="0.9"
+              opacity="0.8"
             />
-            {/* Precise center needle - exactly 80 units from center to align with major tick marks */}
+            {/* Main red needle */}
             <line
               x1="120"
               y1="120"
               x2="120"
-              y2="40"
-              stroke={isInRedzone ? "#ef4444" : "#f0f0f0"}
-              strokeWidth="1.5"
+              y2="38"
+              stroke="#ff2020"
+              strokeWidth="2"
               strokeLinecap="round"
             />
           </motion.g>
           
-          {/* Center hub */}
-          <circle cx="120" cy="120" r="14" fill="#0a0a0a" stroke="#555" strokeWidth="1.5" />
-          <circle cx="120" cy="120" r="11" fill="url(#evo-bezel)" />
-          <circle cx="120" cy="120" r="7" fill="#1a1a1a" stroke="#333" strokeWidth="0.5" />
+          {/* Center pivot cap */}
+          <circle cx="120" cy="120" r="8" fill="#0a0a0a" stroke="#1a1a1a" strokeWidth="1" />
+          <circle cx="120" cy="120" r="5" fill="#1a1a1a" />
           
           {/* Glass reflection effect */}
           <circle cx="120" cy="120" r="100" fill="url(#glass-effect)" pointerEvents="none" />
