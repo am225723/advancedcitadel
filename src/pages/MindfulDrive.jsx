@@ -96,21 +96,22 @@ const DashboardLight = ({ phase, phaseProgress }) => {
   return <pointLight ref={lightRef} color="#00ffff" position={[0, 0.5, 2]} intensity={0.5} distance={5} decay={2} />;
 };
 
-const MindfulDrive = () => {
-  const [isRunning, setIsRunning] = useState(true); // Auto-start for this experience
-  const [phase, setPhase] = useState('inhale');
-  const [phaseProgress, setPhaseProgress] = useState(0);
+// Audio controller component that runs inside Canvas
+const AudioController = ({ phase, phaseProgress }) => {
   const audioRef = useRef();
 
   useEffect(() => {
-    const audio = new Audio('/audio/engine-hum.mp3');
+    const audio = new Audio('/audio/ambient-drive.mp3');
     audio.loop = true;
-    audio.volume = 0;
-    audio.play().catch(e => console.error("Audio play failed:", e));
+    audio.volume = 0.1;
+    audio.play().catch(e => console.log("Audio autoplay blocked - user interaction required"));
     audioRef.current = audio;
 
     return () => {
-      audio.pause();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
   }, []);
 
@@ -118,12 +119,20 @@ const MindfulDrive = () => {
     if (!audioRef.current) return;
     let targetVolume = 0.1;
     if (phase === 'inhale') {
-      targetVolume = 0.1 + phaseProgress * 0.4;
+      targetVolume = 0.1 + phaseProgress * 0.3;
     } else if (phase === 'exhale') {
-      targetVolume = 0.1 + (1 - phaseProgress) * 0.4;
+      targetVolume = 0.1 + (1 - phaseProgress) * 0.3;
     }
-    audioRef.current.volume = THREE.MathUtils.lerp(audioRef.current.volume, targetVolume, 0.1);
+    audioRef.current.volume = Math.max(0, Math.min(0.5, THREE.MathUtils.lerp(audioRef.current.volume, targetVolume, 0.1)));
   });
+
+  return null;
+};
+
+const MindfulDrive = () => {
+  const [isRunning, setIsRunning] = useState(true);
+  const [phase, setPhase] = useState('inhale');
+  const [phaseProgress, setPhaseProgress] = useState(0);
 
   const rite = { inhale: 5.5, hold: 0, exhale: 5.5, holdAfter: 0 };
 
@@ -150,6 +159,7 @@ const MindfulDrive = () => {
           <Road />
           <Scenery />
           <DashboardLight phase={phase} phaseProgress={phaseProgress} />
+          <AudioController phase={phase} phaseProgress={phaseProgress} />
 
           <BreathingTimer
             isRunning={isRunning}

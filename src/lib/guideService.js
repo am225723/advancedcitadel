@@ -42,6 +42,11 @@ export const getAIGuideResponse = async (systemPrompt, messageHistory, userConte
       throw new Error(`Error from AI Guide: ${data.error}`);
     }
 
+    // Remove citation numbers like [3][1] from the response
+    if (data.response) {
+      data.response = data.response.replace(/\[\d+\]/g, '');
+    }
+
     return data; // Contains { response, model, usage }
   } catch (error) {
     console.error('Error calling getAIGuideResponse:', error);

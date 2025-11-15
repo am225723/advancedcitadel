@@ -63,7 +63,9 @@ const AIPersona = () => {
 
       if (error) throw error;
       
-      const assistantMessage = { role: 'assistant', content: data.response };
+      // Remove citation numbers like [3][1] from AI responses
+      const cleanedResponse = data.response ? data.response.replace(/\[\d+\]/g, '') : data.response;
+      const assistantMessage = { role: 'assistant', content: cleanedResponse };
       setMessages((prev) => [...prev, assistantMessage]);
 
     } catch (error) {
