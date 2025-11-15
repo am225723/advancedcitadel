@@ -175,9 +175,13 @@ const TachometerLock = ({ onSuccess }) => {
   const [isGasPressed, setIsGasPressed] = useState(false);
   const [isBrakePressed, setIsBrakePressed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [audioContext, setAudioContext] = useState(null);
+  const [engineOscillator, setEngineOscillator] = useState(null);
+  const [gainNode, setGainNode] = useState(null);
   
   const [targetRpms, setTargetRpms] = useState([2500, 5000, 7500]);
   const [tolerance, setTolerance] = useState(200);
+  const [rpmSpeed, setRpmSpeed] = useState(120);
 
   useEffect(() => {
     loadConfiguration();
@@ -199,6 +203,7 @@ const TachometerLock = ({ onSuccess }) => {
           data.config.checkpoint3 || 7500
         ]);
         setTolerance(data.config.tolerance || 200);
+        setRpmSpeed(data.config.rpm_speed || 120);
       }
     } catch (error) {
       console.error('Error loading tachometer configuration:', error);
@@ -208,24 +213,81 @@ const TachometerLock = ({ onSuccess }) => {
   };
 
   useEffect(() => {
+    const initAudio = () => {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'sawtooth';
+      osc.frequency.value = 30;
+      gain.gain.value = 0;
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      
+      setAudioContext(ctx);
+      setEngineOscillator(osc);
+      setGainNode(gain);
+    };
+
+    const handleUserInteraction = () => {
+      if (!audioContext) {
+        initAudio();
+      }
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('touchstart', handleUserInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+      if (engineOscillator) {
+        engineOscillator.stop();
+      }
+      if (audioContext) {
+        audioContext.close();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     let interval;
     
     if (isGasPressed && !isBrakePressed && rpm < 9000) {
       interval = setInterval(() => {
-        setRpm(prev => Math.min(prev + 120, 9000));
+        setRpm(prev => Math.min(prev + rpmSpeed, 9000));
       }, 50);
     } else if (isBrakePressed && !isGasPressed && rpm > 0) {
       interval = setInterval(() => {
-        setRpm(prev => Math.max(prev - 150, 0));
+        setRpm(prev => Math.max(prev - (rpmSpeed * 1.25), 0));
       }, 50);
     } else if (!isGasPressed && !isBrakePressed && rpm > 0) {
       interval = setInterval(() => {
-        setRpm(prev => Math.max(prev - 60, 0));
+        setRpm(prev => Math.max(prev - (rpmSpeed * 0.5), 0));
       }, 50);
     }
     
     return () => clearInterval(interval);
-  }, [isGasPressed, isBrakePressed, rpm]);
+  }, [isGasPressed, isBrakePressed, rpm, rpmSpeed]);
+
+  useEffect(() => {
+    if (!engineOscillator || !gainNode) return;
+
+    const idleFreq = 30;
+    const maxFreq = 400;
+    const targetFreq = idleFreq + (rpm / 9000) * (maxFreq - idleFreq);
+    
+    const minVolume = 0;
+    const maxVolume = 0.15;
+    const targetVolume = rpm > 0 ? minVolume + (rpm / 9000) * (maxVolume - minVolume) : 0;
+
+    engineOscillator.frequency.setTargetAtTime(targetFreq, audioContext.currentTime, 0.1);
+    gainNode.gain.setTargetAtTime(targetVolume, audioContext.currentTime, 0.1);
+  }, [rpm, engineOscillator, gainNode, audioContext]);
 
   const checkRpm = () => {
     const currentTarget = targetRpms[checkpointIndex];
@@ -376,7 +438,7 @@ const TachometerLock = ({ onSuccess }) => {
           <motion.g
             style={{ transformOrigin: '120px 120px' }}
             animate={{ rotate: needleRotation }}
-            transition={{ type: "spring", stiffness: 200, damping: 24 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
           >
             {/* Wider shadow needle - points to numbers at radius 66 */}
             <line
@@ -410,15 +472,6 @@ const TachometerLock = ({ onSuccess }) => {
           {/* Glass reflection effect */}
           <circle cx="120" cy="120" r="100" fill="url(#glass-effect)" pointerEvents="none" />
         </svg>
-        
-        {/* Target display */}
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center bg-slate-900/90 px-6 py-3 rounded-lg border border-amber-500/30 shadow-xl">
-          <p className="text-amber-400 font-bold text-sm mb-1">Checkpoint {checkpointIndex + 1}/3</p>
-          <p className="text-white font-mono text-2xl font-black drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)]">
-            {currentTarget} <span className="text-amber-500 text-lg">RPM</span>
-          </p>
-          <p className="text-slate-400 text-xs mt-1">±{tolerance} RPM tolerance</p>
-        </div>
       </div>
 
       {/* 3-Pedal System */}
