@@ -14,7 +14,8 @@ const LockConfiguration = () => {
     checkpoint1: 2500,
     checkpoint2: 5000,
     checkpoint3: 7500,
-    tolerance: 200
+    tolerance: 200,
+    rpm_speed: 120
   });
 
   const [gearConfig, setGearConfig] = useState({
@@ -120,7 +121,8 @@ const LockConfiguration = () => {
       checkpoint1: 2500,
       checkpoint2: 5000,
       checkpoint3: 7500,
-      tolerance: 200
+      tolerance: 200,
+      rpm_speed: 120
     });
     setGearConfig({
       sequence: [1, 3, 5, 2, 4]
@@ -237,6 +239,22 @@ const LockConfiguration = () => {
                     />
                     <p className="text-xs text-slate-500 mt-1">
                       Users can be ±{tachConfig.tolerance} RPM from target
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label className="text-slate-300 mb-2 block">RPM Acceleration Speed</Label>
+                    <Input
+                      type="number"
+                      min="30"
+                      max="300"
+                      step="10"
+                      value={tachConfig.rpm_speed}
+                      onChange={(e) => setTachConfig({ ...tachConfig, rpm_speed: parseInt(e.target.value) })}
+                      className="bg-slate-900 border-slate-700 text-white text-lg font-mono"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                      RPM gained per tick (Lower = Slower, Higher = Faster). Default: 120
                     </p>
                   </div>
 
