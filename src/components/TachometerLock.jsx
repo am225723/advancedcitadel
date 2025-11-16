@@ -386,18 +386,17 @@ const TachometerConfigurator = ({ config, setConfig }) => {
 
 const TachometerLock = ({ onSuccess }) => {
   // --- TACHOMETER CALIBRATION ---
-  // Updated defaults to match user's image (15708.jpg)
-  // Set rest angle to -135 as a visible starting point
+  // Using values from 15708.jpg, but with a VISIBLE rest angle.
   const [tachometerConfig, setTachometerConfig] = useState({
     TACH_START_ANGLE: -218,
     TACH_END_ANGLE: -25,
-    NEEDLE_REST_ANGLE: -135, // Corrected visible rest angle
+    NEEDLE_REST_ANGLE: -132, // <-- Set to a visible angle like -132 (at the '4')
     LABEL_COORDS: { x: 98, y: 105 },
     NUMBER_FONT_SIZE: 14,
     NUMBER_RADIUS: 65,
     NEEDLE_LENGTH: 78,
-    NEEDLE_PIVOT_X: 119,
-    NEEDLE_PIVOT_Y: 119,
+    NEEDLE_PIVOT_X: 120, // <-- CORRECTED: Set to true center 120
+    NEEDLE_PIVOT_Y: 120, // <-- CORRECTED: Set to true center 120
     MAJOR_TICK_LENGTH: 22,
     QUARTER_TICK_LENGTH: 13,
     FINE_TICK_LENGTH: 6,
@@ -833,38 +832,44 @@ const TachometerLock = ({ onSuccess }) => {
           <text x="190" y="148" fill="#4a4a4a" fontSize="5" fontWeight="700" fontFamily="Arial, sans-serif">SRS</text>
 
           {/* Needle AND Pivot */}
-          {/* This group is translated to the pivot point, and then ROTATED */}
-          <motion.g
-            transform={`translate(${NEEDLE_PIVOT_X} ${NEEDLE_PIVOT_Y})`}
-            animate={{ rotate: currentNeedleAngle }}
-            transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
-          >
-            {/* Needle (drawn from the new 0,0 origin) */}
-            <line
-              x1={0}
-              y1={0} // Attached to pivot (0,0)
-              x2={0}
-              y2={-NEEDLE_LENGTH} // Tip (negative Y is "up")
-              stroke="#dc2626"
-              strokeWidth="3"
-              strokeLinecap="round"
-              filter="url(#needle-glow)"
-              opacity="0.8"
-            />
-            <line
-              x1={0}
-              y1={0} // Attached to pivot (0,0)
-              x2={0}
-              y2={-NEEDLE_LENGTH} // Tip (negative Y is "up")
-              stroke="#ff2020"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
+          {/*
+            FIX: This is the correct way to rotate the group.
+            1. A static <g> translates the pivot to the center (NEEDLE_PIVOT_X, NEEDLE_PIVOT_Y).
+            2. The inner <motion.g> rotates around its new origin (0,0).
+          */}
+          <g transform={`translate(${NEEDLE_PIVOT_X} ${NEEDLE_PIVOT_Y})`}>
+            <motion.g
+              initial={false}
+              animate={{ rotate: currentNeedleAngle }}
+              transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
+            >
+              {/* Needle (drawn from the new 0,0 origin) */}
+              <line
+                x1={0}
+                y1={0} // Attached to pivot (0,0)
+                x2={0}
+                y2={-NEEDLE_LENGTH} // Tip (negative Y is "up")
+                stroke="#dc2626"
+                strokeWidth="3"
+                strokeLinecap="round"
+                filter="url(#needle-glow)"
+                opacity="0.8"
+              />
+              <line
+                x1={0}
+                y1={0} // Attached to pivot (0,0)
+                x2={0}
+                y2={-NEEDLE_LENGTH} // Tip (negative Y is "up")
+                stroke="#ff2020"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
 
-            {/* Pivot cap (drawn at the new 0,0 origin) */}
-            <circle cx={0} cy={0} r="8" fill="#0a0a0a" stroke="#1a1a1a" strokeWidth="1" />
-            <circle cx={0} cy={0} r="5" fill="#1a1a1a" />
-          </motion.g>
+              {/* Pivot cap (drawn at the new 0,0 origin) */}
+              <circle cx={0} cy={0} r="8" fill="#0a0a0a" stroke="#1a1a1a" strokeWidth="1" />
+              <circle cx={0} cy={0} r="5" fill="#1a1a1a" />
+            </motion.g>
+          </g>
 
 
           {/* Glass */}
