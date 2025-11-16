@@ -103,7 +103,7 @@ const EvoPedal = ({ children, type, size = 'normal', ...props }) => {
           ))}
         </div>
 
-        {/* Accent LED indicator strip with realistic housing */}
+        {/* Accent LED indicator strip with realistic-housing */}
         <div className={`absolute ${isSmall ? 'bottom-2' : 'bottom-4'} left-3 right-3`}>
           {/* LED housing recess */}
           <div className="absolute -inset-1 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg opacity-60 blur-sm"></div>
@@ -171,8 +171,239 @@ const EvoPedal = ({ children, type, size = 'normal', ...props }) => {
   );
 };
 
+// --- START Configurator Component ---
+const TachometerConfigurator = ({ config, setConfig }) => {
+  // Generic handler for top-level numeric properties
+  const handleConfigChange = (e) => {
+    const { name, value } = e.target;
+    setConfig(prev => ({ ...prev, [name]: Number(value) }));
+  };
+
+  // Handler for nested LABEL_COORDS
+  const handleCoordChange = (e) => {
+    const { name, value } = e.target;
+    const axis = name.slice(-1).toLowerCase(); // 'x' or 'y'
+    setConfig(prev => ({
+      ...prev,
+      LABEL_COORDS: {
+        ...prev.LABEL_COORDS,
+        [axis]: Number(value)
+      }
+    }));
+  };
+
+  return (
+    <div className="relative w-full max-w-2xl p-4 bg-slate-800/80 backdrop-blur-sm text-white rounded-lg shadow-2xl space-y-3 border border-slate-700" style={{maxHeight: '90vh', overflowY: 'auto'}}>
+      <h3 className="font-bold text-lg text-center">Tach Configurator</h3>
+
+      {/* Sliders */}
+      <div className="grid grid-cols-3 gap-x-6 gap-y-3">
+        {/* Left Column */}
+        <div className="space-y-3">
+          <div>
+            <label htmlFor="TACH_START_ANGLE" className="flex justify-between text-sm font-medium">
+              <span>Start Angle (0)</span>
+              <span className="text-amber-300">{config.TACH_START_ANGLE}°</span>
+            </label>
+            <input
+              type="range" id="TACH_START_ANGLE" name="TACH_START_ANGLE"
+              min="-360" max="360" value={config.TACH_START_ANGLE}
+              onChange={handleConfigChange}
+              className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="TACH_END_ANGLE" className="flex justify-between text-sm font-medium">
+              <span>End Angle (9)</span>
+              <span className="text-amber-300">{config.TACH_END_ANGLE}°</span>
+            </label>
+            <input
+              type="range" id="TACH_END_ANGLE" name="TACH_END_ANGLE"
+              min="-360" max="360" value={config.TACH_END_ANGLE}
+              onChange={handleConfigChange}
+              className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="NEEDLE_REST_ANGLE" className="flex justify-between text-sm font-medium">
+              <span>Rest Angle (Needle)</span>
+              <span className="text-amber-300">{config.NEEDLE_REST_ANGLE}°</span>
+            </label>
+            <input
+              type="range" id="NEEDLE_REST_ANGLE" name="NEEDLE_REST_ANGLE"
+              min="-360" max="360" value={config.NEEDLE_REST_ANGLE}
+              onChange={handleConfigChange}
+              className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+        </div>
+
+        {/* Middle Column */}
+        <div className="space-y-3">
+          <div>
+            <label htmlFor="NUMBER_FONT_SIZE" className="flex justify-between text-sm font-medium">
+              <span>Number Font Size</span>
+              <span className="text-amber-300">{config.NUMBER_FONT_SIZE}px</span>
+            </label>
+            <input
+              type="range" id="NUMBER_FONT_SIZE" name="NUMBER_FONT_SIZE"
+              min="8" max="30" value={config.NUMBER_FONT_SIZE}
+              onChange={handleConfigChange}
+              className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="NUMBER_RADIUS" className="flex justify-between text-sm font-medium">
+              <span>Number Radius</span>
+              <span className="text-amber-300">{config.NUMBER_RADIUS}</span>
+            </label>
+            <input
+              type="range" id="NUMBER_RADIUS" name="NUMBER_RADIUS"
+              min="40" max="90" value={config.NUMBER_RADIUS}
+              onChange={handleConfigChange}
+              className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="NEEDLE_LENGTH" className="flex justify-between text-sm font-medium">
+              <span>Needle Length</span>
+              <span className="text-amber-300">{config.NEEDLE_LENGTH}</span>
+            </label>
+            <input
+              type="range" id="NEEDLE_LENGTH" name="NEEDLE_LENGTH"
+              min="50" max="110" value={config.NEEDLE_LENGTH}
+              onChange={handleConfigChange}
+              className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-3">
+          <div>
+            <label htmlFor="NEEDLE_PIVOT_X" className="flex justify-between text-sm font-medium">
+              <span>Needle Pivot X</span>
+              <span className="text-amber-300">{config.NEEDLE_PIVOT_X}</span>
+            </label>
+            <input
+              type="range" id="NEEDLE_PIVOT_X" name="NEEDLE_PIVOT_X"
+              min="100" max="140" value={config.NEEDLE_PIVOT_X}
+              onChange={handleConfigChange}
+              className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+          <div>
+            <label htmlFor="NEEDLE_PIVOT_Y" className="flex justify-between text-sm font-medium">
+              <span>Needle Pivot Y</span>
+              <span className="text-amber-300">{config.NEEDLE_PIVOT_Y}</span>
+            </label>
+            <input
+              type="range" id="NEEDLE_PIVOT_Y" name="NEEDLE_PIVOT_Y"
+              min="100" max="140" value={config.NEEDLE_PIVOT_Y}
+              onChange={handleConfigChange}
+              className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+        </div>
+      </div>
+
+      <hr className="border-slate-600" />
+
+      {/* Bottom Row */}
+      <div className="grid grid-cols-3 gap-x-6">
+        <div>
+          <label htmlFor="MAJOR_TICK_LENGTH" className="flex justify-between text-sm font-medium">
+            <span>Major Tick</span>
+            <span className="text-amber-300">{config.MAJOR_TICK_LENGTH}</span>
+          </label>
+          <input
+            type="range" id="MAJOR_TICK_LENGTH" name="MAJOR_TICK_LENGTH"
+            min="5" max="30" value={config.MAJOR_TICK_LENGTH}
+            onChange={handleConfigChange}
+            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+          />
+        </div>
+        <div>
+          <label htmlFor="QUARTER_TICK_LENGTH" className="flex justify-between text-sm font-medium">
+            <span>Quarter Tick</span>
+            <span className="text-amber-300">{config.QUARTER_TICK_LENGTH}</span>
+          </label>
+          <input
+            type="range" id="QUARTER_TICK_LENGTH" name="QUARTER_TICK_LENGTH"
+            min="2" max="25" value={config.QUARTER_TICK_LENGTH}
+            onChange={handleConfigChange}
+            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+          />
+        </div>
+        <div>
+          <label htmlFor="FINE_TICK_LENGTH" className="flex justify-between text-sm font-medium">
+            <span>Fine Tick</span>
+            <span className="text-amber-300">{config.FINE_TICK_LENGTH}</span>
+          </label>
+          <input
+            type="range" id="FINE_TICK_LENGTH" name="FINE_TICK_LENGTH"
+            min="1" max="20" value={config.FINE_TICK_LENGTH}
+            onChange={handleConfigChange}
+            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+          />
+        </div>
+      </div>
+
+      <hr className="border-slate-600" />
+      {/* Coordinate Inputs */}
+      <div>
+        <label className="block text-sm font-medium mb-1">Label Coords (x1000)</label>
+        <div className="flex space-x-2">
+          <div className="flex-1">
+            <label htmlFor="labelX" className="block text-xs text-slate-400">X</label>
+            <input
+              type="number" id="labelX" name="labelX"
+              value={config.LABEL_COORDS.x}
+              onChange={handleCoordChange}
+              className="w-full p-1.5 bg-slate-900 border border-slate-700 rounded-md text-sm"
+            />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="labelY" className="block text-xs text-slate-400">Y</label>
+            <input
+              type="number" id="labelY" name="labelY"
+              value={config.LABEL_COORDS.y}
+              onChange={handleCoordChange}
+              className="w-full p-1.5 bg-slate-900 border border-slate-700 rounded-md text-sm"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+// --- END Configurator Component ---
+
 
 const TachometerLock = ({ onSuccess }) => {
+  // --- TACHOMETER CALIBRATION ---
+  // Updated defaults to match user's image (15708.jpg)
+  // Set rest angle to -135 as a visible starting point
+  const [tachometerConfig, setTachometerConfig] = useState({
+    TACH_START_ANGLE: -218,
+    TACH_END_ANGLE: -25,
+    NEEDLE_REST_ANGLE: -135, // Corrected visible rest angle
+    LABEL_COORDS: { x: 98, y: 105 },
+    NUMBER_FONT_SIZE: 14,
+    NUMBER_RADIUS: 65,
+    NEEDLE_LENGTH: 78,
+    NEEDLE_PIVOT_X: 119,
+    NEEDLE_PIVOT_Y: 119,
+    MAJOR_TICK_LENGTH: 22,
+    QUARTER_TICK_LENGTH: 13,
+    FINE_TICK_LENGTH: 6,
+  });
+  // --- END CALIBRATION ---
+
   const [rpm, setRpm] = useState(0);
   const [checkpointIndex, setCheckpointIndex] = useState(0);
   const [isGasPressed, setIsGasPressed] = useState(false);
@@ -185,6 +416,25 @@ const TachometerLock = ({ onSuccess }) => {
   const [targetRpms, setTargetRpms] = useState([2500, 5000, 7500]);
   const [tolerance, setTolerance] = useState(200);
   const [rpmSpeed, setRpmSpeed] = useState(120);
+
+  // Use the calibration state
+  const { 
+    TACH_START_ANGLE, TACH_END_ANGLE, NEEDLE_REST_ANGLE, 
+    LABEL_COORDS, NUMBER_FONT_SIZE, NUMBER_RADIUS, NEEDLE_LENGTH,
+    NEEDLE_PIVOT_X, NEEDLE_PIVOT_Y,
+    MAJOR_TICK_LENGTH, QUARTER_TICK_LENGTH, FINE_TICK_LENGTH
+  } = tachometerConfig;
+
+  const TOTAL_SWEEP = TACH_END_ANGLE - TACH_START_ANGLE;
+
+  const [currentNeedleAngle, setCurrentNeedleAngle] = useState(NEEDLE_REST_ANGLE);
+
+  useEffect(() => {
+    if (rpm === 0) {
+      setCurrentNeedleAngle(NEEDLE_REST_ANGLE);
+    }
+  }, [NEEDLE_REST_ANGLE, rpm]);
+
 
   useEffect(() => {
     const loadConfiguration = async () => {
@@ -224,7 +474,6 @@ const TachometerLock = ({ onSuccess }) => {
       }
 
       const ctx = new AudioContext();
-      // Handle suspended state (common in modern browsers)
       if (ctx.state === 'suspended') {
         ctx.resume();
       }
@@ -270,27 +519,46 @@ const TachometerLock = ({ onSuccess }) => {
     };
   }, [audioContext, engineOscillator]);
 
+
   useEffect(() => {
     let interval;
+    let currentRpm = rpm;
 
-    if (isGasPressed && !isBrakePressed && rpm < 9000) {
+    const updateRpm = (newRpm) => {
+      newRpm = Math.max(0, Math.min(9000, newRpm));
+      setRpm(newRpm);
+
+      const dynamicAngle = TACH_START_ANGLE + (newRpm / 9000) * TOTAL_SWEEP;
+      setCurrentNeedleAngle(dynamicAngle);
+    };
+
+    if (isGasPressed && !isBrakePressed) {
       interval = setInterval(() => {
-        setRpm(prev => Math.min(prev + rpmSpeed, 9000));
+        currentRpm += rpmSpeed;
+        updateRpm(currentRpm);
       }, 50);
-    } 
-    else if (isBrakePressed && !isGasPressed && rpm > 0) {
+    } else if (isBrakePressed && !isGasPressed) {
       interval = setInterval(() => {
-        setRpm(prev => Math.max(prev - (rpmSpeed * 1.25), 0));
+        currentRpm -= (rpmSpeed * 1.25);
+        updateRpm(currentRpm);
       }, 50);
-    } 
-    else if (!isGasPressed && !isBrakePressed && rpm > 0) {
+    } else if (!isGasPressed && !isBrakePressed) {
       interval = setInterval(() => {
-        setRpm(prev => Math.max(prev - (rpmSpeed * 0.5), 0));
+        if (currentRpm > 0) {
+          currentRpm -= (rpmSpeed * 0.5);
+          updateRpm(currentRpm);
+        } else {
+          setCurrentNeedleAngle(NEEDLE_REST_ANGLE);
+          if (interval) clearInterval(interval);
+        }
       }, 50);
     }
 
-    return () => clearInterval(interval);
-  }, [isGasPressed, isBrakePressed, rpm, rpmSpeed]);
+    return () => {
+      if(interval) clearInterval(interval)
+    };
+  }, [isGasPressed, isBrakePressed, rpm, rpmSpeed, TACH_START_ANGLE, TOTAL_SWEEP, NEEDLE_REST_ANGLE]);
+
 
   useEffect(() => {
     if (!engineOscillator || !gainNode || !audioContext) return;
@@ -343,16 +611,6 @@ const TachometerLock = ({ onSuccess }) => {
     }
   }, [rpm, checkpointIndex, targetRpms, tolerance, gainNode, audioContext, onSuccess]);
 
-  // --- Angle & Rotation Logic (ADJUSTED FOR USER REQUEST) ---
-  // Previous 8500 position: -150 + (8500/9000) * 210 = 48.33
-  // Previous 3500 position: -150 + (3500/9000) * 210 = -68.33
-  const START_ANGLE = 48.33; // Angle for 0 RPM (Old 8500 position, approx 1:30)
-  const END_ANGLE = -68.34;  // Angle for 9000 RPM (Old 3500 position, approx 4:30)
-  // Calculate total sweep, handling clockwise crossover
-  const TOTAL_SWEEP = (END_ANGLE < START_ANGLE) ? (360 + END_ANGLE) - START_ANGLE : END_ANGLE - START_ANGLE; // ~243.33 degrees
-
-  const needleRotation = START_ANGLE + (rpm / 9000) * TOTAL_SWEEP;
-  const currentTarget = targetRpms[checkpointIndex]; // Used for display, not logic
 
   if (loading) {
     return <div className="text-center py-12 text-slate-400">Loading configuration...</div>;
@@ -360,7 +618,11 @@ const TachometerLock = ({ onSuccess }) => {
 
   return (
     <div className="space-y-10 flex flex-col items-center">
-      {/* Authentic Evo IX Tachometer */}
+
+      {/* --- Configurator Panel --- */}
+      <TachometerConfigurator config={tachometerConfig} setConfig={setTachometerConfig} />
+
+      {/* Tachometer */}
       <div className="relative w-96 h-96">
         <svg viewBox="0 0 240 240" className="w-full h-full drop-shadow-2xl">
           <defs>
@@ -370,6 +632,13 @@ const TachometerLock = ({ onSuccess }) => {
                 <feMergeNode in="coloredBlur" />
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
+            </filter>
+            <filter id="red-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+                <feMerge>
+                  <feMergeNode in="coloredBlur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
             </filter>
             <radialGradient id="evo-bezel" cx="0.5" cy="0.5" r="0.5">
               <stop offset="0.85" stopColor="#1a1a1a" />
@@ -391,20 +660,20 @@ const TachometerLock = ({ onSuccess }) => {
             </radialGradient>
           </defs>
 
-          {/* Bezel - metallic outer ring */}
+          {/* Bezel */}
           <circle cx="120" cy="120" r="115" fill="url(#evo-bezel)" />
           <circle cx="120" cy="120" r="113" fill="none" stroke="#555" strokeWidth="0.5" opacity="0.6" />
           <circle cx="120" cy="120" r="105" fill="#0a0a0a" />
 
-          {/* Matte black gauge face */}
+          {/* Face */}
           <circle cx="120" cy="120" r="100" fill="url(#evo-face)" stroke="#2a2a2a" strokeWidth="0.8" />
 
-          {/* Redzone BAND - from 7 to 9+ */}
+          {/* Redzone */}
           {(() => {
-            const angle7 = START_ANGLE + (7000 / 9000) * TOTAL_SWEEP;
-            const angle9 = END_ANGLE;
+            const angle7 = TACH_START_ANGLE + (7000 / 9000) * TOTAL_SWEEP;
+            const angle9 = TACH_END_ANGLE;
             const r_redzone = 100;
-            const r_inner_redzone = 75; // Aligns with inner edge of numbers
+            const r_inner_redzone = 75; // Matches number radius
 
             const x_start_outer = 120 + r_redzone * Math.cos(angle7 * Math.PI / 180);
             const y_start_outer = 120 + r_redzone * Math.sin(angle7 * Math.PI / 180);
@@ -416,15 +685,17 @@ const TachometerLock = ({ onSuccess }) => {
             const x_end_inner = 120 + r_inner_redzone * Math.cos(angle9 * Math.PI / 180);
             const y_end_inner = 120 + r_inner_redzone * Math.sin(angle9 * Math.PI / 180);
 
-            const sweepFlag = (angle9 - angle7) > 180 ? 1 : 0;
+            let arcSweep = (angle9 - angle7 + 360) % 360;
+            const largeArcFlag = arcSweep > 180 ? 1 : 0;
+            const sweepFlag = 1;
 
             return (
               <path
                 d={`
                   M ${x_start_outer} ${y_start_outer}
-                  A ${r_redzone} ${r_redzone} 0 ${sweepFlag} 1 ${x_end_outer} ${y_end_outer}
+                  A ${r_redzone} ${r_redzone} 0 ${largeArcFlag} ${sweepFlag} ${x_end_outer} ${y_end_outer}
                   L ${x_end_inner} ${y_end_inner}
-                  A ${r_inner_redzone} ${r_inner_redzone} 0 ${sweepFlag} 0 ${x_start_inner} ${y_start_inner}
+                  A ${r_inner_redzone} ${r_inner_redzone} 0 ${largeArcFlag} ${1 - sweepFlag} ${x_start_inner} ${y_start_inner}
                   Z
                 `}
                 fill="#dc2626"
@@ -434,50 +705,53 @@ const TachometerLock = ({ onSuccess }) => {
           })()}
 
 
-          {/* Tick marks - major (0-9), quarter (3 between each number), and fine (9 from 0-1) */}
+          {/* Ticks */}
           {(() => {
             const ticks = [];
             const r_outer = 100;
-            const majorTickLength = 22; // r=78
-            const quarterTickLength = 13; // r=87
-            const fineTickLength = 6; // r=94
+            const tickColor = "#ff2020"; // All ticks red
 
             for (let num = 0; num <= 9; num++) {
-              const baseAngle = START_ANGLE + (num / 9) * TOTAL_SWEEP;
-              const r_inner_major = r_outer - majorTickLength;
+              const baseAngle = TACH_START_ANGLE + (num / 9) * TOTAL_SWEEP;
+              const r_inner_major = r_outer - MAJOR_TICK_LENGTH; // Use config
               const x1_major = 120 + r_outer * Math.cos(baseAngle * Math.PI / 180);
               const y1_major = 120 + r_outer * Math.sin(baseAngle * Math.PI / 180);
               const x2_major = 120 + r_inner_major * Math.cos(baseAngle * Math.PI / 180);
               const y2_major = 120 + r_inner_major * Math.sin(baseAngle * Math.PI / 180);
 
+              const isRedzone = num >= 7;
+
               ticks.push(
-                <line key={`major-${num}`} x1={x1_major} y1={y1_major} x2={x2_major} y2={y2_major} stroke="#f5f5f5" strokeWidth="3.5" opacity="1" strokeLinecap="round" />
+                <line key={`major-${num}`} x1={x1_major} y1={y1_major} x2={x2_major} y2={y2_major} stroke={tickColor} strokeWidth={isRedzone ? 4 : 3.5} opacity="1" strokeLinecap="round" filter="url(#red-glow)" />
               );
 
               if (num === 0) {
-                 for (let i = 1; i < 10; i++) { // 9 fine ticks (100-900)
-                   const fineAngle = START_ANGLE + (i / 90) * TOTAL_SWEEP;
-                   const r_inner_fine = r_outer - fineTickLength;
-                   const x1_fine = 120 + r_outer * Math.cos(fineAngle * Math.PI / 180);
-                   const y1_fine = 120 + r_outer * Math.sin(fineAngle * Math.PI / 180);
-                   const x2_fine = 120 + r_inner_fine * Math.cos(fineAngle * Math.PI / 180);
-                   const y2_fine = 120 + r_inner_fine * Math.sin(fineAngle * Math.PI / 180);
-                   ticks.push(
-                     <line key={`fine-${i}`} x1={x1_fine} y1={y1_fine} x2={x2_fine} y2={y2_fine} stroke="#f5f5f5" strokeWidth="0.8" opacity="0.7" strokeLinecap="round" />
-                   );
-                 }
+                for (let i = 1; i < 10; i++) { 
+                  const fineAngle = TACH_START_ANGLE + (i / 90) * TOTAL_SWEEP;
+                  const r_inner_fine = r_outer - FINE_TICK_LENGTH; // Use config
+                  const x1_fine = 120 + r_outer * Math.cos(fineAngle * Math.PI / 180);
+                  const y1_fine = 120 + r_outer * Math.sin(fineAngle * Math.PI / 180);
+                  const x2_fine = 120 + r_inner_fine * Math.cos(fineAngle * Math.PI / 180);
+                  const y2_fine = 120 + r_inner_fine * Math.sin(fineAngle * Math.PI / 180);
+                  ticks.push(
+                    <line key={`fine-${i}`} x1={x1_fine} y1={y1_fine} x2={x2_fine} y2={y2_fine} stroke={tickColor} strokeWidth="0.8" opacity="0.7" strokeLinecap="round" filter="url(#red-glow)" />
+                  );
+                }
               }
 
               if (num < 9) {
-                for (let q = 1; q <= 3; q++) { // 3 quarter ticks (250, 500, 750)
-                  const quarterAngle = START_ANGLE + ((num * 1000 + q * 250) / 9000) * TOTAL_SWEEP;
-                  const r_inner_quarter = r_outer - quarterTickLength;
+                for (let q = 1; q <= 3; q++) { 
+                  const quarterAngle = TACH_START_ANGLE + ((num * 1000 + q * 250) / 9000) * TOTAL_SWEEP;
+                  const r_inner_quarter = r_outer - QUARTER_TICK_LENGTH; // Use config
                   const qx1 = 120 + r_outer * Math.cos(quarterAngle * Math.PI / 180);
                   const qy1 = 120 + r_outer * Math.sin(quarterAngle * Math.PI / 180);
                   const qx2 = 120 + r_inner_quarter * Math.cos(quarterAngle * Math.PI / 180);
                   const qy2 = 120 + r_inner_quarter * Math.sin(quarterAngle * Math.PI / 180);
+
+                  const qIsRedzone = (num * 1000 + q * 250) >= 7000;
+
                   ticks.push(
-                    <line key={`quarter-${num}-${q}`} x1={qx1} y1={qy1} x2={qx2} y2={qy2} stroke="#f5f5f5" strokeWidth="1.8" opacity="0.9" strokeLinecap="round" />
+                    <line key={`quarter-${num}-${q}`} x1={qx1} y1={qy1} x2={qx2} y2={qy2} stroke={tickColor} strokeWidth={qIsRedzone ? 2.5 : 1.8} opacity="0.9" strokeLinecap="round" filter="url(#red-glow)" />
                   );
                 }
               }
@@ -485,14 +759,14 @@ const TachometerLock = ({ onSuccess }) => {
             return ticks;
           })()}
 
-          {/* Numbers 0-9 (7-9 in red) */}
+          {/* Numbers */}
           {Array.from({ length: 10 }).map((_, i) => {
             const num = i;
-            const angle = START_ANGLE + (num / 9) * TOTAL_SWEEP;
-            const textRadius = 64; // Sits inside the major ticks
+            const angle = TACH_START_ANGLE + (num / 9) * TOTAL_SWEEP;
+            const textRadius = NUMBER_RADIUS; // Use config
             const textX = 120 + textRadius * Math.cos(angle * Math.PI / 180);
             const textY = 120 + textRadius * Math.sin(angle * Math.PI / 180);
-            const isRedzone = num >= 7;
+
             return (
               <text 
                 key={num} 
@@ -500,105 +774,106 @@ const TachometerLock = ({ onSuccess }) => {
                 y={textY} 
                 textAnchor="middle" 
                 dominantBaseline="middle"
-                fill={isRedzone ? "#ff2020" : "#ffffff"} 
-                fontSize="22" 
+                fill="#ff2020" // All numbers red
+                fontSize={NUMBER_FONT_SIZE} // Use config
                 fontWeight="900"
                 fontFamily="Arial, sans-serif"
-                style={{ textShadow: isRedzone ? '0 0 6px rgba(255, 32, 32, 0.6)' : '0 0 3px rgba(0, 0, 0, 0.9)' }}
+                filter="url(#red-glow)"
               >
                 {num}
               </text>
             );
           })}
 
-          {/* x1000rpm/min label (repositioned) */}
+          {/* Label */}
           <text 
-            x="120" // <-- Centered
-            y="145" // <-- Moved down, below pivot
+            x={LABEL_COORDS.x}
+            y={LABEL_COORDS.y}
             textAnchor="middle" 
-            fill="#e0e0e0" 
+            fill="#ff2020" // Red label
             fontSize="8" 
             fontWeight="700"
             letterSpacing="0.5"
+            fontFamily="Arial, sans-serif"
+            filter="url(#red-glow)"
           >
-            x1000rpm/min
+            x1000r/min
           </text>
 
-          {/* Orange LCD Display */}
+          {/* LCD */}
           <g>
-            <rect x="78" y="168" width="84" height="32" rx="2" fill="#ff8c1a" stroke="#cc6600" strokeWidth="1" />
+            <rect x="78" y="168" width="84" height="32" rx="2" fill="#E2E8F0" stroke="#94A3B8" strokeWidth="1" /> {/* Lighter, less orange */}
             <text x="84" y="178" fill="#1a1a1a" fontSize="7" fontWeight="700" fontFamily="monospace">TRIP</text>
+            {/* Box around 'A' */}
             <rect x="102" y="172" width="10" height="8" rx="1" fill="none" stroke="#1a1a1a" strokeWidth="0.5" />
             <text x="107" y="178" textAnchor="middle" fill="#1a1a1a" fontSize="6" fontWeight="900" fontFamily="monospace">A</text>
 
-            {/* UPDATED: Show static trip mileage */}
             <text x="156" y="178" textAnchor="end" fill="#1a1a1a" fontSize="8" fontWeight="900" fontFamily="monospace">
               60.9
             </text>
             <line x1="80" y1="182" x2="160" y2="182" stroke="#1a1a1a" strokeWidth="0.5" opacity="0.5" />
 
-            {/* UPDATED: Show static odometer mileage */}
             <text x="156" y="194" textAnchor="end" fill="#1a1a1a" fontSize="12" fontWeight="900" fontFamily="monospace">
               072191
             </text>
           </g>
 
-          {/* Drive Mode Indicator Panel */}
+          {/* Drive Mode */}
           <g transform="translate(172, 106)">
             <rect x="0" y="0" width="38" height="34" rx="2" fill="none" stroke="#666" strokeWidth="0.8" />
             <circle cx="6" cy="6" r="2.5" fill="#fbbf24" />
-            <text x="12" y="8" fill="#e0e0e0" fontSize="5.5" fontWeight="700" fontFamily="Arial">TARMAC</text>
+            <text x="12" y="8" fill="#e0e0e0" fontSize="5.5" fontWeight="700" fontFamily="Arial, sans-serif">TARMAC</text>
             <circle cx="6" cy="16" r="2.5" fill="#3a3a3a" stroke="#555" strokeWidth="0.5" />
-            <text x="12" y="18" fill="#888" fontSize="5.5" fontWeight="700" fontFamily="Arial">GRAVEL</text>
+            <text x="12" y="18" fill="#888" fontSize="5.5" fontWeight="700" fontFamily="Arial, sans-serif">GRAVEL</text>
             <circle cx="6" cy="26" r="2.5" fill="#3a3a3a" stroke="#555" strokeWidth="0.5" />
-            <text x="12" y="28" fill="#888" fontSize="5.5" fontWeight="700" fontFamily="Arial">SNOW</text>
+            <text x="12" y="28" fill="#888" fontSize="5.5" fontWeight="700" fontFamily="Arial, sans-serif">SNOW</text>
           </g>
 
-          {/* SRS warning light */}
-          <text x="190" y="148" fill="#4a4a4a" fontSize="5" fontWeight="700" fontFamily="Arial">SRS</text>
+          {/* SRS light */}
+          <text x="190" y="148" fill="#4a4a4a" fontSize="5" fontWeight="700" fontFamily="Arial, sans-serif">SRS</text>
 
-          {/* RED Needle */}
+          {/* Needle AND Pivot */}
+          {/* This group is translated to the pivot point, and then ROTATED */}
           <motion.g
-            style={{ transformOrigin: '120px 120px' }}
-            animate={{ rotate: needleRotation }}
+            transform={`translate(${NEEDLE_PIVOT_X} ${NEEDLE_PIVOT_Y})`}
+            animate={{ rotate: currentNeedleAngle }}
             transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
           >
-            {/* Needle shadow/glow */}
+            {/* Needle (drawn from the new 0,0 origin) */}
             <line
-              x1="120"
-              y1="120"
-              x2="120"
-              y2="45" // Needle tip stops before numbers
+              x1={0}
+              y1={0} // Attached to pivot (0,0)
+              x2={0}
+              y2={-NEEDLE_LENGTH} // Tip (negative Y is "up")
               stroke="#dc2626"
               strokeWidth="3"
               strokeLinecap="round"
               filter="url(#needle-glow)"
               opacity="0.8"
             />
-            {/* Main red needle */}
             <line
-              x1="120"
-              y1="120"
-              x2="120"
-              y2="45" // Needle tip stops before numbers
+              x1={0}
+              y1={0} // Attached to pivot (0,0)
+              x2={0}
+              y2={-NEEDLE_LENGTH} // Tip (negative Y is "up")
               stroke="#ff2020"
               strokeWidth="2"
               strokeLinecap="round"
             />
+
+            {/* Pivot cap (drawn at the new 0,0 origin) */}
+            <circle cx={0} cy={0} r="8" fill="#0a0a0a" stroke="#1a1a1a" strokeWidth="1" />
+            <circle cx={0} cy={0} r="5" fill="#1a1a1a" />
           </motion.g>
 
-          {/* Center pivot cap (drawn on top of needle base) */}
-          <circle cx="120" cy="120" r="8" fill="#0a0a0a" stroke="#1a1a1a" strokeWidth="1" />
-          <circle cx="120" cy="120" r="5" fill="#1a1a1a" />
 
-          {/* Glass reflection effect */}
+          {/* Glass */}
           <circle cx="120" cy="120" r="100" fill="url(#glass-effect)" pointerEvents="none" />
         </svg>
       </div>
 
-      {/* 3-Pedal System - Standard L-R layout: Clutch, Brake, Gas */}
+      {/* Pedals */}
       <div className="flex justify-center items-end space-x-6">
-        {/* Clutch Pedal (Left - Smaller) */}
         <div className="flex flex-col items-center space-y-2">
           <EvoPedal
             type="clutch"
@@ -610,8 +885,6 @@ const TachometerLock = ({ onSuccess }) => {
           </EvoPedal>
           <span className="text-sm text-amber-400 font-semibold">Press to Check</span>
         </div>
-
-        {/* Brake Pedal (Center) */}
         <div className="flex flex-col items-center space-y-2">
           <EvoPedal
             type="brake"
@@ -627,8 +900,6 @@ const TachometerLock = ({ onSuccess }) => {
           </EvoPedal>
           <span className="text-sm text-red-400 font-semibold">Hold to Slow</span>
         </div>
-
-        {/* Gas Pedal (Right) */}
         <div className="flex flex-col items-center space-y-2">
           <EvoPedal
             type="gas"
