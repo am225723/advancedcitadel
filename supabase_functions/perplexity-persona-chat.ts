@@ -56,9 +56,18 @@ serve(async (req) => {
 - "Rest when you must, but do not despair. Even the mightiest knights must tend to their wounds before the next battle."`;
 
     // Format message history for Perplexity API
+    // Filter out the initial assistant greeting to ensure proper alternating pattern
+    // Perplexity requires: system -> user -> assistant -> user -> assistant
+    let filteredHistory = messageHistory;
+    
+    // If conversation starts with assistant message (initial greeting), skip it
+    if (filteredHistory.length > 0 && filteredHistory[0].role === 'assistant') {
+      filteredHistory = filteredHistory.slice(1);
+    }
+    
     const messages = [
       { role: 'system', content: systemPrompt },
-      ...messageHistory.map(msg => ({
+      ...filteredHistory.map(msg => ({
         role: msg.role,
         content: msg.content
       }))
