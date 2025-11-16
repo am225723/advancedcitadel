@@ -157,6 +157,11 @@ The system analyzes emotions from recent journal entries and recommends meditati
 - `database_migrations_meditations.sql` - Database schema migration
 
 ### Recent Changes
+- **2024-11-16:** Updated Sanctuary of Stillness navigation tile:
+  - Added custom medieval book cover image with ornate gold corners
+  - Features decorative crescent moon and "Sanctuary of Stillness" text in gothic font
+  - Image displays on Dashboard navigation tile with hover effects
+
 - **2024-11-15:** Tachometer complete redesign to authentic Mitsubishi Evolution IX specifications:
   - Changed number scale from 0-9 to 1-9 (matching reference photo exactly)
   - Red redzone numbers (7-9) with bright red highlighting
