@@ -7,7 +7,7 @@ import { Hammer, PaintBucket, Wind } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three-drei';
+import { OrbitControls } from '@react-three/drei';
 import CarModel from '@/components/CarModel'; // We can show damage on this model
 
 const BodyRepair = ({ onComplete }) => {
