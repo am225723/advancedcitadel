@@ -1,182 +1,140 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Droplets } from 'lucide-react';
+import { Droplets, WashingMachine, Spray, Wind } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import CarModel from '@/components/CarModel';
 
 const CarWashGame = ({ onComplete }) => {
-  const [stage, setStage] = useState('soak');
+  const [stage, setStage] = useState('pre-rinse'); // pre-rinse, soap, scrub, final-rinse
   const [dirtLevel, setDirtLevel] = useState(100);
-  const canvasRef = useRef(null);
-  const isDrawingRef = useRef(false);
-  const { addXP } = useUser();
+  const [soapLevel, setSoapLevel] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(120); // 2 minutes for the whole wash
+  const { user, addXP } = useUser();
 
   useEffect(() => {
-    if (stage === 'scrub' && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = 'rgba(139, 69, 19, 0.8)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (stage !== 'complete') {
+      const timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            // Handle time up
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
     }
   }, [stage]);
 
-  const handleSoak = () => {
-    setStage('scrub');
-    toast({
-      title: "Car Soaked!",
-      description: "Now scrub away all the dirt.",
-    });
-  };
-
-  const calculateDirtLevel = () => {
-    if (!canvasRef.current) return 100;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    
-    let dirtyPixels = 0;
-    for (let i = 3; i < imageData.data.length; i += 4) {
-      if (imageData.data[i] > 10) {
-        dirtyPixels++;
-      }
-    }
-    
-    const totalPixels = canvas.width * canvas.height;
-    return Math.round((dirtyPixels / totalPixels) * 100);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDrawingRef.current || stage !== 'scrub') return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-    const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(x, y, 25, 0, Math.PI * 2);
-    ctx.fill();
-
-    const newDirtLevel = calculateDirtLevel();
-    setDirtLevel(newDirtLevel);
-  };
-
-  const handleTouchMove = (e) => {
-    if (!isDrawingRef.current || stage !== 'scrub') return;
-    e.preventDefault();
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
-    const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
-
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(x, y, 25, 0, Math.PI * 2);
-    ctx.fill();
-
-    const newDirtLevel = calculateDirtLevel();
-    setDirtLevel(newDirtLevel);
-  };
-
-  const handleRinse = () => {
-    if (dirtLevel > 10) {
-      toast({
-        variant: "destructive",
-        title: "You missed a spot!",
-        description: `Still ${dirtLevel}% dirty. Keep scrubbing!`,
-      });
-    } else {
-      addXP(30);
-      toast({
-        title: "Car Wash Complete! ✨",
-        description: "You've earned +30 XP for mindful washing.",
-      });
-      setTimeout(onComplete, 1000);
+  const handleNextStage = () => {
+    switch (stage) {
+      case 'pre-rinse':
+        setStage('soap');
+        break;
+      case 'soap':
+        setStage('scrub');
+        break;
+      case 'scrub':
+        if (dirtLevel > 10) {
+          toast({ variant: "destructive", title: "Still Dirty!", description: "You need to scrub more." });
+        } else {
+          setStage('final-rinse');
+        }
+        break;
+      case 'final-rinse':
+        if (soapLevel > 10) {
+            toast({ variant: "destructive", title: "Still Soapy!", description: "Rinse off all the soap." });
+        } else {
+            setStage('complete');
+            const thoroughness = 100 - dirtLevel - soapLevel;
+            const xpGained = 20 + Math.round(thoroughness / 10);
+            addXP(xpGained);
+            toast({ title: "Car Wash Complete!", description: `You earned +${xpGained} XP for your thoroughness.` });
+            setTimeout(onComplete, 1000);
+        }
+        break;
+      default:
+        break;
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-    >
-      <Card className="bg-slate-900/80 border-cyan-500/50 p-8">
-        <h3 className="text-2xl font-bold text-white flex items-center justify-center space-x-2 mb-4">
-          <Droplets className="w-6 h-6 text-cyan-400" />
-          <span>Mindful Car Wash</span>
-        </h3>
-        <p className="text-slate-400 mb-6 text-center">
-          {stage === 'soak' && "First, soak the car to prepare for washing."}
-          {stage === 'scrub' && "Drag your mouse/finger to scrub away all the dirt."}
-        </p>
-
-        {stage === 'soak' && (
-          <div className="text-center">
-            <Button onClick={handleSoak} className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-6">
-              Soak Car
-            </Button>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <Card className="bg-slate-900/80 border-cyan-500/50 p-6 space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-2xl font-bold text-white flex items-center">
+            <Droplets className="w-6 h-6 text-cyan-400 mr-2" />
+            Mindful Car Wash
+          </h3>
+          <div className="text-lg font-semibold text-white">
+            Time: {Math.floor(timeLeft / 60)}:{('0' + timeLeft % 60).slice(-2)}
           </div>
-        )}
+        </div>
 
-        {stage === 'scrub' && (
-          <div className="space-y-4">
-            <div className="relative bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg overflow-hidden">
-              <svg viewBox="0 0 400 200" className="w-full h-64">
-                <defs>
-                  <linearGradient id="carBody" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#dc2626" />
-                    <stop offset="100%" stopColor="#991b1b" />
-                  </linearGradient>
-                </defs>
-                <ellipse cx="120" cy="150" rx="30" ry="30" fill="#1a1a1a" />
-                <ellipse cx="280" cy="150" rx="30" ry="30" fill="#1a1a1a" />
-                <rect x="80" y="80" width="240" height="70" rx="10" fill="url(#carBody)" />
-                <path d="M 140 80 L 160 50 L 240 50 L 260 80 Z" fill="url(#carBody)" />
-                <rect x="170" y="55" width="60" height="25" fill="#87ceeb" opacity="0.7" />
-              </svg>
-              
-              <canvas
-                ref={canvasRef}
-                width={400}
-                height={200}
-                className="absolute top-0 left-0 w-full h-full cursor-pointer touch-none"
-                onMouseDown={() => isDrawingRef.current = true}
-                onMouseUp={() => isDrawingRef.current = false}
-                onMouseLeave={() => isDrawingRef.current = false}
-                onMouseMove={handleMouseMove}
-                onTouchStart={() => isDrawingRef.current = true}
-                onTouchEnd={() => isDrawingRef.current = false}
-                onTouchMove={handleTouchMove}
-              />
-            </div>
+        <div className="h-64 bg-slate-800 rounded-lg">
+            <Suspense fallback={<div>Loading Car...</div>}>
+                <Canvas>
+                    <ambientLight intensity={0.5} />
+                    <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+                    <pointLight position={[-10, -10, -10]} />
+                    <CarModel color={user?.car_color || '#DC2626'} />
+                    <OrbitControls />
+                </Canvas>
+            </Suspense>
+        </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Cleanliness</span>
-                <span className="text-cyan-400 font-bold">{100 - dirtLevel}%</span>
-              </div>
-              <Progress value={100 - dirtLevel} className="h-3" />
+        {/* Progress Bars */}
+        <div className="space-y-2">
+            <div>
+                <label className="text-slate-400">Dirt Level</label>
+                <Progress value={dirtLevel} className="h-3" />
             </div>
+            <div>
+                <label className="text-slate-400">Soap Level</label>
+                <Progress value={soapLevel} className="h-3" />
+            </div>
+        </div>
 
-            <div className="text-center">
-              <Button 
-                onClick={handleRinse} 
-                className="bg-green-600 hover:bg-green-700 text-lg px-8 py-4"
-              >
-                Rinse
-              </Button>
-            </div>
-          </div>
-        )}
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            disabled={stage !== 'pre-rinse' && stage !== 'final-rinse'}
+            onClick={() => {
+                if(stage === 'pre-rinse') setDirtLevel(d => Math.max(0, d - 25));
+                if(stage === 'final-rinse') setSoapLevel(s => Math.max(0, s - 25));
+            }}
+            className="h-20 flex-col gap-2" variant="outline"
+          >
+            <Spray /> Rinse
+          </Button>
+          <Button
+            disabled={stage !== 'soap'}
+            onClick={() => setSoapLevel(s => Math.min(100, s + 20))}
+            className="h-20 flex-col gap-2" variant="outline"
+          >
+            <WashingMachine /> Soap
+          </Button>
+          <Button
+            disabled={stage !== 'scrub'}
+            onClick={() => setDirtLevel(d => Math.max(0, d - 20))}
+            className="h-20 flex-col gap-2" variant="outline"
+          >
+            <Wind /> Scrub
+          </Button>
+          <Button
+            onClick={handleNextStage}
+            className="h-20 bg-green-600 hover:bg-green-700 text-lg"
+          >
+            {stage === 'final-rinse' ? 'Finish' : 'Next Stage'}
+          </Button>
+        </div>
       </Card>
     </motion.div>
   );
