@@ -1,112 +1,136 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Sun } from 'lucide-react';
+import { Sun, Droplets, Wind } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import CarModel from '@/components/CarModel';
 
 const CleaningExterior = ({ onComplete }) => {
-  const { addXP } = useUser();
-  const [isSoaked, setIsSoaked] = useState(false);
-  const [dirtSpots, setDirtSpots] = useState([]);
-  const initialCount = 10;
+  const { user, addXP } = useUser();
+  const [stage, setStage] = useState('clay_bar'); // clay_bar, polish, wax
+  const [contaminants, setContaminants] = useState(15);
+  const [polishLevel, setPolishLevel] = useState(0);
+  const [waxLevel, setWaxLevel] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(90);
 
   useEffect(() => {
-    const spots = Array.from({ length: initialCount }, (_, i) => ({
-      id: i + 1,
-      top: `${Math.random() * 70 + 10}%`,
-      left: `${Math.random() * 70 + 10}%`,
-    }));
-    setDirtSpots(spots);
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          endGame();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    if (isSoaked && dirtSpots.length === 0) {
-      addXP(25);
-      toast({
-        title: "Panel Cleaned! ✨",
-        description: "You've earned +25 XP for thorough cleaning.",
-      });
-      setTimeout(onComplete, 1000);
+  const handleAction = (type) => {
+    switch (type) {
+      case 'clay_bar':
+        setContaminants(c => Math.max(0, c - 1));
+        break;
+      case 'polish':
+        setPolishLevel(p => Math.min(100, p + 10));
+        break;
+      case 'wax':
+        setWaxLevel(w => Math.min(100, w + 10));
+        break;
+      default:
+        break;
     }
-  }, [isSoaked, dirtSpots.length]);
-
-  const handleSoak = () => {
-    setIsSoaked(true);
-    toast({
-      title: "Panel Soaked!",
-      description: "Now click all the dirt spots to clean them.",
-    });
   };
 
-  const handleSpotClick = (id) => {
-    if (!isSoaked) {
-      toast({
-        variant: "destructive",
-        title: "Too Dry!",
-        description: "Soak the panel first before cleaning.",
-      });
+  const handleNextStage = () => {
+    if (stage === 'clay_bar' && contaminants > 0) {
+      toast({ variant: 'destructive', title: 'Still Contaminated!', description: 'You must remove all contaminants.' });
       return;
     }
-    setDirtSpots(prev => prev.filter(spot => spot.id !== id));
+    if (stage === 'polish' && polishLevel < 100) {
+        toast({ variant: 'destructive', title: 'Not Polished Enough!', description: 'The car needs a full polish.' });
+        return;
+    }
+    if (stage === 'wax' && waxLevel < 100) {
+        toast({ variant: 'destructive', title: 'Not Fully Waxed!', description: 'Apply a full coat of wax for protection.' });
+        return;
+    }
+
+    if (stage === 'wax') {
+      endGame();
+    } else {
+      setStage(current => current === 'clay_bar' ? 'polish' : 'wax');
+    }
   };
+
+  const endGame = () => {
+    const score = (15 - contaminants) * 20 + polishLevel + waxLevel;
+    const xpGained = Math.round(score / 20);
+    addXP(xpGained);
+    toast({
+      title: "Exterior Cleaned!",
+      description: `You earned +${xpGained} XP for a brilliant shine.`,
+    });
+    setTimeout(onComplete, 1500);
+  };
+
+  const stageData = {
+    'clay_bar': { title: 'Clay Bar Treatment', icon: Droplets, progress: ((15 - contaminants) / 15) * 100 },
+    'polish': { title: 'Polishing', icon: Sun, progress: polishLevel },
+    'wax': { title: 'Waxing', icon: Wind, progress: waxLevel }
+  };
+
+  const CurrentIcon = stageData[stage].icon;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <Card className="bg-slate-900/80 border-cyan-500/50 p-8">
-        <h3 className="text-2xl font-bold text-white flex items-center justify-center space-x-2 mb-4">
-          <Sun className="w-6 h-6 text-cyan-400" />
-          <span>Cleaning Exterior</span>
-        </h3>
-        <p className="text-slate-400 mb-6 text-center">
-          {!isSoaked ? "First, soak the panel to reveal the dirt." : "Click all the dirt spots to clean them!"}
-        </p>
-
-        {!isSoaked && (
-          <div className="text-center mb-6">
-            <Button onClick={handleSoak} className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
-              Soak Panel
-            </Button>
-          </div>
-        )}
-
-        <div 
-          className={`relative w-full h-96 bg-gradient-to-br from-red-700 to-red-900 rounded-lg ${
-            !isSoaked ? 'backdrop-blur-sm' : ''
-          }`}
-        >
-          {!isSoaked && (
-            <div className="absolute inset-0 bg-black/30 backdrop-blur-sm rounded-lg" />
-          )}
-          
-          {isSoaked && dirtSpots.map(spot => (
-            <motion.div
-              key={spot.id}
-              className="absolute w-6 h-6 bg-amber-900 rounded-full cursor-pointer border-2 border-amber-700"
-              style={{ top: spot.top, left: spot.left }}
-              onClick={() => handleSpotClick(spot.id)}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
-            />
-          ))}
+      <Card className="bg-slate-900/80 border-cyan-500/50 p-6 space-y-4">
+        <div className="flex justify-between items-center">
+            <h3 className="text-2xl font-bold text-white flex items-center">
+                <CurrentIcon className="w-6 h-6 text-cyan-400 mr-2" />
+                {stageData[stage].title}
+            </h3>
+            <div className="text-lg font-semibold text-white">Time: {timeLeft}s</div>
         </div>
 
-        {isSoaked && (
-          <div className="space-y-2 mt-4">
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-400">Progress</span>
-              <span className="text-cyan-400 font-bold">
-                {initialCount - dirtSpots.length} / {initialCount}
-              </span>
-            </div>
-            <Progress value={((initialCount - dirtSpots.length) / initialCount) * 100} className="h-3" />
-          </div>
-        )}
+        <div className="h-64 bg-slate-800 rounded-lg">
+          <Suspense fallback={<div>Loading Car...</div>}>
+            <Canvas>
+              <ambientLight intensity={0.7} />
+              <directionalLight position={[5, 5, 5]} />
+              <CarModel color={user?.car_color || '#F8FAFC'} />
+              <OrbitControls />
+            </Canvas>
+          </Suspense>
+        </div>
+
+        <div>
+            <label className="text-slate-400">Stage Progress</label>
+            <Progress value={stageData[stage].progress} className="h-3" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+            <Button
+                onClick={() => handleAction(stage)}
+                disabled={timeLeft <= 0}
+                className="h-20 flex-col gap-2"
+                variant="outline"
+            >
+                Perform Action
+            </Button>
+            <Button
+                onClick={handleNextStage}
+                className="h-20 bg-green-600 hover:bg-green-700 text-lg"
+            >
+                {stage === 'wax' ? 'Finish' : 'Next Stage'}
+            </Button>
+        </div>
       </Card>
     </motion.div>
   );

@@ -1,213 +1,120 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { TouchBackend } from 'react-dnd-touch-backend';
-import { MultiBackend, TouchTransition, MouseTransition } from 'react-dnd-multi-backend';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { RefreshCw, ArrowUp, ArrowDown } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
+import { toast } from '@/components/ui/use-toast';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import WheelModel from './WheelModel';
 
-const HTML5toTouch = {
-  backends: [
-    {
-      id: 'html5',
-      backend: HTML5Backend,
-      transition: MouseTransition,
-    },
-    {
-      id: 'touch',
-      backend: TouchBackend,
-      options: { enableMouseEvents: true },
-      preview: true,
-      transition: TouchTransition,
-    },
-  ],
-};
-
-const ItemTypes = {
-  TIRE: 'tire',
-};
-
-const Tire = ({ name }) => {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: ItemTypes.TIRE,
-    item: { name },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  }));
-
-  return (
-    <motion.div
-      ref={drag}
-      className={`p-4 bg-slate-700 rounded-lg border-2 border-cyan-500 cursor-move text-center ${
-        isDragging ? 'opacity-50' : 'opacity-100'
-      }`}
-      whileHover={{ scale: 1.05 }}
-    >
-      <div className="text-4xl mb-2">🛞</div>
-      <div className="text-sm font-bold text-white">{name}</div>
-    </motion.div>
-  );
-};
-
-const Hub = ({ position, onDrop, placedTire }) => {
-  const [{ isOver }, drop] = useDrop(() => ({
-    accept: ItemTypes.TIRE,
-    drop: (item) => onDrop(position, item.name),
-    collect: (monitor) => ({
-      isOver: !!monitor.isOver(),
-    }),
-  }));
-
-  return (
-    <div
-      ref={drop}
-      className={`p-6 rounded-lg border-4 border-dashed ${
-        isOver ? 'border-green-500 bg-green-500/20' : 'border-slate-600 bg-slate-800/50'
-      } min-h-32 flex flex-col items-center justify-center transition-all`}
-    >
-      <p className="text-xs font-bold text-cyan-400 mb-2">{position}</p>
-      {placedTire ? (
-        <div className="text-center">
-          <div className="text-4xl mb-1">🛞</div>
-          <div className="text-xs font-bold text-white">{placedTire}</div>
-        </div>
-      ) : (
-        <div className="text-slate-600 text-sm">Drop Here</div>
-      )}
-    </div>
-  );
-};
-
-const TireRotationGame = ({ onComplete }) => {
+const TireRotation = ({ onComplete }) => {
   const { addXP } = useUser();
-  const sourceTires = ['Front Left', 'Front Right', 'Rear Left', 'Rear Right'];
-  const [placedTires, setPlacedTires] = useState({});
-  
-  const correctSolution = {
-    'Front Left': 'Rear Right',
-    'Front Right': 'Rear Left',
-    'Rear Left': 'Front Right',
-    'Rear Right': 'Front Left',
+  const [stage, setStage] = useState('jacking');
+  const [jackHeight, setJackHeight] = useState(0);
+  const [lugNuts, setLugNuts] = useState([false, false, false, false, false]);
+  const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(90);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          endGame();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleJack = (amount) => {
+    setJackHeight(h => {
+      const newHeight = h + amount;
+      if (newHeight >= 100) {
+        setStage('loosen_lugs');
+        return 100;
+      }
+      return newHeight;
+    });
   };
 
-  const handleDrop = (hub, tire) => {
-    setPlacedTires(prev => ({ ...prev, [hub]: tire }));
-  };
-
-  const handleCheck = () => {
-    const allPlaced = Object.keys(correctSolution).every(hub => placedTires[hub]);
-    if (!allPlaced) {
-      toast({
-        variant: "destructive",
-        title: "Incomplete!",
-        description: "Place all tires before checking.",
-      });
-      return;
-    }
-
-    const isCorrect = Object.keys(correctSolution).every(
-      hub => placedTires[hub] === correctSolution[hub]
-    );
-
-    if (isCorrect) {
-      addXP(40);
-      toast({
-        title: "Perfect Rotation! 🎯",
-        description: "You've earned +40 XP for expert tire rotation!",
-      });
-      setTimeout(onComplete, 1000);
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Incorrect Pattern!",
-        description: "That's not the standard cross-rotation. Try again!",
-      });
-      setPlacedTires({});
+  const handleLugNutClick = (index) => {
+    if ((stage === 'loosen_lugs' || stage === 'tighten_lugs') && !lugNuts[index]) {
+      setLugNuts(nuts => nuts.map((nut, i) => (i === index ? true : nut)));
+      setScore(s => s + 20);
     }
   };
 
-  const handleReset = () => {
-    setPlacedTires({});
+  useEffect(() => {
+    if (stage === 'loosen_lugs' && lugNuts.every(n => n)) {
+      setTimeout(() => {
+        setStage('swap_tire');
+        setLugNuts([false, false, false, false, false]);
+      }, 1000);
+    } else if (stage === 'tighten_lugs' && lugNuts.every(n => n)) {
+        setTimeout(() => {
+            endGame();
+        }, 1000);
+    }
+  }, [lugNuts, stage]);
+
+  const handleSwapTire = () => {
+    setStage('tighten_lugs');
+    setScore(s => s + 100);
   };
 
-  const availableTires = sourceTires.filter(
-    tire => !Object.values(placedTires).includes(tire)
-  );
+  const endGame = () => {
+    const finalScore = score + timeLeft * 2;
+    const xpGained = Math.round(finalScore / 10);
+    addXP(xpGained);
+    toast({
+      title: "Tire Rotation Complete!",
+      description: `You scored ${finalScore} and earned +${xpGained} XP.`,
+    });
+    setTimeout(onComplete, 1500);
+  };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <Card className="bg-slate-900/80 border-cyan-500/50 p-8">
-        <h3 className="text-2xl font-bold text-white flex items-center justify-center space-x-2 mb-4">
-          <RefreshCw className="w-6 h-6 text-cyan-400" />
-          <span>Tire Rotation Puzzle</span>
-        </h3>
-        <p className="text-slate-400 mb-6 text-center">
-          Drag tires to the correct hubs for a proper cross-rotation pattern.
-        </p>
-
-        <div className="flex gap-8">
-          <div className="w-48 space-y-3">
-            <h4 className="text-sm font-bold text-cyan-400 mb-2">Available Tires:</h4>
-            {availableTires.map(tire => (
-              <Tire key={tire} name={tire} />
-            ))}
-          </div>
-
-          <div className="flex-1">
-            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-              <Hub 
-                position="Front Left" 
-                onDrop={handleDrop}
-                placedTire={placedTires['Front Left']}
-              />
-              <Hub 
-                position="Front Right" 
-                onDrop={handleDrop}
-                placedTire={placedTires['Front Right']}
-              />
-              <Hub 
-                position="Rear Left" 
-                onDrop={handleDrop}
-                placedTire={placedTires['Rear Left']}
-              />
-              <Hub 
-                position="Rear Right" 
-                onDrop={handleDrop}
-                placedTire={placedTires['Rear Right']}
-              />
+      <Card className="bg-slate-900/80 border-cyan-500/50 p-6 space-y-4">
+        <div className="flex justify-between items-center">
+            <h3 className="text-2xl font-bold text-white"><RefreshCw className="inline mr-2" />Tire Rotation</h3>
+            <div>
+                <span className="text-lg font-bold">Score: {score} | </span>
+                <span className="text-lg font-bold">Time: {timeLeft}s</span>
             </div>
+        </div>
 
-            <div className="flex justify-center gap-4 mt-6">
-              <Button
-                onClick={handleCheck}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                Check Rotation
-              </Button>
-              <Button
-                onClick={handleReset}
-                variant="outline"
-                className="border-slate-600"
-              >
-                Reset
-              </Button>
-            </div>
-          </div>
+        <div className="h-64 bg-slate-800 rounded-lg">
+          <Suspense fallback={<div>Loading Model...</div>}>
+            <Canvas>
+              <ambientLight />
+              <pointLight position={[10, 10, 10]} />
+              <WheelModel onLugNutClick={handleLugNutClick} />
+              <OrbitControls />
+            </Canvas>
+          </Suspense>
+        </div>
+
+        <div>
+          <h4 className='font-bold mb-2'>Current Stage: {stage.replace('_', ' ')}</h4>
+          {stage === 'jacking' && <Progress value={jackHeight} />}
+          {(stage === 'loosen_lugs' || stage === 'tighten_lugs') && <Progress value={(lugNuts.filter(Boolean).length / 5) * 100} />}
+        </div>
+
+        <div className="flex justify-center gap-4">
+          {stage === 'jacking' && <Button onClick={() => handleJack(20)}><ArrowUp className="mr-2" />Jack Up</Button>}
+          {stage === 'swap_tire' && <Button onClick={handleSwapTire}>Swap Tire</Button>}
+          {(stage === 'loosen_lugs' || stage === 'tighten_lugs') && <p className='text-center text-slate-400'>Click the lug nuts to continue.</p>}
         </div>
       </Card>
     </motion.div>
   );
 };
-
-const TireRotation = (props) => (
-  <DndProvider backend={MultiBackend} options={HTML5toTouch}>
-    <TireRotationGame {...props} />
-  </DndProvider>
-);
 
 export default TireRotation;

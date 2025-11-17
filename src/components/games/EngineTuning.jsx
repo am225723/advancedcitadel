@@ -1,135 +1,122 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
-import { Wrench } from 'lucide-react';
+import { Wrench, Zap, Fuel, Rss, CircleDotDashed } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import EngineModel from './EngineModel';
+import * as THREE from 'three';
 
 const EngineTuning = ({ onComplete }) => {
   const { addXP } = useUser();
-  const parts = ['Spark Plugs', 'Injectors', 'Camshaft', 'Turbo'];
-  const [sequence, setSequence] = useState([]);
-  const [playerSequence, setPlayerSequence] = useState([]);
-  const [level, setLevel] = useState(1);
-  const [isPlayerTurn, setIsPlayerTurn] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(-1);
-  const isResettingRef = useRef(false);
+  const [tasks, setTasks] = useState([]);
+  const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [currentTask, setCurrentTask] = useState(null);
+  const [highlightedPart, setHighlightedPart] = useState(null);
+
+  const taskTypes = [
+    { name: 'Spark Plugs', icon: Zap, color: 'text-yellow-400' },
+    { name: 'Injectors', icon: Fuel, color: 'text-green-400' },
+    { name: 'Camshaft', icon: Rss, color: 'text-blue-400' },
+    { name: 'Turbo', icon: CircleDotDashed, color: 'text-red-400' },
+  ];
 
   useEffect(() => {
-    if (!isResettingRef.current) {
-      startComputerTurn();
-    }
-  }, [level]);
-
-  const startComputerTurn = () => {
-    setIsPlayerTurn(false);
-    setPlayerSequence([]);
-    const newPart = parts[Math.floor(Math.random() * parts.length)];
-    const newSequence = [...sequence, newPart];
-    setSequence(newSequence);
-    
-    setTimeout(() => {
-      playSequence(newSequence);
-    }, 500);
-  };
-
-  const resetGame = () => {
-    isResettingRef.current = true;
-    setSequence([]);
-    setPlayerSequence([]);
-    setIsPlayerTurn(false);
-    setActiveIndex(-1);
-    
-    setTimeout(() => {
-      const firstPart = parts[Math.floor(Math.random() * parts.length)];
-      setSequence([firstPart]);
-      setTimeout(() => {
-        playSequence([firstPart]);
-        isResettingRef.current = false;
-      }, 500);
-    }, 500);
-  };
-
-  const playSequence = async (seq) => {
-    for (let i = 0; i < seq.length; i++) {
-      setActiveIndex(parts.indexOf(seq[i]));
-      await new Promise(resolve => setTimeout(resolve, 600));
-      setActiveIndex(-1);
-      await new Promise(resolve => setTimeout(resolve, 200));
-    }
-    setIsPlayerTurn(true);
-  };
-
-  const handleClick = (part) => {
-    if (!isPlayerTurn) return;
-
-    const newPlayerSequence = [...playerSequence, part];
-    setPlayerSequence(newPlayerSequence);
-
-    const currentIndex = newPlayerSequence.length - 1;
-    if (newPlayerSequence[currentIndex] !== sequence[currentIndex]) {
-      toast({
-        variant: "destructive",
-        title: "Wrong Part!",
-        description: "Starting over from Round 1...",
+    generateTasks();
+    const gameTimer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(gameTimer);
+          endGame();
+          return 0;
+        }
+        return prev - 1;
       });
-      setLevel(1);
-      resetGame();
-      return;
-    }
+    }, 1000);
+    return () => clearInterval(gameTimer);
+  }, []);
 
-    if (newPlayerSequence.length === sequence.length) {
-      if (level < 5) {
-        toast({
-          title: `Round ${level} Complete!`,
-          description: `Moving to Round ${level + 1}`,
-        });
-        setLevel(level + 1);
-        setIsPlayerTurn(false);
+  const generateTasks = () => {
+    const newTasks = Array.from({ length: 10 }, (_, i) => ({
+      id: i,
+      part: taskTypes[Math.floor(Math.random() * taskTypes.length)],
+      time: Math.random() * 2 + 1, // Time to complete: 1-3 seconds
+      completed: false,
+    }));
+    setTasks(newTasks);
+    setCurrentTask(newTasks[0]);
+    setHighlightedPart(newTasks[0].part.name);
+  };
+
+  const handlePartClick = (partName) => {
+    if (currentTask && partName === currentTask.part.name) {
+      setScore(s => s + 100);
+      const newTasks = tasks.map(t => t.id === currentTask.id ? { ...t, completed: true } : t);
+      setTasks(newTasks);
+
+      const nextTask = newTasks.find(t => !t.completed);
+      if(nextTask) {
+        setCurrentTask(nextTask);
+        setHighlightedPart(nextTask.part.name);
       } else {
-        addXP(60);
-        toast({
-          title: "Engine Tuned! 🎉",
-          description: "You've earned +60 XP for perfect rhythm!",
-        });
-        setTimeout(onComplete, 1000);
+        endGame();
       }
+    } else {
+      // Penalty for wrong click
+      setScore(s => Math.max(0, s - 50));
+      toast({ variant: 'destructive', title: 'Wrong Part!' });
     }
   };
+
+  const endGame = () => {
+    const xpGained = Math.round(score / 20);
+    addXP(xpGained);
+    toast({
+      title: "Engine Tuning Complete!",
+      description: `You scored ${score} and earned +${xpGained} XP.`,
+    });
+    setTimeout(onComplete, 2000);
+  };
+
+  const CurrentTaskIcon = currentTask?.part.icon;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <Card className="bg-slate-900/80 border-cyan-500/50 p-8">
-        <h3 className="text-2xl font-bold text-white flex items-center justify-center space-x-2 mb-4">
-          <Wrench className="w-6 h-6 text-cyan-400" />
-          <span>Engine Tuning - Simon Says</span>
-        </h3>
+      <Card className="bg-slate-900/80 border-cyan-500/50 p-6 space-y-4">
+        <div className="flex justify-between items-center">
+            <h3 className="text-2xl font-bold text-white flex items-center">
+                <Wrench className="w-6 h-6 text-cyan-400 mr-2" />
+                Engine Tuning
+            </h3>
+            <div className='flex gap-4'>
+                <div className="text-lg font-semibold text-white">Score: {score}</div>
+                <div className="text-lg font-semibold text-white">Time: {timeLeft}s</div>
+            </div>
+        </div>
         
-        <div className="text-center mb-6">
-          <p className="text-lg font-bold text-cyan-400">Round: {level} / 5</p>
-          <p className="text-sm text-slate-400 mt-2">
-            {isPlayerTurn ? "Your turn!" : "Listen carefully..."}
-          </p>
+        <div className="h-64 bg-slate-800 rounded-lg">
+            <Suspense fallback={<div>Loading Model...</div>}>
+                <Canvas>
+                    <ambientLight intensity={0.6} />
+                    <directionalLight position={[10, 10, 5]} />
+                    <EngineModel highlightedPart={highlightedPart} onPartClick={handlePartClick} />
+                    <OrbitControls />
+                </Canvas>
+            </Suspense>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-          {parts.map((part, index) => (
-            <motion.div key={part}>
-              <Button
-                onClick={() => handleClick(part)}
-                disabled={!isPlayerTurn}
-                className="w-full h-24 text-lg font-bold"
-                animate={{
-                  scale: activeIndex === index ? 1.05 : 1,
-                  backgroundColor: activeIndex === index ? '#3b82f6' : undefined
-                }}
-                transition={{ duration: 0.2 }}
-              >
-                {part}
-              </Button>
-            </motion.div>
-          ))}
+        <div className="text-center p-4 bg-slate-900 rounded-lg">
+          <p className="text-slate-400 mb-2">Next Task:</p>
+          {currentTask && CurrentTaskIcon && (
+            <div className={`flex items-center justify-center text-xl font-bold ${currentTask.part.color}`}>
+              <CurrentTaskIcon className="w-6 h-6 mr-2" />
+              <span>{currentTask.part.name}</span>
+            </div>
+          )}
         </div>
       </Card>
     </motion.div>
