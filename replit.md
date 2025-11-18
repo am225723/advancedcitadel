@@ -157,6 +157,22 @@ The system analyzes emotions from recent journal entries and recommends meditati
 - `database_migrations_meditations.sql` - Database schema migration
 
 ### Recent Changes
+- **2024-11-18:** AAA Visual Enhancements for Mindful Drive and All Mini-Games:
+  - **Upgraded MindfulDrive** with hybrid AAA enhancement: HDRI environments (warehouse/city), ACES filmic tone mapping, post-processing (Bloom, DepthOfField, Vignette, Noise), PBR materials with realistic lighting, rim lights (cyan + orange), enhanced scenery, shadows enabled
+  - **Fixed critical React Three Fiber bug** by moving useFrame logic into SceneController component inside Canvas (prevents useFrame context errors)
+  - **Performance optimization** by caching road curve points to eliminate per-frame allocations
+  - **Enhanced 6 mini-games** with same AAA visual pattern:
+    - CarWashGame: HDRI warehouse, post-processing, rim lights, Float animation, enhanced OrbitControls
+    - BodyRepair: HDRI city, enhanced lighting/shadows, rim lights, Float, post-processing
+    - EngineTuning: HDRI warehouse, ACES tone mapping, rim lights, Float, post-processing
+    - TireRotation: HDRI warehouse, ACES tone mapping, rim lights, Float, post-processing
+    - OilChange: HDRI warehouse, ACES tone mapping, rim lights, Float, post-processing
+    - CleaningExterior: HDRI city, ACES tone mapping, rim lights, Float, post-processing
+  - **Dependencies**: Added `@react-three/postprocessing` and `postprocessing` packages
+  - **Preserved all functionality**: Game logic, XP tracking, timers, scoring, breathing mechanics, and UI controls remain unchanged
+  - **Technical pattern**: Environment (HDRI preset) + ACES tone mapping + enhanced lighting + rim lights + Float wrapper + post-processing stack + enhanced OrbitControls
+  - **Note**: ECUTuning is a logic puzzle game without 3D rendering, so no enhancement needed
+
 - **2024-11-16:** Updated Sanctuary of Stillness navigation tile:
   - Added custom medieval book cover image with ornate gold corners
   - Features decorative crescent moon and "Sanctuary of Stillness" text in gothic font
