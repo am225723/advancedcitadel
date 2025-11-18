@@ -1,0 +1,45 @@
+18:18:30.589 Running build in Washington, D.C., USA (East) – iad1
+18:18:30.589 Build machine configuration: 4 cores, 8 GB
+18:18:30.718 Cloning github.com/am225723/advancedcitadel (Branch: main, Commit: 0591a35)
+18:18:32.058 Warning: Failed to fetch one or more git submodules
+18:18:32.058 Cloning completed: 1.339s
+18:18:32.171 Restored build cache from previous deployment (36aX1YgchAxdp2vn2yYXFX81iM6x)
+18:18:32.857 Running "vercel build"
+18:18:33.275 Vercel CLI 48.10.2
+18:18:33.884 Installing dependencies...
+18:18:38.415 
+18:18:38.415 added 11 packages, and changed 58 packages in 4s
+18:18:38.415 
+18:18:38.416 158 packages are looking for funding
+18:18:38.416   run `npm fund` for details
+18:18:38.458 Running "npm run build"
+18:18:38.580 
+18:18:38.580 > therapeutic-garage@0.0.0 build
+18:18:38.580 > node tools/generate-llms.js || true && vite build
+18:18:38.580 
+18:18:39.290 [36mvite v7.2.2 [32mbuilding client environment for production...[36m[39m
+18:18:39.640 transforming...
+18:18:47.284 [32m✓[39m 3576 modules transformed.
+18:18:47.287 [31m✗[39m Build failed in 7.97s
+18:18:47.287 [31merror during build:
+18:18:47.287 [31msrc/components/games/CarWashGame.jsx (6:35): "Spray" is not exported by "node_modules/lucide-react/dist/esm/lucide-react.js", imported by "src/components/games/CarWashGame.jsx".[31m
+18:18:47.287 file: [36m/vercel/path0/src/components/games/CarWashGame.jsx:6:35[31m
+18:18:47.287 [33m
+18:18:47.287 4: import { Button } from '@/components/ui/button';
+18:18:47.287 5: import { Progress } from '@/components/ui/progress';
+18:18:47.288 6: import { Droplets, WashingMachine, Spray, Wind } from 'lucide-react';
+18:18:47.288                                       ^
+18:18:47.288 7: import { useUser } from '@/contexts/UserContext';
+18:18:47.288 8: import { toast } from '@/components/ui/use-toast';
+18:18:47.288 [31m
+18:18:47.288     at getRollupError (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+18:18:47.288     at error (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:397:42)
+18:18:47.288     at Module.error (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:16946:16)
+18:18:47.288     at Module.traceVariable (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:17400:29)
+18:18:47.288     at ModuleScope.findVariable (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:15067:39)
+18:18:47.289     at ReturnValueScope.findVariable (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:5641:38)
+18:18:47.289     at FunctionBodyScope.findVariable (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:5641:38)
+18:18:47.289     at Identifier.bind (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:5415:40)
+18:18:47.289     at CallExpression.bind (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:2802:28)
+18:18:47.289     at CallExpression.bind (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:12114:15)[39m
+18:18:47.374 Error: Command "npm run build" exited with 1

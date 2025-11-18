@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Droplets, WashingMachine, Spray, Wind } from 'lucide-react';
+import { Droplets, WashingMachine, Sparkles, Wind } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
 import { Canvas } from '@react-three/fiber';
@@ -112,7 +112,7 @@ const CarWashGame = ({ onComplete }) => {
             }}
             className="h-20 flex-col gap-2" variant="outline"
           >
-            <Spray /> Rinse
+            <Sparkles /> Rinse
           </Button>
           <Button
             disabled={stage !== 'soap'}
