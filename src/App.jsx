@@ -19,6 +19,7 @@ import VirtualGarage from '@/pages/VirtualGarage';
 import BonfireOfBreath from '@/pages/BonfireOfBreath';
 import EnhancedBonfireOfBreath from '@/pages/EnhancedBonfireOfBreath';
 import MindfulDrive from '@/pages/MindfulDrive';
+import MindfulDriveEnhanced from '@/pages/MindfulDriveEnhanced';
 import AIPersona from '@/components/AIPersona';
 // Dark Souls Guides System
 import CodexPage from '@/pages/CodexPage';
@@ -113,7 +114,8 @@ function App() {
               <Route path="/anchor" element={<PrivateRoute><GroundingTools /></PrivateRoute>} />
               <Route path="/safe" element={<PrivateRoute><SafeView /></PrivateRoute>} />
               <Route path="/garage" element={<PrivateRoute><VirtualGarage /></PrivateRoute>} />
-              <Route path="/mindful-drive" element={<PrivateRoute><MindfulDrive /></PrivateRoute>} />
+              <Route path="/mindful-drive" element={<PrivateRoute><MindfulDriveEnhanced /></PrivateRoute>} />
+              <Route path="/mindful-drive-classic" element={<PrivateRoute><MindfulDrive /></PrivateRoute>} />
               <Route path="/bonfire-of-breath" element={<PrivateRoute><BonfireOfBreath /></PrivateRoute>} />
               <Route path="/bonfire-enhanced" element={<PrivateRoute><EnhancedBonfireOfBreath /></PrivateRoute>} />
               
