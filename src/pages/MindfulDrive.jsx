@@ -213,30 +213,11 @@ const AudioController = ({ phase, phaseProgress }) => {
   return null;
 };
 
-const MindfulDrive = () => {
-  const [isRunning, setIsRunning] = useState(true);
-  const [phase, setPhase] = useState('inhale');
-  const [phaseProgress, setPhaseProgress] = useState(0);
-  const [timeOfDay, setTimeOfDay] = useState('day');
-
-  const sunRef = useRef();
-  const roadRef = useRef();
-
-  const roadCurve = useMemo(() => {
-      const points = [];
-      const segments = 200;
-      const segmentLength = 20;
-      const curveAmplitude = 15;
-
-      for (let i = 0; i < segments; i++) {
-          const x = Math.sin((i / segments) * Math.PI * 10) * curveAmplitude;
-          const z = -i * segmentLength;
-          points.push(new THREE.Vector3(x, -0.5, z));
-      }
-      return new THREE.CatmullRomCurve3(points);
-  }, []);
-
-
+// Scene controller for camera, lighting, and road movement
+const SceneController = ({ sunRef, roadRef, roadCurve }) => {
+  // Cache curve points to avoid per-frame allocation
+  const curvePoints = useMemo(() => roadCurve.getPoints(512), [roadCurve]);
+  
   useFrame((state, delta) => {
     if (sunRef.current) {
       const cycleSpeed = 0.05;
@@ -244,10 +225,6 @@ const MindfulDrive = () => {
       sunRef.current.position.x = Math.cos(state.clock.elapsedTime * cycleSpeed) * 20;
       const intensity = (Math.sin(state.clock.elapsedTime * cycleSpeed) + 1) / 2 * 0.9 + 0.1;
       sunRef.current.intensity = intensity;
-
-      const fogColor = new THREE.Color().lerpColors(new THREE.Color('#000000'), new THREE.Color('#1a82a1'), intensity);
-      state.scene.fog.color = fogColor;
-      state.scene.background = fogColor;
     }
 
     if(roadRef.current) {
@@ -257,7 +234,7 @@ const MindfulDrive = () => {
         }
     }
 
-    const curvePoints = roadCurve.getPoints(512);
+    // Find closest point on curve for camera positioning (reuse cached points)
     let closestPoint = null;
     let minDz = Infinity;
     const lookAtZ = 10 - (roadRef.current ? roadRef.current.position.z : 0);
@@ -280,6 +257,32 @@ const MindfulDrive = () => {
       state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, closestPoint.y + 1.5, 0.1);
     }
   });
+
+  return null;
+};
+
+const MindfulDrive = () => {
+  const [isRunning, setIsRunning] = useState(true);
+  const [phase, setPhase] = useState('inhale');
+  const [phaseProgress, setPhaseProgress] = useState(0);
+  const [timeOfDay, setTimeOfDay] = useState('day');
+
+  const sunRef = useRef();
+  const roadRef = useRef();
+
+  const roadCurve = useMemo(() => {
+      const points = [];
+      const segments = 200;
+      const segmentLength = 20;
+      const curveAmplitude = 15;
+
+      for (let i = 0; i < segments; i++) {
+          const x = Math.sin((i / segments) * Math.PI * 10) * curveAmplitude;
+          const z = -i * segmentLength;
+          points.push(new THREE.Vector3(x, -0.5, z));
+      }
+      return new THREE.CatmullRomCurve3(points);
+  }, []);
 
   const rite = { inhale: 5.5, hold: 0, exhale: 5.5, holdAfter: 0 };
 
@@ -352,6 +355,7 @@ const MindfulDrive = () => {
             <XP_Embers />
             <DashboardLight phase={phase} phaseProgress={phaseProgress} />
             <AudioController phase={phase} phaseProgress={phaseProgress} />
+            <SceneController sunRef={sunRef} roadRef={roadRef} roadCurve={roadCurve} />
 
             <BreathingTimer
               isRunning={isRunning}
