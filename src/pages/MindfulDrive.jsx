@@ -1,7 +1,8 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import React, { useRef, useState, useMemo, useEffect, Suspense } from 'react';
 import { Helmet } from 'react-helmet';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Box, Plane, Text, Tube } from '@react-three/drei';
+import { Box, Plane, Text, Tube, Environment, Stars, Cloud } from '@react-three/drei';
+import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import SoulEmber from '@/components/SoulEmber';
 import XP_Embers from '@/components/XP_Embers';
@@ -44,10 +45,35 @@ const BreathingTimer = ({ isRunning, rite, onPhaseChange, onTimeUpdate }) => {
 };
 
 const Road = ({ roadRef, curve }) => {
+  const roadMaterialRef = useRef();
+  
+  useFrame((state, delta) => {
+    if (roadMaterialRef.current) {
+      roadMaterialRef.current.emissiveIntensity = 0.05 + Math.sin(state.clock.elapsedTime * 0.5) * 0.02;
+    }
+  });
+
   return (
     <group ref={roadRef}>
       <Tube args={[curve, 512, 10, 8, false]}>
-        <meshStandardMaterial color="#444" />
+        <meshStandardMaterial 
+          ref={roadMaterialRef}
+          color="#1a1a1a"
+          roughness={0.8}
+          metalness={0.3}
+          emissive="#00ffff"
+          emissiveIntensity={0.05}
+        />
+      </Tube>
+      {/* Lane markers */}
+      <Tube args={[curve, 512, 0.3, 4, false]}>
+        <meshStandardMaterial 
+          color="#ffffff"
+          emissive="#ffffff"
+          emissiveIntensity={0.5}
+          transparent
+          opacity={0.8}
+        />
       </Tube>
     </group>
   )
@@ -89,19 +115,52 @@ const Scenery = () => {
 
 const Tree = (props) => (
   <group {...props}>
-    <Box args={[1, 10, 1]} position={[0, 5, 0]}>
-      <meshStandardMaterial color="#4a2e1a" />
-    </Box>
-    <Box args={[5, 5, 5]} position={[0, 10, 0]}>
-      <meshStandardMaterial color="green" />
-    </Box>
+    {/* Trunk with realistic bark material */}
+    <mesh position={[0, 2.5, 0]} castShadow>
+      <cylinderGeometry args={[0.5, 0.8, 5, 8]} />
+      <meshStandardMaterial 
+        color="#3d2817"
+        roughness={0.95}
+        metalness={0.0}
+      />
+    </mesh>
+    {/* Foliage - layered cones for depth */}
+    <mesh position={[0, 6, 0]} castShadow>
+      <coneGeometry args={[3, 6, 8]} />
+      <meshStandardMaterial 
+        color="#0f2e17"
+        roughness={0.9}
+        metalness={0.0}
+      />
+    </mesh>
+    <mesh position={[0, 8, 0]} castShadow>
+      <coneGeometry args={[2.5, 5, 8]} />
+      <meshStandardMaterial 
+        color="#1a4d26"
+        roughness={0.85}
+        metalness={0.0}
+      />
+    </mesh>
+    <mesh position={[0, 9.5, 0]} castShadow>
+      <coneGeometry args={[1.8, 4, 8]} />
+      <meshStandardMaterial 
+        color="#2d6a3e"
+        roughness={0.8}
+        metalness={0.0}
+      />
+    </mesh>
   </group>
 );
 
 const Rock = (props) => (
-  <Box args={[2, 2, 2]} {...props}>
-    <meshStandardMaterial color="grey" />
-  </Box>
+  <mesh {...props} castShadow receiveShadow>
+    <dodecahedronGeometry args={[1.5, 0]} />
+    <meshStandardMaterial 
+      color="#5a5a5a"
+      roughness={0.9}
+      metalness={0.1}
+    />
+  </mesh>
 );
 
 const DashboardLight = ({ phase, phaseProgress }) => {
@@ -238,34 +297,99 @@ const MindfulDrive = () => {
         <title>Mindful Drive - Therapeutic Garage</title>
         <meta name="description" content="A serene driving experience for relaxation and mindfulness." />
       </Helmet>
-      <div style={{ height: '80vh', width: '100%', background: '#111' }}>
-        <Canvas camera={{ position: [0, 1, 10], fov: 75 }}>
-          <fog attach="fog" args={['#111', 10, 50]} />
-          <ambientLight intensity={0.1} />
-          <directionalLight ref={sunRef} position={[10, 10, 5]} intensity={1} />
+      <div style={{ height: '80vh', width: '100%', background: '#050505' }}>
+        <Canvas 
+          camera={{ position: [0, 1, 10], fov: 60 }}
+          shadows
+          gl={{ 
+            antialias: true,
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.0
+          }}
+        >
+          <Suspense fallback={null}>
+            {/* HDRI Environment for realistic lighting */}
+            <Environment preset="sunset" background blur={0.6} />
+            
+            {/* Stars for atmospheric depth */}
+            <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+            
+            {/* Clouds for atmosphere */}
+            <Cloud opacity={0.3} speed={0.4} width={10} depth={1.5} segments={20} position={[0, 15, -30]} color="#1a1a2e" />
+            <Cloud opacity={0.25} speed={0.3} width={12} depth={1.8} segments={20} position={[20, 12, -50]} color="#1a1a2e" />
 
-          <Road roadRef={roadRef} curve={roadCurve} />
-          <Scenery />
-          <XP_Embers />
-          <DashboardLight phase={phase} phaseProgress={phaseProgress} />
-          <AudioController phase={phase} phaseProgress={phaseProgress} />
+            {/* Enhanced Lighting Setup */}
+            <ambientLight intensity={0.2} />
+            <directionalLight 
+              ref={sunRef} 
+              position={[10, 10, 5]} 
+              intensity={1.5}
+              castShadow
+              shadow-mapSize-width={2048}
+              shadow-mapSize-height={2048}
+              shadow-camera-far={50}
+              shadow-camera-left={-20}
+              shadow-camera-right={20}
+              shadow-camera-top={20}
+              shadow-camera-bottom={-20}
+            />
+            
+            {/* Rim lights for cinematic effect */}
+            <pointLight position={[-10, 2, 5]} intensity={1.5} color="#00ffff" distance={30} decay={2} />
+            <pointLight position={[10, 2, 5]} intensity={1.2} color="#ff6b35" distance={30} decay={2} />
+            <spotLight 
+              position={[0, 15, 10]} 
+              angle={0.3} 
+              penumbra={1} 
+              intensity={2}
+              color="#ffffff"
+              castShadow
+            />
 
-          <BreathingTimer
-            isRunning={isRunning}
-            rite={rite}
-            onPhaseChange={setPhase}
-            onTimeUpdate={(_, progress) => setPhaseProgress(progress)}
-          />
+            {/* Game Scene */}
+            <Road roadRef={roadRef} curve={roadCurve} />
+            <Scenery />
+            <XP_Embers />
+            <DashboardLight phase={phase} phaseProgress={phaseProgress} />
+            <AudioController phase={phase} phaseProgress={phaseProgress} />
 
-          {/* Position the SoulEmber to act as a dashboard light/HUD */}
-          <group position={[0, -0.5, -2]}>
-            <SoulEmber phase={phase} phaseProgress={phaseProgress} isRunning={isRunning} />
-          </group>
+            <BreathingTimer
+              isRunning={isRunning}
+              rite={rite}
+              onPhaseChange={setPhase}
+              onTimeUpdate={(_, progress) => setPhaseProgress(progress)}
+            />
 
-          <Text color="white" fontSize={0.5} position={[0, 2, 0]}>
-            {phaseText}
-          </Text>
+            {/* Position the SoulEmber to act as a dashboard light/HUD */}
+            <group position={[0, -0.5, -2]}>
+              <SoulEmber phase={phase} phaseProgress={phaseProgress} isRunning={isRunning} />
+            </group>
 
+            <Text 
+              color="white" 
+              fontSize={0.5} 
+              position={[0, 2, 0]}
+              anchorX="center"
+              anchorY="middle"
+              outlineWidth={0.02}
+              outlineColor="#000000"
+            >
+              {phaseText}
+            </Text>
+
+            {/* Post-Processing Effects */}
+            <EffectComposer disableNormalPass>
+              <Bloom 
+                luminanceThreshold={0.2} 
+                mipmapBlur 
+                intensity={1.5} 
+                radius={0.6}
+                levels={8}
+              />
+              <Noise opacity={0.025} />
+              <Vignette eskil={false} offset={0.15} darkness={1.0} />
+            </EffectComposer>
+          </Suspense>
         </Canvas>
       </div>
     </>
