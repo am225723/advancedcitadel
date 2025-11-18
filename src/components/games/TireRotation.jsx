@@ -7,7 +7,9 @@ import { RefreshCw, ArrowUp, ArrowDown } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Environment, Float } from '@react-three/drei';
+import { EffectComposer, Bloom, Vignette, DepthOfField } from '@react-three/postprocessing';
+import * as THREE from 'three';
 import WheelModel from './WheelModel';
 
 const TireRotation = ({ onComplete }) => {
@@ -90,13 +92,77 @@ const TireRotation = ({ onComplete }) => {
             </div>
         </div>
 
-        <div className="h-64 bg-slate-800 rounded-lg">
-          <Suspense fallback={<div>Loading Model...</div>}>
-            <Canvas>
-              <ambientLight />
-              <pointLight position={[10, 10, 10]} />
-              <WheelModel onLugNutClick={handleLugNutClick} />
-              <OrbitControls />
+        <div className="h-64 bg-black rounded-lg overflow-hidden">
+          <Suspense fallback={<div className="flex items-center justify-center h-full text-cyan-400">Loading Wheel...</div>}>
+            <Canvas
+              shadows
+              camera={{ position: [2.5, 1.5, 2.5], fov: 50 }}
+              gl={{
+                antialias: true,
+                toneMapping: THREE.ACESFilmicToneMapping,
+                toneMappingExposure: 1.1
+              }}
+            >
+              {/* HDRI Environment for realistic garage lighting */}
+              <Environment preset="warehouse" background={false} />
+              
+              {/* Enhanced Lighting Setup */}
+              <ambientLight intensity={0.4} />
+              
+              {/* Main spotlight from above */}
+              <spotLight 
+                position={[0, 5, 0]} 
+                angle={0.5} 
+                penumbra={1}
+                intensity={2}
+                castShadow
+                shadow-mapSize-width={1024}
+                shadow-mapSize-height={1024}
+              />
+              
+              {/* Rim lights for cinematic effect */}
+              <pointLight position={[-3, 2, 2]} intensity={1.5} color="#00ffff" distance={10} decay={2} />
+              <pointLight position={[3, 2, 2]} intensity={1.2} color="#ff6b35" distance={10} decay={2} />
+              <pointLight position={[0, 1, -3]} intensity={0.8} color="#ffffff" distance={8} decay={2} />
+              
+              {/* Wheel with subtle floating animation */}
+              <Float speed={1.5} rotationIntensity={0.05} floatIntensity={0.1}>
+                <WheelModel onLugNutClick={handleLugNutClick} />
+              </Float>
+              
+              {/* Ground plane for shadows */}
+              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
+                <planeGeometry args={[12, 12]} />
+                <meshStandardMaterial 
+                  color="#1a1a1a"
+                  roughness={0.8}
+                  metalness={0.2}
+                />
+              </mesh>
+              
+              {/* Post-Processing Effects */}
+              <EffectComposer>
+                <Bloom 
+                  luminanceThreshold={0.3}
+                  intensity={1.2}
+                  radius={0.5}
+                  levels={8}
+                />
+                <DepthOfField 
+                  focusDistance={0.02}
+                  focalLength={0.05}
+                  bokehScale={3}
+                />
+                <Vignette eskil={false} offset={0.2} darkness={0.8} />
+              </EffectComposer>
+              
+              <OrbitControls 
+                enableZoom={false}
+                autoRotate
+                autoRotateSpeed={0.5}
+                minPolarAngle={Math.PI / 4}
+                maxPolarAngle={Math.PI / 2}
+              />
             </Canvas>
           </Suspense>
         </div>

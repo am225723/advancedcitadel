@@ -7,7 +7,9 @@ import { Hammer, PaintBucket, Wind } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Environment, Float } from '@react-three/drei';
+import { EffectComposer, Bloom, Vignette, DepthOfField } from '@react-three/postprocessing';
+import * as THREE from 'three';
 import CarModel from '@/components/CarModel'; // We can show damage on this model
 
 const BodyRepair = ({ onComplete }) => {
@@ -75,13 +77,81 @@ const BodyRepair = ({ onComplete }) => {
           <div className="text-lg font-semibold text-white">Time: {timeLeft}s</div>
         </div>
 
-        <div className="h-64 bg-slate-800 rounded-lg">
-          <Suspense fallback={<div>Loading Car...</div>}>
-            <Canvas>
-              <ambientLight intensity={0.8} />
-              <directionalLight position={[10, 5, 5]} />
-              <CarModel color={user?.car_color || '#DC2626'} />
-              <OrbitControls />
+        <div className="h-64 bg-black rounded-lg overflow-hidden">
+          <Suspense fallback={<div className="flex items-center justify-center h-full text-cyan-400">Loading Car...</div>}>
+            <Canvas
+              shadows
+              camera={{ position: [3.5, 1.5, 3.5], fov: 50 }}
+              gl={{
+                antialias: true,
+                toneMapping: THREE.ACESFilmicToneMapping,
+                toneMappingExposure: 1.1
+              }}
+            >
+              {/* HDRI Environment for realistic workshop lighting */}
+              <Environment preset="city" background={false} />
+              
+              {/* Enhanced Lighting Setup */}
+              <ambientLight intensity={0.4} />
+              
+              {/* Main directional light from above-left */}
+              <directionalLight 
+                position={[10, 10, 5]} 
+                intensity={1.5}
+                castShadow
+                shadow-mapSize-width={1024}
+                shadow-mapSize-height={1024}
+              />
+              
+              {/* Rim lights for detail visibility */}
+              <pointLight position={[-4, 2, 3]} intensity={1.2} color="#00d4ff" distance={12} decay={2} />
+              <pointLight position={[4, 2, 3]} intensity={1.0} color="#ffaa00" distance={12} decay={2} />
+              <spotLight 
+                position={[0, 6, 0]} 
+                angle={0.5} 
+                penumbra={1}
+                intensity={1.5}
+                color="#ffffff"
+              />
+              
+              {/* Car with subtle float */}
+              <Float speed={1.2} rotationIntensity={0.03} floatIntensity={0.08}>
+                <CarModel color={user?.car_color || '#DC2626'} />
+              </Float>
+              
+              {/* Workshop floor */}
+              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
+                <planeGeometry args={[15, 15]} />
+                <meshStandardMaterial 
+                  color="#2a2a2a"
+                  roughness={0.7}
+                  metalness={0.3}
+                />
+              </mesh>
+              
+              {/* Post-Processing Effects */}
+              <EffectComposer>
+                <Bloom 
+                  luminanceThreshold={0.35}
+                  intensity={1.0}
+                  radius={0.4}
+                  levels={6}
+                />
+                <DepthOfField 
+                  focusDistance={0.015}
+                  focalLength={0.04}
+                  bokehScale={2.5}
+                />
+                <Vignette eskil={false} offset={0.15} darkness={0.7} />
+              </EffectComposer>
+              
+              <OrbitControls 
+                enableZoom={false}
+                autoRotate
+                autoRotateSpeed={0.8}
+                minPolarAngle={Math.PI / 6}
+                maxPolarAngle={Math.PI / 2.2}
+              />
             </Canvas>
           </Suspense>
         </div>
