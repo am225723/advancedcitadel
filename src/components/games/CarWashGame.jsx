@@ -9,7 +9,7 @@ import { toast } from '@/components/ui/use-toast';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Float } from '@react-three/drei';
 import * as THREE from 'three';
-import CarModel from '@/components/CarModel';
+import { Car3DModel } from '@/components/CarModel';
 
 const CarWashGame = ({ onComplete }) => {
   const [stage, setStage] = useState('pre-rinse'); // pre-rinse, soap, scrub, final-rinse
@@ -114,7 +114,7 @@ const CarWashGame = ({ onComplete }) => {
                     
                     {/* Car with subtle floating animation */}
                     <Float speed={1.5} rotationIntensity={0.05} floatIntensity={0.1}>
-                      <CarModel color={user?.car_color || '#DC2626'} />
+                      <Car3DModel color={user?.car_color || '#DC2626'} />
                     </Float>
                     
                     {/* Ground plane for shadows */}

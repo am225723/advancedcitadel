@@ -9,7 +9,7 @@ import { toast } from '@/components/ui/use-toast';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Float } from '@react-three/drei';
 import * as THREE from 'three';
-import CarModel from '@/components/CarModel'; // We can show damage on this model
+import { Car3DModel } from '@/components/CarModel';
 
 const BodyRepair = ({ onComplete }) => {
   const { user, addXP } = useUser();
@@ -115,7 +115,7 @@ const BodyRepair = ({ onComplete }) => {
               
               {/* Car with subtle float */}
               <Float speed={1.2} rotationIntensity={0.03} floatIntensity={0.08}>
-                <CarModel color={user?.car_color || '#DC2626'} />
+                <Car3DModel color={user?.car_color || '#DC2626'} />
               </Float>
               
               {/* Workshop floor */}

@@ -157,7 +157,7 @@ The system analyzes emotions from recent journal entries and recommends meditati
 - `database_migrations_meditations.sql` - Database schema migration
 
 ### Recent Changes
-- **2024-11-19:** Visual Enhancement System with GPU Optimization:
+- **2024-11-19:** Visual Enhancement System with GPU Optimization + Critical Bug Fixes:
   - **Upgraded MindfulDrive** with optimized visuals: Stars, fog, rim lighting, ACES tone mapping, minimal post-processing (Bloom only)
   - **Fixed critical React Three Fiber bug** by moving useFrame logic into SceneController component inside Canvas (prevents useFrame context errors)
   - **Performance optimization** by caching road curve points to eliminate per-frame allocations
@@ -167,6 +167,10 @@ The system analyzes emotions from recent journal entries and recommends meditati
     - **No post-processing on mini-games** to prevent WebGL context crashes when multiple games load simultaneously
   - **Dependencies**: Added `@react-three/postprocessing` (2.19.1) and `postprocessing` (6.38.0) packages
   - **GPU Optimization**: Removed post-processing from mini-games to prevent "WebGL Context Lost" errors when multiple Canvas elements render
+  - **CRITICAL FIX**: Fixed nested Canvas bug in CarModel component that was causing "R3F: Canvas is not part of the THREE namespace" crash
+    - Refactored CarModel.jsx to export both `Car3DModel` (pure 3D model) and default `CarModel` (with Canvas wrapper)
+    - Updated all 6 mini-games to use `Car3DModel` instead of `CarModel` to prevent nested Canvas elements
+    - VirtualGarage continues using default `CarModel` export for standalone 3D viewer
   - **Preserved all functionality**: Game logic, XP tracking, timers, scoring, breathing mechanics, and UI controls remain unchanged
   - **Technical pattern**: Environment (HDRI) + ACES tone mapping + rim lights + Float wrapper + enhanced OrbitControls (no shadows, no post-processing on games)
   - **Note**: ECUTuning is a logic puzzle game without 3D rendering, so no enhancement needed

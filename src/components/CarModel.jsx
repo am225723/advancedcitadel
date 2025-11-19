@@ -44,6 +44,20 @@ const Model = ({ color }) => {
   return <primitive object={fbx} />;
 };
 
+// Export pure 3D model for use inside existing Canvas elements
+export const Car3DModel = ({ color }) => {
+  return (
+    <Suspense fallback={null}>
+      <Bounds fit clip observe margin={1.2}>
+        <Center>
+          <Model color={color} />
+        </Center>
+      </Bounds>
+    </Suspense>
+  );
+};
+
+// Default export with Canvas for standalone use
 const CarModel = ({ color }) => {
   return (
     <Canvas>
