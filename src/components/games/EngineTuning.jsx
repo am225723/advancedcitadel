@@ -7,7 +7,6 @@ import { Wrench, Zap, Fuel, Rss, CircleDotDashed } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Float } from '@react-three/drei';
-import { EffectComposer, Bloom, Vignette, DepthOfField } from '@react-three/postprocessing';
 import EngineModel from './EngineModel';
 import * as THREE from 'three';
 
@@ -146,22 +145,6 @@ const EngineTuning = ({ onComplete }) => {
                         metalness={0.2}
                       />
                     </mesh>
-                    
-                    {/* Post-Processing Effects */}
-                    <EffectComposer>
-                      <Bloom 
-                        luminanceThreshold={0.3}
-                        intensity={1.2}
-                        radius={0.5}
-                        levels={8}
-                      />
-                      <DepthOfField 
-                        focusDistance={0.02}
-                        focalLength={0.05}
-                        bokehScale={3}
-                      />
-                      <Vignette eskil={false} offset={0.2} darkness={0.8} />
-                    </EffectComposer>
                     
                     <OrbitControls 
                       enableZoom={false}

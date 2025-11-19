@@ -8,7 +8,6 @@ import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Float } from '@react-three/drei';
-import { EffectComposer, Bloom, Vignette, DepthOfField } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import CarModel from '@/components/CarModel';
 
@@ -127,22 +126,6 @@ const CarWashGame = ({ onComplete }) => {
                         metalness={0.2}
                       />
                     </mesh>
-                    
-                    {/* Post-Processing Effects */}
-                    <EffectComposer>
-                      <Bloom 
-                        luminanceThreshold={0.3}
-                        intensity={1.2}
-                        radius={0.5}
-                        levels={8}
-                      />
-                      <DepthOfField 
-                        focusDistance={0.02}
-                        focalLength={0.05}
-                        bokehScale={3}
-                      />
-                      <Vignette eskil={false} offset={0.2} darkness={0.8} />
-                    </EffectComposer>
                     
                     <OrbitControls 
                       enableZoom={false}

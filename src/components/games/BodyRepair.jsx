@@ -8,7 +8,6 @@ import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Float } from '@react-three/drei';
-import { EffectComposer, Bloom, Vignette, DepthOfField } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import CarModel from '@/components/CarModel'; // We can show damage on this model
 
@@ -128,22 +127,6 @@ const BodyRepair = ({ onComplete }) => {
                   metalness={0.3}
                 />
               </mesh>
-              
-              {/* Post-Processing Effects */}
-              <EffectComposer>
-                <Bloom 
-                  luminanceThreshold={0.35}
-                  intensity={1.0}
-                  radius={0.4}
-                  levels={6}
-                />
-                <DepthOfField 
-                  focusDistance={0.015}
-                  focalLength={0.04}
-                  bokehScale={2.5}
-                />
-                <Vignette eskil={false} offset={0.15} darkness={0.7} />
-              </EffectComposer>
               
               <OrbitControls 
                 enableZoom={false}

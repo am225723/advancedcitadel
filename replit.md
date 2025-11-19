@@ -157,20 +157,18 @@ The system analyzes emotions from recent journal entries and recommends meditati
 - `database_migrations_meditations.sql` - Database schema migration
 
 ### Recent Changes
-- **2024-11-18:** AAA Visual Enhancements for Mindful Drive and All Mini-Games:
-  - **Upgraded MindfulDrive** with hybrid AAA enhancement: HDRI environments (warehouse/city), ACES filmic tone mapping, post-processing (Bloom, DepthOfField, Vignette, Noise), PBR materials with realistic lighting, rim lights (cyan + orange), enhanced scenery, shadows enabled
+- **2024-11-19:** Visual Enhancement System with GPU Optimization:
+  - **Upgraded MindfulDrive** with optimized visuals: Stars, fog, rim lighting, ACES tone mapping, minimal post-processing (Bloom only)
   - **Fixed critical React Three Fiber bug** by moving useFrame logic into SceneController component inside Canvas (prevents useFrame context errors)
   - **Performance optimization** by caching road curve points to eliminate per-frame allocations
-  - **Enhanced 6 mini-games** with same AAA visual pattern:
-    - CarWashGame: HDRI warehouse, post-processing, rim lights, Float animation, enhanced OrbitControls
-    - BodyRepair: HDRI city, enhanced lighting/shadows, rim lights, Float, post-processing
-    - EngineTuning: HDRI warehouse, ACES tone mapping, rim lights, Float, post-processing
-    - TireRotation: HDRI warehouse, ACES tone mapping, rim lights, Float, post-processing
-    - OilChange: HDRI warehouse, ACES tone mapping, rim lights, Float, post-processing
-    - CleaningExterior: HDRI city, ACES tone mapping, rim lights, Float, post-processing
-  - **Dependencies**: Added `@react-three/postprocessing` and `postprocessing` packages
+  - **Enhanced 6 mini-games** with lightweight 3D improvements:
+    - CarWashGame, BodyRepair, EngineTuning, TireRotation, OilChange, CleaningExterior
+    - Environment (HDRI warehouse/city presets), ACES tone mapping, rim lights, Float animation, enhanced OrbitControls
+    - **No post-processing on mini-games** to prevent WebGL context crashes when multiple games load simultaneously
+  - **Dependencies**: Added `@react-three/postprocessing` (2.19.1) and `postprocessing` (6.38.0) packages
+  - **GPU Optimization**: Removed post-processing from mini-games to prevent "WebGL Context Lost" errors when multiple Canvas elements render
   - **Preserved all functionality**: Game logic, XP tracking, timers, scoring, breathing mechanics, and UI controls remain unchanged
-  - **Technical pattern**: Environment (HDRI preset) + ACES tone mapping + enhanced lighting + rim lights + Float wrapper + post-processing stack + enhanced OrbitControls
+  - **Technical pattern**: Environment (HDRI) + ACES tone mapping + rim lights + Float wrapper + enhanced OrbitControls (no shadows, no post-processing on games)
   - **Note**: ECUTuning is a logic puzzle game without 3D rendering, so no enhancement needed
 
 - **2024-11-16:** Updated Sanctuary of Stillness navigation tile:
