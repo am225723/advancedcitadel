@@ -1,8 +1,8 @@
 import React, { useRef, useState, useMemo, useEffect, Suspense } from 'react';
 import { Helmet } from 'react-helmet';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Box, Plane, Text, Tube, Environment, Stars, Cloud } from '@react-three/drei';
-import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing';
+import { Text, Tube, Stars } from '@react-three/drei';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import SoulEmber from '@/components/SoulEmber';
 import XP_Embers from '@/components/XP_Embers';
@@ -84,7 +84,7 @@ const Scenery = () => {
 
   const sceneryElements = useMemo(() => {
     const elements = [];
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 20; i++) {
       elements.push({
         position: [Math.random() > 0.5 ? -15 - Math.random() * 10 : 15 + Math.random() * 10, 0, -i * 40],
         type: Math.random() > 0.3 ? 'tree' : 'rock',
@@ -116,7 +116,7 @@ const Scenery = () => {
 const Tree = (props) => (
   <group {...props}>
     {/* Trunk with realistic bark material */}
-    <mesh position={[0, 2.5, 0]} castShadow>
+    <mesh position={[0, 2.5, 0]}>
       <cylinderGeometry args={[0.5, 0.8, 5, 8]} />
       <meshStandardMaterial 
         color="#3d2817"
@@ -125,7 +125,7 @@ const Tree = (props) => (
       />
     </mesh>
     {/* Foliage - layered cones for depth */}
-    <mesh position={[0, 6, 0]} castShadow>
+    <mesh position={[0, 6, 0]}>
       <coneGeometry args={[3, 6, 8]} />
       <meshStandardMaterial 
         color="#0f2e17"
@@ -133,7 +133,7 @@ const Tree = (props) => (
         metalness={0.0}
       />
     </mesh>
-    <mesh position={[0, 8, 0]} castShadow>
+    <mesh position={[0, 8, 0]}>
       <coneGeometry args={[2.5, 5, 8]} />
       <meshStandardMaterial 
         color="#1a4d26"
@@ -141,7 +141,7 @@ const Tree = (props) => (
         metalness={0.0}
       />
     </mesh>
-    <mesh position={[0, 9.5, 0]} castShadow>
+    <mesh position={[0, 9.5, 0]}>
       <coneGeometry args={[1.8, 4, 8]} />
       <meshStandardMaterial 
         color="#2d6a3e"
@@ -153,7 +153,7 @@ const Tree = (props) => (
 );
 
 const Rock = (props) => (
-  <mesh {...props} castShadow receiveShadow>
+  <mesh {...props}>
     <dodecahedronGeometry args={[1.5, 0]} />
     <meshStandardMaterial 
       color="#5a5a5a"
@@ -303,51 +303,31 @@ const MindfulDrive = () => {
       <div style={{ height: '80vh', width: '100%', background: '#050505' }}>
         <Canvas 
           camera={{ position: [0, 1, 10], fov: 60 }}
-          shadows
           gl={{ 
-            antialias: true,
+            antialias: false,
             toneMapping: THREE.ACESFilmicToneMapping,
-            toneMappingExposure: 1.0
+            toneMappingExposure: 1.0,
+            powerPreference: "low-power"
           }}
         >
           <Suspense fallback={null}>
-            {/* HDRI Environment for realistic lighting */}
-            <Environment preset="sunset" background blur={0.6} />
+            {/* Simple background */}
+            <color attach="background" args={['#0a0a15']} />
+            <fog attach="fog" args={['#0a0a15', 40, 120]} />
             
-            {/* Stars for atmospheric depth */}
-            <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-            
-            {/* Clouds for atmosphere */}
-            <Cloud opacity={0.3} speed={0.4} width={10} depth={1.5} segments={20} position={[0, 15, -30]} color="#1a1a2e" />
-            <Cloud opacity={0.25} speed={0.3} width={12} depth={1.8} segments={20} position={[20, 12, -50]} color="#1a1a2e" />
+            {/* Minimal stars for atmosphere */}
+            <Stars radius={80} depth={40} count={1000} factor={3} saturation={0} fade speed={0.8} />
 
-            {/* Enhanced Lighting Setup */}
-            <ambientLight intensity={0.2} />
+            {/* Lightweight Lighting */}
+            <ambientLight intensity={0.4} />
             <directionalLight 
               ref={sunRef} 
               position={[10, 10, 5]} 
-              intensity={1.5}
-              castShadow
-              shadow-mapSize-width={2048}
-              shadow-mapSize-height={2048}
-              shadow-camera-far={50}
-              shadow-camera-left={-20}
-              shadow-camera-right={20}
-              shadow-camera-top={20}
-              shadow-camera-bottom={-20}
+              intensity={1.0}
             />
             
-            {/* Rim lights for cinematic effect */}
-            <pointLight position={[-10, 2, 5]} intensity={1.5} color="#00ffff" distance={30} decay={2} />
-            <pointLight position={[10, 2, 5]} intensity={1.2} color="#ff6b35" distance={30} decay={2} />
-            <spotLight 
-              position={[0, 15, 10]} 
-              angle={0.3} 
-              penumbra={1} 
-              intensity={2}
-              color="#ffffff"
-              castShadow
-            />
+            {/* Single accent light for visuals */}
+            <pointLight position={[0, 3, 5]} intensity={0.8} color="#00ddff" distance={30} decay={2} />
 
             {/* Game Scene */}
             <Road roadRef={roadRef} curve={roadCurve} />
@@ -381,17 +361,14 @@ const MindfulDrive = () => {
               {phaseText}
             </Text>
 
-            {/* Post-Processing Effects */}
-            <EffectComposer disableNormalPass>
+            {/* Minimal Post-Processing */}
+            <EffectComposer disableNormalPass multisampling={0}>
               <Bloom 
-                luminanceThreshold={0.2} 
-                mipmapBlur 
-                intensity={1.5} 
-                radius={0.6}
-                levels={8}
+                luminanceThreshold={0.4} 
+                intensity={0.8} 
+                radius={0.4}
+                levels={3}
               />
-              <Noise opacity={0.025} />
-              <Vignette eskil={false} offset={0.15} darkness={1.0} />
             </EffectComposer>
           </Suspense>
         </Canvas>
