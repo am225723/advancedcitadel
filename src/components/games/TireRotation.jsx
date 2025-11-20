@@ -142,28 +142,20 @@ const TireRotation = ({ onComplete }) => {
       });
       setSwapCount(prev => prev + 1);
       setSelectedTire(null);
-
-      setTimeout(() => {
-        const allCorrect = tires.every(tire => 
-          tire.pattern === targetPattern[tire.position] || 
-          (tires.find(t => t.id === selectedTire)?.pattern === targetPattern[tires.find(t => t.id === selectedTire)?.position])
-        );
-        
-        const newTires = [...tires];
-        const temp = newTires[selectedTire].pattern;
-        newTires[selectedTire].pattern = newTires[tireId].pattern;
-        newTires[tireId].pattern = temp;
-        
-        const nowCorrect = newTires.every(tire => 
-          tire.pattern === targetPattern[tire.position]
-        );
-        
-        if (nowCorrect) {
-          advanceToTorque();
-        }
-      }, 100);
     }
   };
+
+  useEffect(() => {
+    if (stage === 'swap') {
+      const allCorrect = tires.every(tire => 
+        tire.pattern === targetPattern[tire.position]
+      );
+      
+      if (allCorrect) {
+        advanceToTorque();
+      }
+    }
+  }, [tires, stage]);
 
   const advanceToTorque = () => {
     setStage('torque');
