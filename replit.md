@@ -157,6 +157,21 @@ The system analyzes emotions from recent journal entries and recommends meditati
 - `database_migrations_meditations.sql` - Database schema migration
 
 ### Recent Changes
+- **2024-11-20:** Complete Mini-Game Remake - Removed All 3D Graphics:
+  - **CRITICAL FIX**: Completely remade all 6 mini-games as simple 2D games to eliminate WebGL crashes
+  - **Removed all 3D dependencies**: Stripped out Canvas, @react-three/fiber, @react-three/drei, and Three.js imports
+  - **New lightweight implementations**:
+    - CarWashGame: Click dirt spots on SVG car visualization with animated sparkles
+    - BodyRepair: Find and click red dents on SVG car with pulsing animation
+    - TireRotation: Swap tire positions to match target pattern with visual feedback
+    - OilChange: Sequential drain/filter/fill gameplay with animated progress bars
+    - CleaningExterior: Click dirty areas to polish with gradient effects and shine glow
+    - EngineTuning: Fast-paced button clicking game with progress tracking
+  - **All game logic preserved**: Timers, scoring systems, XP rewards, and completion handlers intact
+  - **Performance**: No more GPU-intensive operations, WebGL contexts, or shadow mapping
+  - **Reliability**: Games now work consistently without crashes in Replit's cloud environment
+  - **Note**: Old 3D component files (EngineModel, WheelModel, EngineBayModel) can be deleted as optional cleanup
+
 - **2024-11-19:** Visual Enhancement System with GPU Optimization + Critical Bug Fixes:
   - **Upgraded MindfulDrive** with optimized visuals: Stars, fog, rim lighting, ACES tone mapping, minimal post-processing (Bloom only)
   - **Fixed critical React Three Fiber bug** by moving useFrame logic into SceneController component inside Canvas (prevents useFrame context errors)
