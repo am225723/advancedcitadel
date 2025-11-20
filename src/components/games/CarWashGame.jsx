@@ -29,7 +29,7 @@ const CarWashGame = ({ onComplete }) => {
       id: i,
       x: Math.random() * 80 + 10,
       y: Math.random() * 75 + 15,
-      size: Math.random() * 25 + 20,
+      size: Math.random() * 12 + 48,
       cleaned: false,
       soaped: false
     }));
