@@ -1,154 +1,167 @@
-import React, { useState, useEffect, Suspense } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Hammer, PaintBucket, Wind } from 'lucide-react';
+import { Hammer, PaintBucket, Wind, CheckCircle } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, Float } from '@react-three/drei';
-import * as THREE from 'three';
-import { Car3DModel } from '@/components/CarModel';
 
 const BodyRepair = ({ onComplete }) => {
   const { user, addXP } = useUser();
-  const [stage, setStage] = useState('sanding'); // sanding, filling, painting
-  const [progress, setProgress] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(90);
+  const [stage, setStage] = useState('finding');
+  const [dents, setDents] = useState([]);
+  const [foundDents, setFoundDents] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(60);
+  const totalDents = 8;
 
   useEffect(() => {
+    const dentPositions = Array.from({ length: totalDents }, (_, i) => ({
+      id: i,
+      x: Math.random() * 80 + 10,
+      y: Math.random() * 70 + 15,
+      found: false
+    }));
+    setDents(dentPositions);
+  }, []);
+
+  useEffect(() => {
+    if (stage === 'complete') return;
+    
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          clearInterval(timer);
-          endGame();
+          handleComplete();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [stage, foundDents]);
 
-  const handleAction = () => {
-    setProgress(p => Math.min(100, p + 10));
-  };
-
-  useEffect(() => {
-    if (progress >= 100) {
-      if (stage === 'painting') {
-        endGame();
-      } else {
-        const nextStage = stage === 'sanding' ? 'filling' : 'painting';
-        setStage(nextStage);
-        setProgress(0);
-      }
-    }
-  }, [progress, stage]);
-
-  const endGame = () => {
-    const score = (stage === 'painting' && progress === 100) ? 500 + timeLeft * 5 : progress * 5 + timeLeft * 2;
-    const xpGained = Math.round(score / 15);
+  const handleComplete = () => {
+    if (stage === 'complete') return;
+    setStage('complete');
+    const score = foundDents * 50 + timeLeft * 5;
+    const xpGained = Math.round(20 + (foundDents / totalDents) * 10);
     addXP(xpGained);
     toast({
       title: "Body Repair Complete!",
-      description: `You scored ${score} and earned +${xpGained} XP.`,
+      description: `Found ${foundDents}/${totalDents} dents! Earned +${xpGained} XP.`,
     });
     setTimeout(onComplete, 1500);
   };
 
-  const stageData = {
-    'sanding': { title: 'Sanding Dent', icon: Wind },
-    'filling': { title: 'Applying Filler', icon: PaintBucket },
-    'painting': { title: 'Painting', icon: Hammer }
+  const handleDentClick = (dentId) => {
+    setDents(prev => prev.map(dent =>
+      dent.id === dentId ? { ...dent, found: true } : dent
+    ));
+    setFoundDents(prev => prev + 1);
+
+    if (foundDents + 1 >= totalDents) {
+      handleComplete();
+    }
   };
-  const CurrentIcon = stageData[stage].icon;
+
+  const carColor = user?.car_color || '#DC2626';
+  const progress = (foundDents / totalDents) * 100;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <Card className="bg-slate-900/80 border-cyan-500/50 p-6 space-y-4">
         <div className="flex justify-between items-center">
-          <h3 className="text-2xl font-bold text-white flex items-center">
-            <CurrentIcon className="w-6 h-6 text-cyan-400 mr-2" />
-            {stageData[stage].title}
+          <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Hammer className="w-6 h-6 text-cyan-400" />
+            Body Repair
           </h3>
-          <div className="text-lg font-semibold text-white">Time: {timeLeft}s</div>
+          <div className="text-lg font-semibold text-white">
+            Time: {timeLeft}s
+          </div>
         </div>
 
-        <div className="h-64 bg-black rounded-lg overflow-hidden">
-          <Suspense fallback={<div className="flex items-center justify-center h-full text-cyan-400">Loading Car...</div>}>
-            <Canvas
-              shadows
-              camera={{ position: [3.5, 1.5, 3.5], fov: 50 }}
-              gl={{
-                antialias: true,
-                toneMapping: THREE.ACESFilmicToneMapping,
-                toneMappingExposure: 1.1
-              }}
-            >
-              {/* HDRI Environment for realistic workshop lighting */}
-              <Environment preset="city" background={false} />
+        <div className="relative h-80 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg overflow-hidden border-2 border-slate-700">
+          <svg viewBox="0 0 300 150" className="w-full h-full">
+            <defs>
+              <filter id="dentShadow">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+                <feOffset dx="1" dy="1" result="offsetblur"/>
+                <feMerge>
+                  <feMergeNode/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            
+            <g transform="translate(150, 75)">
+              <ellipse cx="0" cy="35" rx="120" ry="15" fill="#000" opacity="0.3"/>
               
-              {/* Enhanced Lighting Setup */}
-              <ambientLight intensity={0.4} />
-              
-              {/* Main directional light from above-left */}
-              <directionalLight 
-                position={[10, 10, 5]} 
-                intensity={1.5}
-                castShadow
-                shadow-mapSize-width={1024}
-                shadow-mapSize-height={1024}
+              <path
+                d="M -80 20 L -90 0 L -60 -15 L 0 -20 L 60 -15 L 90 0 L 80 20 L 70 30 L -70 30 Z"
+                fill={carColor}
+                stroke="#000"
+                strokeWidth="2"
+                opacity="0.9"
               />
               
-              {/* Rim lights for detail visibility */}
-              <pointLight position={[-4, 2, 3]} intensity={1.2} color="#00d4ff" distance={12} decay={2} />
-              <pointLight position={[4, 2, 3]} intensity={1.0} color="#ffaa00" distance={12} decay={2} />
-              <spotLight 
-                position={[0, 6, 0]} 
-                angle={0.5} 
-                penumbra={1}
-                intensity={1.5}
-                color="#ffffff"
+              <ellipse cx="-50" cy="25" rx="15" ry="10" fill="#1a1a1a"/>
+              <ellipse cx="50" cy="25" rx="15" ry="10" fill="#1a1a1a"/>
+              
+              <path
+                d="M -50 -10 L -30 -15 L 30 -15 L 50 -10 L 40 5 L -40 5 Z"
+                fill="#87ceeb"
+                opacity="0.6"
+                stroke="#000"
               />
-              
-              {/* Car with subtle float */}
-              <Float speed={1.2} rotationIntensity={0.03} floatIntensity={0.08}>
-                <Car3DModel color={user?.car_color || '#DC2626'} />
-              </Float>
-              
-              {/* Workshop floor */}
-              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
-                <planeGeometry args={[15, 15]} />
-                <meshStandardMaterial 
-                  color="#2a2a2a"
-                  roughness={0.7}
-                  metalness={0.3}
-                />
-              </mesh>
-              
-              <OrbitControls 
-                enableZoom={false}
-                autoRotate
-                autoRotateSpeed={0.8}
-                minPolarAngle={Math.PI / 6}
-                maxPolarAngle={Math.PI / 2.2}
-              />
-            </Canvas>
-          </Suspense>
+            </g>
+          </svg>
+
+          <AnimatePresence>
+            {dents.filter(dent => !dent.found).map(dent => (
+              <motion.div
+                key={dent.id}
+                initial={{ scale: 0 }}
+                animate={{ scale: [1, 1.1, 1], transition: { repeat: Infinity, duration: 1 } }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="absolute cursor-pointer"
+                style={{
+                  left: `${dent.x}%`,
+                  top: `${dent.y}%`,
+                  width: '24px',
+                  height: '24px'
+                }}
+                onClick={() => handleDentClick(dent.id)}
+              >
+                <div className="w-full h-full rounded-full bg-gradient-radial from-red-600/70 to-red-800/90 hover:scale-125 transition-transform border-2 border-red-900 shadow-lg" />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
-        <div>
-          <label className="text-slate-400">Repair Progress</label>
-          <Progress value={progress} className="h-3" />
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-400">Repair Progress</span>
+            <span className="text-cyan-400 font-semibold">{foundDents}/{totalDents} dents</span>
+          </div>
+          <Progress value={progress} className="h-3 bg-slate-700" />
         </div>
 
-        <div className="text-center">
-            <Button onClick={handleAction} className="w-1/2 h-16 text-lg" variant="outline">
-                Perform Action
-            </Button>
+        <div className="text-center text-slate-400 text-sm">
+          Click on the red dents to repair them!
         </div>
+
+        {stage === 'complete' && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="text-center py-4"
+          >
+            <div className="text-2xl font-bold text-green-400 flex items-center justify-center gap-2">
+              <CheckCircle className="w-8 h-8" />
+              Body Restored!
+            </div>
+          </motion.div>
+        )}
       </Card>
     </motion.div>
   );

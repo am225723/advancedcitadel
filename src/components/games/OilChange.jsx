@@ -1,183 +1,201 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Filter, CheckCircle, XCircle } from 'lucide-react';
+import { Filter, CheckCircle, XCircle, Droplet } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, Float } from '@react-three/drei';
-import * as THREE from 'three';
-import EngineBayModel from './EngineBayModel';
 
 const OilChange = ({ onComplete }) => {
   const { addXP } = useUser();
-  const [tasks, setTasks] = useState({
-    'drain_plug': false,
-    'oil_filter': false,
-    'oil_cap': false,
-    'fill_oil': false,
-    'replace_cap': false
-  });
-  const [timeLeft, setTimeLeft] = useState(120);
-  const [score, setScore] = useState(0);
+  const [stage, setStage] = useState('drain');
+  const [oilLevel, setOilLevel] = useState(100);
+  const [newOilLevel, setNewOilLevel] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(90);
+  const [filterChanged, setFilterChanged] = useState(false);
 
   useEffect(() => {
+    if (stage === 'complete') return;
+    
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          clearInterval(timer);
-          endGame();
+          handleComplete();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [stage]);
 
-  const handlePartClick = (partName) => {
-    switch (partName) {
-      case 'drain_plug':
-        if (!tasks.drain_plug) {
-          setTasks(t => ({ ...t, drain_plug: true }));
-          setScore(s => s + 50);
-        }
-        break;
-      case 'oil_filter':
-        if (tasks.drain_plug && !tasks.oil_filter) {
-          setTasks(t => ({ ...t, oil_filter: true }));
-          setScore(s => s + 50);
-        } else {
-          toast({ variant: "destructive", title: "Drain the oil first!" });
-        }
-        break;
-      case 'oil_cap':
-        if (tasks.oil_filter && !tasks.oil_cap) {
-          setTasks(t => ({ ...t, oil_cap: true }));
-          setScore(s => s + 50);
-        }
-        break;
-      default:
-        break;
+  const handleDrain = () => {
+    if (oilLevel > 0) {
+      setOilLevel(prev => Math.max(0, prev - 20));
+    }
+    if (oilLevel <= 20 && stage === 'drain') {
+      setTimeout(() => setStage('filter'), 500);
     }
   };
 
-  const handleFillOil = () => {
-    if (tasks.oil_cap && !tasks.fill_oil) {
-        setTasks(t => ({...t, fill_oil: true}));
-        setScore(s => s + 100);
+  const handleChangeFilter = () => {
+    if (!filterChanged) {
+      setFilterChanged(true);
+      toast({ title: "Filter Replaced!", description: "Ready to add new oil." });
+      setTimeout(() => setStage('fill'), 1000);
     }
-  }
+  };
 
-  const endGame = () => {
-    const allComplete = Object.values(tasks).every(Boolean);
-    const finalScore = allComplete ? score + timeLeft * 5 : score;
-    const xpGained = Math.round(finalScore / 15);
+  const handleFill = () => {
+    if (newOilLevel < 100) {
+      setNewOilLevel(prev => Math.min(100, prev + 20));
+    }
+    if (newOilLevel >= 80) {
+      handleComplete();
+    }
+  };
+
+  const handleComplete = () => {
+    if (stage === 'complete') return;
+    setStage('complete');
+    const completionScore = (filterChanged ? 50 : 0) + (newOilLevel >= 80 ? 50 : newOilLevel / 2);
+    const xpGained = Math.round(20 + completionScore / 5);
     addXP(xpGained);
-
     toast({
-      title: allComplete ? "Oil Change Complete!" : "Time's Up!",
-      description: `You scored ${finalScore} and earned +${xpGained} XP.`,
+      title: "Oil Change Complete!",
+      description: `Oil refreshed! Earned +${xpGained} XP.`,
     });
-    setTimeout(onComplete, 2000);
+    setTimeout(onComplete, 1500);
   };
 
-  const taskList = [
-      { id: 'drain_plug', text: 'Unscrew Drain Plug' },
-      { id: 'oil_filter', text: 'Replace Oil Filter' },
-      { id: 'oil_cap', text: 'Open Oil Cap' },
-      { id: 'fill_oil', text: 'Fill with New Oil' },
-  ]
+  const getStageInfo = () => {
+    switch (stage) {
+      case 'drain':
+        return {
+          title: 'Drain Old Oil',
+          instruction: 'Click DRAIN button to remove old oil',
+          action: handleDrain,
+          actionText: 'DRAIN',
+          disabled: oilLevel <= 0
+        };
+      case 'filter':
+        return {
+          title: 'Replace Oil Filter',
+          instruction: 'Click to replace the oil filter',
+          action: handleChangeFilter,
+          actionText: 'CHANGE FILTER',
+          disabled: filterChanged
+        };
+      case 'fill':
+        return {
+          title: 'Fill New Oil',
+          instruction: 'Click FILL to add fresh oil',
+          action: handleFill,
+          actionText: 'FILL',
+          disabled: newOilLevel >= 100
+        };
+      default:
+        return {
+          title: 'Complete',
+          instruction: 'Oil change finished!',
+          action: () => {},
+          actionText: 'DONE',
+          disabled: true
+        };
+    }
+  };
+
+  const stageInfo = getStageInfo();
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <Card className="bg-slate-900/80 border-cyan-500/50 p-6 space-y-4">
         <div className="flex justify-between items-center">
-          <h3 className="text-2xl font-bold text-white"><Filter className="inline mr-2" />Oil Change</h3>
-          <div>
-            <span className="text-lg font-bold">Score: {score} | </span>
-            <span className="text-lg font-bold">Time: {timeLeft}s</span>
+          <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Filter className="w-6 h-6 text-cyan-400" />
+            Oil Change
+          </h3>
+          <div className="text-lg font-semibold text-white">
+            Time: {timeLeft}s
           </div>
         </div>
 
-        <div className="h-64 bg-black rounded-lg overflow-hidden">
-          <Suspense fallback={<div className="flex items-center justify-center h-full text-cyan-400">Loading Engine Bay...</div>}>
-            <Canvas
-              shadows
-              camera={{ position: [3, 2, 3], fov: 50 }}
-              gl={{
-                antialias: true,
-                toneMapping: THREE.ACESFilmicToneMapping,
-                toneMappingExposure: 1.1
-              }}
-            >
-              {/* HDRI Environment for realistic workshop lighting */}
-              <Environment preset="warehouse" background={false} />
-              
-              {/* Enhanced Lighting Setup */}
-              <ambientLight intensity={0.4} />
-              
-              {/* Main spotlight from above */}
-              <spotLight 
-                position={[0, 6, 0]} 
-                angle={0.5} 
-                penumbra={1}
-                intensity={2}
-                castShadow
-                shadow-mapSize-width={1024}
-                shadow-mapSize-height={1024}
-              />
-              
-              {/* Rim lights for cinematic effect */}
-              <pointLight position={[-4, 3, 3]} intensity={1.5} color="#00ffff" distance={12} decay={2} />
-              <pointLight position={[4, 3, 3]} intensity={1.2} color="#ff6b35" distance={12} decay={2} />
-              <pointLight position={[0, 1, -3]} intensity={0.8} color="#ffffff" distance={10} decay={2} />
-              
-              {/* Engine Bay with subtle floating animation */}
-              <Float speed={1.5} rotationIntensity={0.05} floatIntensity={0.1}>
-                <EngineBayModel onPartClick={handlePartClick} />
-              </Float>
-              
-              {/* Ground plane for shadows */}
-              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.5, 0]} receiveShadow>
-                <planeGeometry args={[15, 15]} />
-                <meshStandardMaterial 
-                  color="#1a1a1a"
-                  roughness={0.8}
-                  metalness={0.2}
-                />
-              </mesh>
-              
-              <OrbitControls 
-                enableZoom={false}
-                autoRotate
-                autoRotateSpeed={0.5}
-                minPolarAngle={Math.PI / 4}
-                maxPolarAngle={Math.PI / 2}
-              />
-            </Canvas>
-          </Suspense>
+        <div className="bg-slate-800 p-4 rounded-lg border border-slate-700">
+          <h4 className="text-lg font-semibold text-cyan-400 mb-2">{stageInfo.title}</h4>
+          <p className="text-sm text-slate-400">{stageInfo.instruction}</p>
         </div>
 
-        <div className='grid grid-cols-2 gap-4'>
-            <div>
-                <h4 className='font-bold mb-2'>Tasks:</h4>
-                <ul className="space-y-2">
-                    {taskList.map(task => (
-                        <li key={task.id} className="flex items-center text-slate-300">
-                            {tasks[task.id] ? <CheckCircle className="text-green-500 mr-2" /> : <XCircle className="text-red-500 mr-2" />}
-                            {task.text}
-                        </li>
-                    ))}
-                </ul>
+        <div className="relative h-80 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg overflow-hidden border-2 border-slate-700 p-8">
+          <div className="flex flex-col items-center justify-center h-full gap-8">
+            <div className="w-48">
+              <div className="text-sm text-slate-400 mb-2">Old Oil</div>
+              <div className="relative w-full h-32 bg-slate-700 rounded-lg border-2 border-slate-600 overflow-hidden">
+                <motion.div
+                  className="absolute bottom-0 w-full bg-gradient-to-t from-amber-900 to-amber-700"
+                  animate={{ height: `${oilLevel}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">{oilLevel}%</span>
+                </div>
+              </div>
             </div>
-            <div className='flex flex-col gap-4 justify-center'>
-                <Button onClick={handleFillOil} disabled={!tasks.oil_cap || tasks.fill_oil}>Fill Oil</Button>
-                <Button onClick={endGame} className="bg-green-600 hover:bg-green-700">Finish</Button>
+
+            <div className="flex items-center justify-center">
+              {filterChanged ? (
+                <CheckCircle className="w-16 h-16 text-green-500" />
+              ) : (
+                <Filter className="w-16 h-16 text-slate-500" />
+              )}
             </div>
+
+            <div className="w-48">
+              <div className="text-sm text-slate-400 mb-2">New Oil</div>
+              <div className="relative w-full h-32 bg-slate-700 rounded-lg border-2 border-slate-600 overflow-hidden">
+                <motion.div
+                  className="absolute bottom-0 w-full bg-gradient-to-t from-green-600 to-green-400"
+                  animate={{ height: `${newOilLevel}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">{newOilLevel}%</span>
+                </div>
+                {newOilLevel > 0 && newOilLevel < 100 && (
+                  <motion.div
+                    className="absolute w-full flex justify-center"
+                    animate={{ top: ['80%', '20%', '80%'] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Droplet className="text-green-300 w-6 h-6" />
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
+
+        <Button
+          onClick={stageInfo.action}
+          disabled={stageInfo.disabled || stage === 'complete'}
+          className="w-full h-16 text-lg font-bold"
+          variant={stageInfo.disabled ? 'outline' : 'default'}
+        >
+          {stageInfo.actionText}
+        </Button>
+
+        {stage === 'complete' && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="text-center py-4"
+          >
+            <div className="text-2xl font-bold text-green-400 flex items-center justify-center gap-2">
+              <CheckCircle className="w-8 h-8" />
+              Fresh Oil!
+            </div>
+          </motion.div>
+        )}
       </Card>
     </motion.div>
   );
