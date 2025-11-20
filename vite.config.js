@@ -222,6 +222,7 @@ export default defineConfig({
                 extensions: ['.jsx', '.js', '.tsx', '.ts', '.json', ],
                 alias: {
                         '@': path.resolve(__dirname, './src'),
+                        '@assets': path.resolve(__dirname, './attached_assets'),
                 },
         },
         build: {
