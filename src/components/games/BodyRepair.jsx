@@ -1,29 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Hammer, PaintBucket, Wind, CheckCircle } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { Hammer, PaintBucket, Wind, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
 
 const BodyRepair = ({ onComplete }) => {
   const { user, addXP } = useUser();
-  const [stage, setStage] = useState('finding');
-  const [dents, setDents] = useState([]);
-  const [foundDents, setFoundDents] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(60);
-  const totalDents = 8;
+  const canvasRef = useRef(null);
+  
+  const [stage, setStage] = useState('sanding');
+  const [timeLeft, setTimeLeft] = useState(120);
+  
+  const [dentPosition, setDentPosition] = useState({ x: 50, y: 50 });
+  const [sandingProgress, setSandingProgress] = useState(0);
+  const [isSanding, setIsSanding] = useState(false);
+  const [mouseMovement, setMouseMovement] = useState(0);
+  
+  const [fillerPresses, setFillerPresses] = useState([]);
+  const [fillerQuality, setFillerQuality] = useState(0);
+  const [targetTime, setTargetTime] = useState(0);
+  
+  const [sprayPattern, setSprayPattern] = useState([]);
+  const [primeCoverage, setPrimeCoverage] = useState(0);
+  const [oversprayPenalty, setOversprayPenalty] = useState(0);
+  
+  const [paintMix, setPaintMix] = useState({ r: 128, g: 128, b: 128 });
+  const [targetColor, setTargetColor] = useState({ r: 220, g: 38, b: 38 });
+  const [paintAccuracy, setPaintAccuracy] = useState(0);
+  
+  const [totalScore, setTotalScore] = useState(0);
+  const [qualityRating, setQualityRating] = useState('');
+  const [combo, setCombo] = useState(0);
 
   useEffect(() => {
-    const dentPositions = Array.from({ length: totalDents }, (_, i) => ({
-      id: i,
-      x: Math.random() * 80 + 10,
-      y: Math.random() * 70 + 15,
-      found: false
-    }));
-    setDents(dentPositions);
-  }, []);
+    if (user?.car_color) {
+      const hex = user.car_color;
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      setTargetColor({ r, g, b });
+      setPaintMix({ r: Math.max(0, r - 50), g: Math.max(0, g - 50), b: Math.max(0, b - 50) });
+    }
+    
+    setDentPosition({
+      x: 30 + Math.random() * 40,
+      y: 40 + Math.random() * 30
+    });
+  }, [user?.car_color]);
 
   useEffect(() => {
     if (stage === 'complete') return;
@@ -38,34 +65,141 @@ const BodyRepair = ({ onComplete }) => {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [stage, foundDents]);
+  }, [stage]);
 
-  const handleComplete = () => {
-    if (stage === 'complete') return;
-    setStage('complete');
-    const score = foundDents * 50 + timeLeft * 5;
-    const xpGained = Math.round(20 + (foundDents / totalDents) * 10);
-    addXP(xpGained);
-    toast({
-      title: "Body Repair Complete!",
-      description: `Found ${foundDents}/${totalDents} dents! Earned +${xpGained} XP.`,
-    });
-    setTimeout(onComplete, 1500);
+  const handleSandingMouseDown = (e) => {
+    setIsSanding(true);
   };
 
-  const handleDentClick = (dentId) => {
-    setDents(prev => prev.map(dent =>
-      dent.id === dentId ? { ...dent, found: true } : dent
-    ));
-    setFoundDents(prev => prev + 1);
+  const handleSandingMouseUp = () => {
+    setIsSanding(false);
+    setMouseMovement(0);
+  };
 
-    if (foundDents + 1 >= totalDents) {
+  const handleSandingMouseMove = (e) => {
+    if (!isSanding) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    const distance = Math.sqrt(
+      Math.pow(x - dentPosition.x, 2) + Math.pow(y - dentPosition.y, 2)
+    );
+    
+    if (distance < 15) {
+      setMouseMovement(prev => prev + 1);
+      setSandingProgress(prev => Math.min(100, prev + 0.5));
+      
+      if (sandingProgress > 95) {
+        advanceToFiller();
+      }
+    }
+  };
+
+  const advanceToFiller = () => {
+    setStage('filler');
+    setTargetTime(Date.now() + 500);
+    toast({ title: "Sanding Complete!", description: "Now apply filler with timed presses." });
+  };
+
+  const handleFillerPress = () => {
+    const now = Date.now();
+    const timeDiff = Math.abs(now - targetTime);
+    const accuracy = Math.max(0, 100 - timeDiff / 5);
+    
+    setFillerPresses(prev => [...prev, { time: now, accuracy }]);
+    setFillerQuality(prev => prev + accuracy / 10);
+    setTargetTime(now + 500);
+    
+    if (fillerPresses.length >= 9) {
+      advanceToPriming();
+    }
+  };
+
+  const advanceToPriming = () => {
+    setStage('priming');
+    toast({ title: "Filler Applied!", description: "Now prime the surface evenly." });
+  };
+
+  const handlePrimeSpray = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    const distance = Math.sqrt(
+      Math.pow(x - dentPosition.x, 2) + Math.pow(y - dentPosition.y, 2)
+    );
+    
+    const newSpot = { x, y, id: Date.now() };
+    setSprayPattern(prev => [...prev, newSpot]);
+    
+    if (distance < 20) {
+      setPrimeCoverage(prev => Math.min(100, prev + 5));
+    } else if (distance > 30) {
+      setOversprayPenalty(prev => prev + 2);
+    }
+    
+    if (primeCoverage > 95) {
+      advanceToPainting();
+    }
+  };
+
+  const advanceToPainting = () => {
+    setStage('painting');
+    toast({ title: "Priming Complete!", description: "Match the paint color exactly!" });
+  };
+
+  const handleColorChange = (color, value) => {
+    setPaintMix(prev => ({ ...prev, [color]: value }));
+    calculatePaintAccuracy({ ...paintMix, [color]: value });
+  };
+
+  const calculatePaintAccuracy = (currentMix) => {
+    const rDiff = Math.abs(currentMix.r - targetColor.r);
+    const gDiff = Math.abs(currentMix.g - targetColor.g);
+    const bDiff = Math.abs(currentMix.b - targetColor.b);
+    const totalDiff = rDiff + gDiff + bDiff;
+    const accuracy = Math.max(0, 100 - (totalDiff / 7.65));
+    setPaintAccuracy(accuracy);
+    
+    if (accuracy > 95) {
       handleComplete();
     }
   };
 
+  const handleComplete = () => {
+    if (stage === 'complete') return;
+    setStage('complete');
+    
+    const sandingScore = (sandingProgress / 100) * 250;
+    const fillerScore = (fillerQuality / 10) * 250;
+    const primingScore = ((primeCoverage / 100) * 250) - (oversprayPenalty * 5);
+    const paintingScore = (paintAccuracy / 100) * 250;
+    const timeBonus = timeLeft * 2;
+    
+    const finalScore = Math.round(sandingScore + fillerScore + primingScore + paintingScore + timeBonus);
+    setTotalScore(finalScore);
+    
+    let rating = 'Novice';
+    if (finalScore > 900) rating = 'Master';
+    else if (finalScore > 750) rating = 'Expert';
+    else if (finalScore > 600) rating = 'Professional';
+    else if (finalScore > 400) rating = 'Apprentice';
+    setQualityRating(rating);
+    
+    const xpGained = Math.round(25 + (finalScore / 40));
+    addXP(xpGained);
+    
+    toast({
+      title: "Body Repair Complete!",
+      description: `${rating} Quality! Score: ${finalScore}. Earned +${xpGained} XP.`,
+    });
+    
+    setTimeout(onComplete, 3000);
+  };
+
   const carColor = user?.car_color || '#DC2626';
-  const progress = (foundDents / totalDents) * 100;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -73,24 +207,46 @@ const BodyRepair = ({ onComplete }) => {
         <div className="flex justify-between items-center">
           <h3 className="text-2xl font-bold text-white flex items-center gap-2">
             <Hammer className="w-6 h-6 text-cyan-400" />
-            Body Repair
+            Body Repair - Stage {stage === 'sanding' ? '1' : stage === 'filler' ? '2' : stage === 'priming' ? '3' : stage === 'painting' ? '4' : '✓'}
           </h3>
           <div className="text-lg font-semibold text-white">
             Time: {timeLeft}s
           </div>
         </div>
 
-        <div className="relative h-80 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg overflow-hidden border-2 border-slate-700">
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="bg-slate-800 p-2 rounded border border-slate-700">
+            <span className="text-slate-400">Combo: </span>
+            <span className="text-cyan-400 font-bold">{combo}x</span>
+          </div>
+          <div className="bg-slate-800 p-2 rounded border border-slate-700">
+            <span className="text-slate-400">Overspray: </span>
+            <span className="text-red-400 font-bold">{oversprayPenalty}</span>
+          </div>
+        </div>
+
+        <div 
+          className="relative h-80 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg overflow-hidden border-2 border-slate-700 cursor-crosshair"
+          onMouseDown={stage === 'sanding' ? handleSandingMouseDown : undefined}
+          onMouseUp={stage === 'sanding' ? handleSandingMouseUp : undefined}
+          onMouseMove={stage === 'sanding' ? handleSandingMouseMove : undefined}
+          onMouseLeave={stage === 'sanding' ? handleSandingMouseUp : undefined}
+          onClick={stage === 'priming' ? handlePrimeSpray : undefined}
+        >
           <svg viewBox="0 0 300 150" className="w-full h-full">
             <defs>
-              <filter id="dentShadow">
-                <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
-                <feOffset dx="1" dy="1" result="offsetblur"/>
+              <filter id="dentEffect">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+                <feOffset dx="2" dy="2" result="offsetblur"/>
                 <feMerge>
                   <feMergeNode/>
                   <feMergeNode in="SourceGraphic"/>
                 </feMerge>
               </filter>
+              <radialGradient id="shineGradient">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.6)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+              </radialGradient>
             </defs>
             
             <g transform="translate(150, 75)">
@@ -98,11 +254,36 @@ const BodyRepair = ({ onComplete }) => {
               
               <path
                 d="M -80 20 L -90 0 L -60 -15 L 0 -20 L 60 -15 L 90 0 L 80 20 L 70 30 L -70 30 Z"
-                fill={carColor}
+                fill={stage === 'painting' ? `rgb(${paintMix.r}, ${paintMix.g}, ${paintMix.b})` : carColor}
                 stroke="#000"
                 strokeWidth="2"
-                opacity="0.9"
+                opacity={stage === 'complete' ? 1 : 0.9}
+                style={{
+                  filter: stage === 'complete' && paintAccuracy > 95 ? 'drop-shadow(0 0 20px rgba(255,255,255,0.5))' : 'none'
+                }}
               />
+              
+              {stage === 'sanding' && sandingProgress < 100 && (
+                <ellipse
+                  cx={(dentPosition.x - 50) * 2.4}
+                  cy={(dentPosition.y - 50) * 1.5}
+                  rx="15"
+                  ry="10"
+                  fill="rgba(0,0,0,0.3)"
+                  filter="url(#dentEffect)"
+                />
+              )}
+              
+              {(stage === 'filler' || stage === 'priming' || stage === 'painting' || stage === 'complete') && (
+                <ellipse
+                  cx={(dentPosition.x - 50) * 2.4}
+                  cy={(dentPosition.y - 50) * 1.5}
+                  rx="15"
+                  ry="10"
+                  fill={stage === 'filler' ? '#9ca3af' : 'transparent'}
+                  opacity="0.6"
+                />
+              )}
               
               <ellipse cx="-50" cy="25" rx="15" ry="10" fill="#1a1a1a"/>
               <ellipse cx="50" cy="25" rx="15" ry="10" fill="#1a1a1a"/>
@@ -113,52 +294,208 @@ const BodyRepair = ({ onComplete }) => {
                 opacity="0.6"
                 stroke="#000"
               />
+              
+              {stage === 'complete' && paintAccuracy > 95 && (
+                <ellipse
+                  cx="-30"
+                  cy="-5"
+                  rx="30"
+                  ry="20"
+                  fill="url(#shineGradient)"
+                />
+              )}
             </g>
           </svg>
 
           <AnimatePresence>
-            {dents.filter(dent => !dent.found).map(dent => (
+            {stage === 'priming' && sprayPattern.map(spot => (
               <motion.div
-                key={dent.id}
-                initial={{ scale: 0 }}
-                animate={{ scale: [1, 1.1, 1], transition: { repeat: Infinity, duration: 1 } }}
-                exit={{ scale: 0, opacity: 0 }}
-                className="absolute cursor-pointer"
+                key={spot.id}
+                initial={{ scale: 0, opacity: 0.8 }}
+                animate={{ scale: 1, opacity: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1 }}
+                className="absolute pointer-events-none"
                 style={{
-                  left: `${dent.x}%`,
-                  top: `${dent.y}%`,
-                  width: '24px',
-                  height: '24px'
+                  left: `${spot.x}%`,
+                  top: `${spot.y}%`,
+                  width: '40px',
+                  height: '40px',
+                  transform: 'translate(-50%, -50%)'
                 }}
-                onClick={() => handleDentClick(dent.id)}
               >
-                <div className="w-full h-full rounded-full bg-gradient-radial from-red-600/70 to-red-800/90 hover:scale-125 transition-transform border-2 border-red-900 shadow-lg" />
+                <div className="w-full h-full rounded-full bg-gray-400 opacity-30" />
               </motion.div>
             ))}
           </AnimatePresence>
+
+          {stage === 'sanding' && isSanding && (
+            <motion.div
+              className="absolute pointer-events-none"
+              style={{
+                left: `${dentPosition.x}%`,
+                top: `${dentPosition.y}%`,
+                transform: 'translate(-50%, -50%)'
+              }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
+              <Sparkles className="w-8 h-8 text-yellow-400" />
+            </motion.div>
+          )}
         </div>
 
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-400">Repair Progress</span>
-            <span className="text-cyan-400 font-semibold">{foundDents}/{totalDents} dents</span>
-          </div>
-          <Progress value={progress} className="h-3 bg-slate-700" />
-        </div>
+        <div className="space-y-3">
+          {stage === 'sanding' && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400">Sanding Progress</span>
+                <span className="text-cyan-400 font-semibold">{Math.round(sandingProgress)}%</span>
+              </div>
+              <Progress value={sandingProgress} className="h-3 bg-slate-700" />
+              <p className="text-center text-slate-400 text-sm">
+                Click and hold while moving mouse over the dent to sand it smooth
+              </p>
+            </div>
+          )}
 
-        <div className="text-center text-slate-400 text-sm">
-          Click on the red dents to repair them!
+          {stage === 'filler' && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400">Filler Quality</span>
+                <span className="text-cyan-400 font-semibold">{fillerPresses.length}/10 presses</span>
+              </div>
+              <Progress value={(fillerPresses.length / 10) * 100} className="h-3 bg-slate-700" />
+              <Button 
+                onClick={handleFillerPress}
+                className="w-full h-16 text-lg font-bold"
+                disabled={fillerPresses.length >= 10}
+              >
+                <Hammer className="w-6 h-6 mr-2" />
+                Apply Filler (Press at the right rhythm!)
+              </Button>
+              <p className="text-center text-slate-400 text-sm">
+                Press when the indicator is green for best quality!
+              </p>
+            </div>
+          )}
+
+          {stage === 'priming' && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400">Prime Coverage</span>
+                <span className="text-cyan-400 font-semibold">{Math.round(primeCoverage)}%</span>
+              </div>
+              <Progress value={primeCoverage} className="h-3 bg-slate-700" />
+              <div className="flex justify-between text-xs">
+                <span className="text-yellow-400">
+                  <Wind className="w-4 h-4 inline mr-1" />
+                  Keep spray near dent area
+                </span>
+                <span className="text-red-400">
+                  <AlertCircle className="w-4 h-4 inline mr-1" />
+                  Overspray: -{oversprayPenalty}
+                </span>
+              </div>
+              <p className="text-center text-slate-400 text-sm">
+                Click to spray primer. Stay close to the repair area!
+              </p>
+            </div>
+          )}
+
+          {stage === 'painting' && (
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400">Paint Match Accuracy</span>
+                <span className="text-cyan-400 font-semibold">{Math.round(paintAccuracy)}%</span>
+              </div>
+              <Progress value={paintAccuracy} className="h-3 bg-slate-700" />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs text-slate-400">Target Color</label>
+                  <div 
+                    className="h-16 rounded border-2 border-slate-700"
+                    style={{ backgroundColor: `rgb(${targetColor.r}, ${targetColor.g}, ${targetColor.b})` }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs text-slate-400">Your Mix</label>
+                  <div 
+                    className="h-16 rounded border-2 border-slate-700"
+                    style={{ backgroundColor: `rgb(${paintMix.r}, ${paintMix.g}, ${paintMix.b})` }}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3 bg-slate-800 p-3 rounded">
+                <div className="space-y-1">
+                  <label className="text-xs text-red-400">Red: {paintMix.r}</label>
+                  <Slider
+                    value={[paintMix.r]}
+                    onValueChange={(val) => handleColorChange('r', val[0])}
+                    max={255}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-green-400">Green: {paintMix.g}</label>
+                  <Slider
+                    value={[paintMix.g]}
+                    onValueChange={(val) => handleColorChange('g', val[0])}
+                    max={255}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-blue-400">Blue: {paintMix.b}</label>
+                  <Slider
+                    value={[paintMix.b]}
+                    onValueChange={(val) => handleColorChange('b', val[0])}
+                    max={255}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+              
+              <p className="text-center text-slate-400 text-sm">
+                Mix the paint to match your car color exactly!
+              </p>
+            </div>
+          )}
         </div>
 
         {stage === 'complete' && (
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="text-center py-4"
+            className="text-center py-4 space-y-2"
           >
-            <div className="text-2xl font-bold text-green-400 flex items-center justify-center gap-2">
-              <CheckCircle className="w-8 h-8" />
-              Body Restored!
+            <div className="text-3xl font-bold text-green-400 flex items-center justify-center gap-2">
+              <CheckCircle className="w-10 h-10" />
+              {qualityRating} Work!
+            </div>
+            <div className="text-xl text-white">Final Score: {totalScore}</div>
+            <div className="grid grid-cols-4 gap-2 text-xs mt-4">
+              <div className="bg-slate-800 p-2 rounded">
+                <div className="text-slate-400">Sanding</div>
+                <div className="text-cyan-400 font-bold">{Math.round(sandingProgress)}%</div>
+              </div>
+              <div className="bg-slate-800 p-2 rounded">
+                <div className="text-slate-400">Filler</div>
+                <div className="text-cyan-400 font-bold">{fillerPresses.length}/10</div>
+              </div>
+              <div className="bg-slate-800 p-2 rounded">
+                <div className="text-slate-400">Primer</div>
+                <div className="text-cyan-400 font-bold">{Math.round(primeCoverage)}%</div>
+              </div>
+              <div className="bg-slate-800 p-2 rounded">
+                <div className="text-slate-400">Paint</div>
+                <div className="text-cyan-400 font-bold">{Math.round(paintAccuracy)}%</div>
+              </div>
             </div>
           </motion.div>
         )}
