@@ -23,6 +23,33 @@ The application is built with a modern web stack:
 - **Environment Configuration:** Relies on environment variables for sensitive data like Supabase credentials, configured for a Replit development environment (port 5000, host 0.0.0.0).
 - **Sanctuary of Stillness:** A guided meditation feature with character-voiced guidance from Dark Souls-inspired personas, designed to address specific emotional challenges. It includes a mood buff system rewarded upon meditation completion.
 
+## Recent Changes
+- **2024-11-20:** Touch-Friendly Games + High-Quality Evo IX Imagery:
+  - **MAJOR UPDATE**: All 6 mini-games converted to full touch support (no mouse required)
+  - **Touch Event System**: 
+    - Created reusable touch helper utilities (src/lib/touchHelpers.js)
+    - Dual mouse/touch event support across all games
+    - Accurate touch position tracking using getBoundingClientRect()
+    - preventDefault() to prevent unwanted scrolling/zooming during gameplay
+    - All touch targets meet 44x44px minimum accessibility standard (dirt spots: 48-60px)
+  - **High-Quality Mitsubishi Lancer Evolution IX Images**:
+    - CarWashGame: Full Evo IX exterior (mitsubishi_lancer_ev_3158e65e.jpg)
+    - BodyRepair: Professional body damage reference (car_body_repair_dent_6160edf8.jpg)
+    - TireRotation: BBS wheel closeups (car_wheel_tire_close_c057e92a.jpg)
+    - OilChange: Turbocharged engine bay (mitsubishi_lancer_ev_f859a504.jpg)
+    - CleaningExterior: Evo IX side profile (mitsubishi_lancer_ev_f75e5a81.jpg)
+    - EngineTuning: Engine detail shot (mitsubishi_lancer_ev_e3a2c521.jpg)
+  - **Touch-Optimized UX**:
+    - Increased button sizes to 56-64px (h-14/h-16) for finger-friendly interaction
+    - Interactive elements minimum 48-60px touch targets
+    - Active scale and whileTap animations for haptic-like feedback
+    - touch-action CSS properties to prevent scroll/zoom during games
+    - Visual feedback on all touch interactions
+  - **Vite Configuration**: Added @assets alias for clean image imports
+  - **Performance**: Images loaded via CSS background-image for optimal mobile performance
+  - **Testing**: Architect-verified for touch accessibility, image quality, and gameplay balance
+  - **Adult-Appropriate Design**: Professional mechanic simulation maintained with realistic automotive terminology
+
 ## External Dependencies
 - **Supabase:** Used for PostgreSQL database services and user authentication.
 - **Perplexity AI:** Integrated for AI-driven feelings analysis, cognitive theme identification, and structured CBT analysis within the journaling and reframing features.
