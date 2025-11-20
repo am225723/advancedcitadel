@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { toast } from '@/components/ui/use-toast';
 import { Wrench, Zap, Gauge, TrendingUp, AlertTriangle, CheckCircle, Flame } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
+import engineImage from '../../../attached_assets/stock_images/mitsubishi_lancer_ev_e3a2c521.jpg';
 
 const EngineTuning = ({ onComplete }) => {
   const { addXP } = useUser();
@@ -117,7 +118,8 @@ const EngineTuning = ({ onComplete }) => {
     }
   };
 
-  const handleDynoRun = () => {
+  const handleDynoRun = (e) => {
+    if (e) e.preventDefault();
     if (dynoRunning || dynoComplete) return;
     
     setDynoRunning(true);
@@ -231,8 +233,16 @@ const EngineTuning = ({ onComplete }) => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-4 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-            <div className="space-y-2">
+          <div 
+            className="space-y-4 rounded-lg border border-slate-700 p-4 relative overflow-hidden"
+            style={{
+              backgroundImage: `url(${engineImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
+            <div className="absolute inset-0 bg-slate-900/85 backdrop-blur-sm" />
+            <div className="space-y-2 relative z-10">
               <div className="flex justify-between items-center">
                 <label className="text-sm text-slate-300 flex items-center gap-2">
                   <Flame className="w-4 h-4 text-orange-400" />
@@ -402,9 +412,11 @@ const EngineTuning = ({ onComplete }) => {
 
             <Button
               onClick={handleDynoRun}
-              className="w-full h-16 text-lg font-bold"
+              onTouchStart={handleDynoRun}
+              className="w-full h-16 text-lg font-bold active:scale-95 transition-transform"
               disabled={dynoRunning || dynoComplete}
               variant={dynoComplete ? 'outline' : 'default'}
+              style={{ touchAction: 'manipulation' }}
             >
               {dynoRunning ? `Running... ${currentRPM} RPM` : dynoComplete ? 'Dyno Complete' : 'START DYNO RUN'}
             </Button>

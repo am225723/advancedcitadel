@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { Droplets, Sparkles, Wind, Target } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
+import { getTouchPosition } from '@/lib/touchHelpers';
+import evoImage from '../../../attached_assets/stock_images/mitsubishi_lancer_ev_3158e65e.jpg';
 
 const CarWashGame = ({ onComplete }) => {
   const { user, addXP } = useUser();
@@ -85,8 +87,13 @@ const CarWashGame = ({ onComplete }) => {
     setWaterParticles(prev => [...prev.slice(-12), ...particles]);
   };
 
-  const handleSpotClick = (spotId, spotX, spotY) => {
+  const handleSpotInteraction = (e, spotId) => {
+    e.preventDefault();
     const spot = dirtSpots.find(s => s.id === spotId);
+    if (!spot) return;
+    
+    const spotX = spot.x;
+    const spotY = spot.y;
     
     if (stage === 'soap' && !spot.soaped) {
       setDirtSpots(prev => prev.map(s => 
@@ -185,43 +192,18 @@ const CarWashGame = ({ onComplete }) => {
           </motion.div>
         )}
 
-        <div className="relative h-80 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg overflow-hidden border-2 border-slate-700">
-          <svg viewBox="0 0 300 150" className="w-full h-full">
-            <defs>
-              <linearGradient id="carGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style={{ stopColor: carColor, stopOpacity: 0.9 }} />
-                <stop offset="100%" style={{ stopColor: carColor, stopOpacity: 1 }} />
-              </linearGradient>
-              <filter id="soapFoam">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
-                <feColorMatrix type="saturate" values="2"/>
-              </filter>
-            </defs>
-            
-            <g transform="translate(150, 75)">
-              <ellipse cx="0" cy="35" rx="120" ry="15" fill="#000" opacity="0.3"/>
-              
-              <path
-                d="M -80 20 L -90 0 L -60 -15 L 0 -20 L 60 -15 L 90 0 L 80 20 L 70 30 L -70 30 Z"
-                fill="url(#carGradient)"
-                stroke="#000"
-                strokeWidth="2"
-                style={{
-                  filter: stageProgress > 80 ? 'drop-shadow(0 0 8px rgba(255,255,255,0.6))' : 'none'
-                }}
-              />
-              
-              <ellipse cx="-50" cy="25" rx="15" ry="10" fill="#1a1a1a"/>
-              <ellipse cx="50" cy="25" rx="15" ry="10" fill="#1a1a1a"/>
-              
-              <path
-                d="M -50 -10 L -30 -15 L 30 -15 L 50 -10 L 40 5 L -40 5 Z"
-                fill="#87ceeb"
-                opacity="0.6"
-                stroke="#000"
-              />
-            </g>
-          </svg>
+        <div 
+          className="relative h-80 rounded-lg overflow-hidden border-2 border-slate-700"
+          style={{
+            backgroundImage: `url(${evoImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            touchAction: 'none'
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/20" style={{
+            filter: stageProgress > 80 ? 'drop-shadow(0 0 20px rgba(255,255,255,0.4))' : 'none'
+          }} />
 
           <AnimatePresence>
             {dirtSpots.map(spot => (
@@ -237,21 +219,24 @@ const CarWashGame = ({ onComplete }) => {
                 style={{
                   left: `${spot.x}%`,
                   top: `${spot.y}%`,
-                  width: `${spot.size}px`,
-                  height: `${spot.size}px`,
-                  pointerEvents: spot.cleaned ? 'none' : 'auto'
+                  width: `${Math.max(spot.size, 44)}px`,
+                  height: `${Math.max(spot.size, 44)}px`,
+                  pointerEvents: spot.cleaned ? 'none' : 'auto',
+                  touchAction: 'none'
                 }}
-                onClick={() => handleSpotClick(spot.id, spot.x, spot.y)}
+                onClick={(e) => handleSpotInteraction(e, spot.id)}
+                onTouchStart={(e) => handleSpotInteraction(e, spot.id)}
+                whileTap={{ scale: 0.9 }}
               >
                 <div
                   className={`w-full h-full rounded-full transition-all ${
                     spot.soaped 
                       ? 'bg-gradient-radial from-white/60 to-cyan-300/80 animate-pulse'
-                      : 'bg-gradient-radial from-amber-900/80 to-amber-950/90 hover:scale-110'
+                      : 'bg-gradient-radial from-amber-900/80 to-amber-950/90 active:scale-110'
                   }`}
                   style={{
                     boxShadow: spot.soaped 
-                      ? '0 0 10px rgba(0, 255, 255, 0.5)' 
+                      ? '0 0 15px rgba(0, 255, 255, 0.7)' 
                       : 'inset 0 2px 4px rgba(0,0,0,0.5)'
                   }}
                 />
@@ -325,18 +310,20 @@ const CarWashGame = ({ onComplete }) => {
             <Progress value={pressure} className="h-3 bg-slate-700" />
             <div className="flex gap-2">
               <Button 
-                onClick={() => adjustPressure(-5)} 
+                onClick={() => adjustPressure(-5)}
+                onTouchStart={(e) => { e.preventDefault(); adjustPressure(-5); }}
                 variant="outline" 
-                size="sm"
-                className="flex-1"
+                className="flex-1 h-14 text-lg font-semibold active:scale-95 transition-transform"
+                style={{ touchAction: 'manipulation' }}
               >
                 - Pressure
               </Button>
               <Button 
-                onClick={() => adjustPressure(5)} 
+                onClick={() => adjustPressure(5)}
+                onTouchStart={(e) => { e.preventDefault(); adjustPressure(5); }}
                 variant="outline" 
-                size="sm"
-                className="flex-1"
+                className="flex-1 h-14 text-lg font-semibold active:scale-95 transition-transform"
+                style={{ touchAction: 'manipulation' }}
               >
                 + Pressure
               </Button>

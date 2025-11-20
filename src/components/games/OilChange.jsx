@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { Filter, CheckCircle, XCircle, Droplet, Thermometer, AlertCircle } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
+import engineBayImage from '../../../attached_assets/stock_images/mitsubishi_lancer_ev_f859a504.jpg';
 
 const OilChange = ({ onComplete }) => {
   const { addXP } = useUser();
@@ -246,9 +247,17 @@ const OilChange = ({ onComplete }) => {
           </div>
         </div>
 
-        <div className="relative h-80 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg overflow-hidden border-2 border-slate-700 p-6">
+        <div 
+          className="relative h-80 rounded-lg overflow-hidden border-2 border-slate-700 p-6"
+          style={{
+            backgroundImage: `url(${engineBayImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
           {stage === 'viscosity' && (
-            <div className="flex flex-col items-center justify-center h-full space-y-6">
+            <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-6">
               <Thermometer className="w-16 h-16 text-cyan-400" />
               <div className="text-center">
                 <p className="text-white text-lg mb-2">Check Engine Temperature</p>
@@ -274,8 +283,10 @@ const OilChange = ({ onComplete }) => {
               
               <Button
                 onClick={handleViscosityCheck}
-                className="w-48 h-14 text-lg font-bold"
+                onTouchStart={(e) => { e.preventDefault(); handleViscosityCheck(); }}
+                className="w-48 h-14 text-lg font-bold active:scale-95 transition-transform"
                 disabled={viscosityCorrect}
+                style={{ touchAction: 'manipulation' }}
               >
                 Verify Viscosity
               </Button>
@@ -283,7 +294,7 @@ const OilChange = ({ onComplete }) => {
           )}
 
           {stage === 'drain' && (
-            <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-4">
               <div className="text-center mb-2">
                 <p className="text-white text-lg">Catch the draining oil</p>
                 <p className="text-slate-400 text-sm">Keep the pan centered!</p>
@@ -308,8 +319,22 @@ const OilChange = ({ onComplete }) => {
               </div>
               
               <div className="flex gap-2">
-                <Button onClick={() => handleCatchMove(-1)} size="sm">← Left</Button>
-                <Button onClick={() => handleCatchMove(1)} size="sm">Right →</Button>
+                <Button 
+                  onClick={() => handleCatchMove(-1)}
+                  onTouchStart={(e) => { e.preventDefault(); handleCatchMove(-1); }}
+                  className="h-12 text-lg active:scale-95 transition-transform"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  ← Left
+                </Button>
+                <Button 
+                  onClick={() => handleCatchMove(1)}
+                  onTouchStart={(e) => { e.preventDefault(); handleCatchMove(1); }}
+                  className="h-12 text-lg active:scale-95 transition-transform"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  Right →
+                </Button>
               </div>
               
               <div className="space-y-2 w-full max-w-xs">
@@ -321,8 +346,10 @@ const OilChange = ({ onComplete }) => {
               
               <Button
                 onClick={handleStartDrain}
-                className="w-48 h-14 text-lg font-bold"
+                onTouchStart={(e) => { e.preventDefault(); handleStartDrain(); }}
+                className="w-48 h-14 text-lg font-bold active:scale-95 transition-transform"
                 disabled={isDraining || drainProgress >= 100}
+                style={{ touchAction: 'manipulation' }}
               >
                 {isDraining ? 'Draining...' : drainProgress >= 100 ? 'Drained' : 'Start Drain'}
               </Button>
@@ -330,7 +357,7 @@ const OilChange = ({ onComplete }) => {
           )}
 
           {stage === 'filter' && (
-            <div className="flex flex-col items-center justify-center h-full space-y-6">
+            <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-6">
               <Filter className="w-24 h-24 text-cyan-400" />
               <div className="text-center">
                 <p className="text-white text-lg mb-2">Replace Oil Filter</p>
@@ -362,7 +389,7 @@ const OilChange = ({ onComplete }) => {
           )}
 
           {stage === 'temp' && (
-            <div className="flex flex-col items-center justify-center h-full space-y-6">
+            <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-6">
               <Thermometer className="w-16 h-16 text-green-400" />
               <div className="text-center">
                 <p className="text-white text-lg mb-2">Verify New Oil Temperature</p>
@@ -397,7 +424,7 @@ const OilChange = ({ onComplete }) => {
           )}
 
           {stage === 'fill' && (
-            <div className="flex flex-col items-center justify-center h-full space-y-6">
+            <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-6">
               <div className="text-center">
                 <Droplet className="w-16 h-16 text-green-400 mx-auto mb-4" />
                 <p className="text-white text-lg mb-2">Fill to Exact Level</p>
@@ -426,16 +453,20 @@ const OilChange = ({ onComplete }) => {
               <div className="flex gap-4">
                 <Button
                   onClick={handleStartFill}
-                  className="w-32 h-14 text-lg font-bold"
+                  onTouchStart={(e) => { e.preventDefault(); handleStartFill(); }}
+                  className="w-32 h-14 text-lg font-bold active:scale-95 transition-transform"
                   disabled={isFilling || fillLevel >= 100}
+                  style={{ touchAction: 'manipulation' }}
                 >
                   {isFilling ? 'Filling...' : 'Fill'}
                 </Button>
                 <Button
                   onClick={handleStopFill}
-                  className="w-32 h-14 text-lg font-bold"
+                  onTouchStart={(e) => { e.preventDefault(); handleStopFill(); }}
+                  className="w-32 h-14 text-lg font-bold active:scale-95 transition-transform"
                   disabled={!isFilling && fillLevel === 0}
                   variant="destructive"
+                  style={{ touchAction: 'manipulation' }}
                 >
                   Stop
                 </Button>

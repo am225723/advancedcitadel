@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { RefreshCw, CheckCircle, Gauge, Wrench, AlertCircle } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
+import wheelImage from '../../../attached_assets/stock_images/car_wheel_tire_close_c057e92a.jpg';
 
 const TireRotation = ({ onComplete }) => {
   const { addXP } = useUser();
@@ -75,7 +76,8 @@ const TireRotation = ({ onComplete }) => {
     }
   }, [stage, isTorquing]);
 
-  const handleJackHold = () => {
+  const handleJackHold = (e) => {
+    if (e) e.preventDefault();
     setIsJacking(true);
     const interval = setInterval(() => {
       setJackProgress(prev => {
@@ -90,7 +92,8 @@ const TireRotation = ({ onComplete }) => {
     setJackTimer(interval);
   };
 
-  const handleJackRelease = () => {
+  const handleJackRelease = (e) => {
+    if (e) e.preventDefault();
     setIsJacking(false);
     if (jackTimer) clearInterval(jackTimer);
   };
@@ -100,7 +103,8 @@ const TireRotation = ({ onComplete }) => {
     toast({ title: "Car Lifted!", description: "Now remove lug nuts in star pattern." });
   };
 
-  const handleLugNutClick = (nutIndex) => {
+  const handleLugNutClick = (e, nutIndex) => {
+    if (e) e.preventDefault();
     if (nutIndex === correctPattern[currentLugIndex]) {
       setLugNutOrder(prev => [...prev, nutIndex]);
       setCurrentLugIndex(prev => prev + 1);
@@ -125,7 +129,8 @@ const TireRotation = ({ onComplete }) => {
     toast({ title: "Lug Nuts Removed!", description: "Now swap the tires correctly." });
   };
 
-  const handleTireClick = (tireId) => {
+  const handleTireClick = (e, tireId) => {
+    if (e) e.preventDefault();
     if (selectedTire === null) {
       setSelectedTire(tireId);
     } else if (selectedTire === tireId) {
@@ -162,7 +167,8 @@ const TireRotation = ({ onComplete }) => {
     toast({ title: "Tires Swapped!", description: "Now torque the lug nuts properly." });
   };
 
-  const handleTorqueClick = () => {
+  const handleTorqueClick = (e) => {
+    if (e) e.preventDefault();
     if (isTorquing) {
       if (torqueNeedle >= torqueTargetStart && torqueNeedle <= torqueTargetStart + 10) {
         setTorqueCompleted(true);
@@ -275,10 +281,13 @@ const TireRotation = ({ onComplete }) => {
               </div>
               <Button
                 onMouseDown={handleJackHold}
+                onTouchStart={handleJackHold}
                 onMouseUp={handleJackRelease}
+                onTouchEnd={handleJackRelease}
                 onMouseLeave={handleJackRelease}
-                className="w-48 h-16 text-lg font-bold"
+                className="w-48 h-16 text-lg font-bold active:scale-95 transition-transform"
                 disabled={jackProgress >= 100}
+                style={{ touchAction: 'manipulation' }}
               >
                 {isJacking ? 'Lifting...' : 'HOLD TO JACK'}
               </Button>
@@ -306,9 +315,12 @@ const TireRotation = ({ onComplete }) => {
                     return (
                       <motion.g
                         key={nutIndex}
-                        onClick={() => !isRemoved && handleLugNutClick(nutIndex)}
+                        onClick={(e) => !isRemoved && handleLugNutClick(e, nutIndex)}
+                        onTouchStart={(e) => !isRemoved && handleLugNutClick(e, nutIndex)}
                         className="cursor-pointer"
                         whileHover={{ scale: isRemoved ? 1 : 1.1 }}
+                        whileTap={{ scale: isRemoved ? 1 : 0.9 }}
+                        style={{ touchAction: 'manipulation' }}
                       >
                         <circle
                           cx={x}
@@ -364,25 +376,29 @@ const TireRotation = ({ onComplete }) => {
                   <motion.div
                     key={tire.id}
                     className="absolute cursor-pointer"
-                    style={positions[idx]}
-                    onClick={() => handleTireClick(tire.id)}
+                    style={{ ...positions[idx], touchAction: 'manipulation' }}
+                    onClick={(e) => handleTireClick(e, tire.id)}
+                    onTouchStart={(e) => handleTireClick(e, tire.id)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <svg width="70" height="70" viewBox="0 0 80 80">
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r="35"
-                        fill={selectedTire === tire.id ? '#3b82f6' : isCorrect ? '#22c55e' : '#64748b'}
-                        stroke="#000"
-                        strokeWidth="2"
+                    <div 
+                      className="relative rounded-full overflow-hidden border-4"
+                      style={{
+                        width: '80px',
+                        height: '80px',
+                        borderColor: selectedTire === tire.id ? '#3b82f6' : isCorrect ? '#22c55e' : '#64748b'
+                      }}
+                    >
+                      <img 
+                        src={wheelImage} 
+                        alt="Tire"
+                        className="w-full h-full object-cover"
                       />
-                      <circle cx="40" cy="40" r="20" fill="#1a1a1a" stroke="#444" strokeWidth="1"/>
-                      <text x="40" y="48" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold">
-                        {tire.pattern}
-                      </text>
-                    </svg>
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                        <span className="text-white text-3xl font-bold drop-shadow-lg">{tire.pattern}</span>
+                      </div>
+                    </div>
                     <div className="absolute -bottom-6 left-0 right-0 text-center text-xs font-semibold text-white">
                       {tire.position}
                     </div>
@@ -417,8 +433,10 @@ const TireRotation = ({ onComplete }) => {
               
               <Button
                 onClick={handleTorqueClick}
-                className="w-48 h-16 text-lg font-bold"
+                onTouchStart={handleTorqueClick}
+                className="w-48 h-16 text-lg font-bold active:scale-95 transition-transform"
                 disabled={torqueCompleted}
+                style={{ touchAction: 'manipulation' }}
               >
                 {isTorquing ? 'STOP!' : 'START TORQUE'}
               </Button>
@@ -447,15 +465,17 @@ const TireRotation = ({ onComplete }) => {
                       <div className="flex gap-2">
                         <Button
                           onClick={() => handlePressureAdjust(idx, -1)}
-                          className="flex-1"
-                          size="sm"
+                          onTouchStart={(e) => { e.preventDefault(); handlePressureAdjust(idx, -1); }}
+                          className="flex-1 h-12 text-lg active:scale-95 transition-transform"
+                          style={{ touchAction: 'manipulation' }}
                         >
                           -
                         </Button>
                         <Button
                           onClick={() => handlePressureAdjust(idx, 1)}
-                          className="flex-1"
-                          size="sm"
+                          onTouchStart={(e) => { e.preventDefault(); handlePressureAdjust(idx, 1); }}
+                          className="flex-1 h-12 text-lg active:scale-95 transition-transform"
+                          style={{ touchAction: 'manipulation' }}
                         >
                           +
                         </Button>

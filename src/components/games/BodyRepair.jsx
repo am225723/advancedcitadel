@@ -7,6 +7,8 @@ import { Slider } from '@/components/ui/slider';
 import { Hammer, PaintBucket, Wind, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
+import { getTouchPosition } from '@/lib/touchHelpers';
+import dentImage from '../../../attached_assets/stock_images/car_body_repair_dent_6160edf8.jpg';
 
 const BodyRepair = ({ onComplete }) => {
   const { user, addXP } = useUser();
@@ -67,21 +69,21 @@ const BodyRepair = ({ onComplete }) => {
     return () => clearInterval(timer);
   }, [stage]);
 
-  const handleSandingMouseDown = (e) => {
+  const handleSandingStart = (e) => {
+    e.preventDefault();
     setIsSanding(true);
   };
 
-  const handleSandingMouseUp = () => {
+  const handleSandingEnd = () => {
     setIsSanding(false);
     setMouseMovement(0);
   };
 
-  const handleSandingMouseMove = (e) => {
+  const handleSandingMove = (e) => {
     if (!isSanding) return;
+    e.preventDefault();
     
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const { x, y } = getTouchPosition(e, e.currentTarget);
     
     const distance = Math.sqrt(
       Math.pow(x - dentPosition.x, 2) + Math.pow(y - dentPosition.y, 2)
@@ -123,9 +125,8 @@ const BodyRepair = ({ onComplete }) => {
   };
 
   const handlePrimeSpray = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    e.preventDefault();
+    const { x, y } = getTouchPosition(e, e.currentTarget);
     
     const distance = Math.sqrt(
       Math.pow(x - dentPosition.x, 2) + Math.pow(y - dentPosition.y, 2)
@@ -226,13 +227,24 @@ const BodyRepair = ({ onComplete }) => {
         </div>
 
         <div 
-          className="relative h-80 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg overflow-hidden border-2 border-slate-700 cursor-crosshair"
-          onMouseDown={stage === 'sanding' ? handleSandingMouseDown : undefined}
-          onMouseUp={stage === 'sanding' ? handleSandingMouseUp : undefined}
-          onMouseMove={stage === 'sanding' ? handleSandingMouseMove : undefined}
-          onMouseLeave={stage === 'sanding' ? handleSandingMouseUp : undefined}
+          className="relative h-80 rounded-lg overflow-hidden border-2 border-slate-700 cursor-crosshair"
+          style={{
+            backgroundImage: `url(${dentImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            touchAction: 'none'
+          }}
+          onMouseDown={stage === 'sanding' ? handleSandingStart : undefined}
+          onTouchStart={stage === 'sanding' ? handleSandingStart : undefined}
+          onMouseUp={stage === 'sanding' ? handleSandingEnd : undefined}
+          onTouchEnd={stage === 'sanding' ? handleSandingEnd : undefined}
+          onMouseMove={stage === 'sanding' ? handleSandingMove : undefined}
+          onTouchMove={stage === 'sanding' ? handleSandingMove : undefined}
+          onMouseLeave={stage === 'sanding' ? handleSandingEnd : undefined}
           onClick={stage === 'priming' ? handlePrimeSpray : undefined}
+          onTouchStart={stage === 'priming' ? handlePrimeSpray : undefined}
         >
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/10" />
           <svg viewBox="0 0 300 150" className="w-full h-full">
             <defs>
               <filter id="dentEffect">
@@ -368,8 +380,10 @@ const BodyRepair = ({ onComplete }) => {
               <Progress value={(fillerPresses.length / 10) * 100} className="h-3 bg-slate-700" />
               <Button 
                 onClick={handleFillerPress}
-                className="w-full h-16 text-lg font-bold"
+                onTouchStart={(e) => { e.preventDefault(); handleFillerPress(); }}
+                className="w-full h-16 text-lg font-bold active:scale-95 transition-transform"
                 disabled={fillerPresses.length >= 10}
+                style={{ touchAction: 'manipulation' }}
               >
                 <Hammer className="w-6 h-6 mr-2" />
                 Apply Filler (Press at the right rhythm!)

@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { Sparkles, CheckCircle, Circle, Droplets, Wind } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/components/ui/use-toast';
+import { getTouchPosition } from '@/lib/touchHelpers';
+import carBodyImage from '../../../attached_assets/stock_images/mitsubishi_lancer_ev_f75e5a81.jpg';
 
 const CleaningExterior = ({ onComplete }) => {
   const { user, addXP } = useUser();
@@ -49,10 +51,9 @@ const CleaningExterior = ({ onComplete }) => {
     return () => clearInterval(timer);
   }, [stage]);
 
-  const handleMouseDown = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+  const handleDragStart = (e) => {
+    e.preventDefault();
+    const { x, y } = getTouchPosition(e, e.currentTarget);
     
     setIsDragging(true);
     setLastPos({ x, y });
@@ -62,12 +63,11 @@ const CleaningExterior = ({ onComplete }) => {
     }
   };
 
-  const handleMouseMove = (e) => {
+  const handleDragMove = (e) => {
     if (!isDragging) return;
+    e.preventDefault();
     
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const { x, y } = getTouchPosition(e, e.currentTarget);
     
     if (stage === 'claybar' && lastPos) {
       const distance = Math.sqrt(Math.pow(x - lastPos.x, 2) + Math.pow(y - lastPos.y, 2));
@@ -111,7 +111,7 @@ const CleaningExterior = ({ onComplete }) => {
     }
   };
 
-  const handleMouseUp = () => {
+  const handleDragEnd = (e) => {
     setIsDragging(false);
     setLastPos(null);
     
@@ -267,12 +267,24 @@ const CleaningExterior = ({ onComplete }) => {
         )}
 
         <div 
-          className="relative h-80 bg-gradient-to-b from-slate-800 to-slate-900 rounded-lg overflow-hidden border-2 border-slate-700 cursor-crosshair select-none"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
+          className="relative h-80 rounded-lg overflow-hidden border-2 border-slate-700 cursor-crosshair select-none"
+          style={{
+            backgroundImage: `url(${carBodyImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            touchAction: 'none'
+          }}
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          onMouseMove={handleDragMove}
+          onTouchMove={handleDragMove}
+          onMouseUp={handleDragEnd}
+          onTouchEnd={handleDragEnd}
+          onMouseLeave={handleDragEnd}
         >
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/10" style={{
+            filter: shineMeter > 80 ? 'drop-shadow(0 0 20px rgba(255,255,255,0.4))' : 'none'
+          }} />
           <svg viewBox="0 0 300 150" className="w-full h-full">
             <defs>
               <linearGradient id="cleanCarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
