@@ -24,6 +24,21 @@ The application is built with a modern web stack:
 - **Sanctuary of Stillness:** A guided meditation feature with character-voiced guidance from Dark Souls-inspired personas, designed to address specific emotional challenges. It includes a mood buff system rewarded upon meditation completion.
 
 ## Recent Changes
+- **2024-12-01:** Mobile Web App (PWA) Conversion:
+  - **Full PWA Implementation**: Converted to installable mobile web app
+  - **Custom App Icon**: The Citadel branding icon (citadel_1764564122560.png) as app icon and favicon
+  - **manifest.json**: Complete web app manifest with app metadata, icons, theme colors, and standalone display mode
+  - **Service Worker (sw.js)**: Offline caching with cache-first strategy, versioned caches, and graceful fallbacks
+  - **Mobile Meta Tags**: Full iOS and Android support with apple-mobile-web-app-capable, theme-color, viewport settings
+  - **Mobile CSS Optimizations**:
+    - Safe area support for notched devices (iPhone X+, etc.)
+    - Prevented pull-to-refresh and overscroll bounce
+    - Touch target minimum 44x44px for accessibility
+    - PWA standalone mode styles
+    - Prevented unwanted zoom on input focus
+  - **Installation**: Users can "Add to Home Screen" for native app-like experience
+  - **Offline Support**: Core app shell cached for offline access
+
 - **2024-11-20:** Touch-Friendly Games + High-Quality Evo IX Imagery:
   - **MAJOR UPDATE**: All 6 mini-games converted to full touch support (no mouse required)
   - **Touch Event System**: 
