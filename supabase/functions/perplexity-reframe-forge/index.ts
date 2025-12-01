@@ -87,8 +87,34 @@ Return ONLY the JSON object, no additional text.`;
       throw new Error('No response from Perplexity AI');
     }
 
+    // Extract JSON from response (handles markdown code blocks)
+    let jsonString = aiResponse.trim();
+    
+    // Remove markdown code blocks if present
+    const jsonMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonMatch) {
+      jsonString = jsonMatch[1].trim();
+    }
+    
+    // Try to find JSON object if response has extra text
+    const jsonObjectMatch = jsonString.match(/\{[\s\S]*\}/);
+    if (jsonObjectMatch) {
+      jsonString = jsonObjectMatch[0];
+    }
+
     // Parse JSON response
-    const parsedResponse = JSON.parse(aiResponse.trim());
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(jsonString);
+    } catch (parseError) {
+      console.error('JSON parse error. Raw response:', aiResponse);
+      throw new Error('AI response was not valid JSON. Please try again.');
+    }
+
+    // Validate required fields
+    if (!parsedResponse.balanced_reframe) {
+      throw new Error('AI response missing required fields');
+    }
 
     return new Response(
       JSON.stringify(parsedResponse),
