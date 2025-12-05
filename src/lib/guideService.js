@@ -14,31 +14,32 @@ export const getAIGuideResponse = async (systemPrompt, messageHistory, userConte
       console.error('getAIGuideResponse error: systemPrompt is missing.');
       throw new Error('System prompt is required.');
     }
-    // FIX: Removed check for messageHistory.length === 0
-    // An empty history is valid for the first message of a conversation.
     if (!messageHistory) {
       console.error('getAIGuideResponse error: messageHistory is null or undefined.');
       throw new Error('Message history is required (but can be empty).');
     }
 
-    const { data, error } = await supabase.functions.invoke('guide-persona-chat', {
-      // FIX: Removed JSON.stringify. The Supabase client handles this automatically.
-      // Passing an object directly is the correct way.
-      body: {
+    // Use local API instead of Supabase Edge Function
+    const response = await fetch('/api/guide-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         systemPrompt,
         userContext,
         messageHistory,
-      },
+      }),
     });
 
-    if (error) {
-      console.error('xSupabase function error:', error);
-      throw new Error(`Error from AI Guide: ${error.message || 'Unknown error'}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('API error:', data.error);
+      throw new Error(`Error from AI Guide: ${data.error || 'Unknown error'}`);
     }
 
-    // Handle errors returned successfully in the data object (from the edge function's try/catch)
+    // Handle errors returned in the data object
     if (data.error) {
-      console.error('Edge function runtime error:', data.error, data.details);
+      console.error('API runtime error:', data.error);
       throw new Error(`Error from AI Guide: ${data.error}`);
     }
 
