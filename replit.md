@@ -24,6 +24,14 @@ The application is built with a modern web stack:
 - **Sanctuary of Stillness:** A guided meditation feature with character-voiced guidance from Dark Souls-inspired personas, designed to address specific emotional challenges. It includes a mood buff system rewarded upon meditation completion.
 
 ## Recent Changes
+- **2024-12-05:** Consent Forms Added:
+  - **New Sidebar Tab**: Added "Consent Forms" as a new navigation item (not a Dashboard tile)
+  - **Interactive Flipbook**: Multi-page workbook with Previous/Next navigation
+  - **Form Features**: Checkboxes, text fields, and digital signature canvas
+  - **Page Content**: Cover page, welcome letter, and informed consent forms
+  - **Route**: `/consent-forms` accessible only to authenticated users
+  - **Icon**: FileText icon in sidebar navigation
+
 - **2024-12-01:** Mobile Web App (PWA) Conversion:
   - **Full PWA Implementation**: Converted to installable mobile web app
   - **Custom App Icon**: The Citadel branding icon (citadel_1764564122560.png) as app icon and favicon

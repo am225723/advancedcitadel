@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Shield, Sun, Anchor, Scroll, Settings, Footprints, Car, Flame, ChevronLeft, ChevronRight, BookMarked, Sparkles, BrainCircuit, LogOut, Flower } from 'lucide-react';
+import { Menu, X, Shield, Sun, Anchor, Scroll, Settings, Footprints, Car, Flame, ChevronLeft, ChevronRight, BookMarked, Sparkles, BrainCircuit, LogOut, Flower, FileText } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ const navItems = [
   { path: '/bonfire-enhanced', label: 'Bonfire of Breath', icon: Flame },
   { path: '/meditations', label: 'Sanctuary of Stillness', icon: Flower },
   { path: '/safe', label: 'The Safe', icon: Shield },
+  { path: '/consent-forms', label: 'Consent Forms', icon: FileText },
 ];
 
 const NavItem = ({ item, isCollapsed }) => {

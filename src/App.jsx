@@ -26,6 +26,7 @@ import CodexPage from '@/pages/CodexPage';
 import AIJournalWithGuide from '@/pages/AIJournalWithGuide';
 import CognitiveReframingWithGuide from '@/pages/CognitiveReframingWithGuide';
 import MeditationsPage from '@/pages/MeditationsPage';
+import ConsentForms from '@/pages/ConsentForms';
 
 const PrivateRoute = ({ children }) => {
   const { session, loading } = useAuth();
@@ -124,6 +125,7 @@ function App() {
               <Route path="/journal-guided" element={<PrivateRoute><AIJournalWithGuide /></PrivateRoute>} />
               <Route path="/reframe-guided" element={<PrivateRoute><CognitiveReframingWithGuide /></PrivateRoute>} />
               <Route path="/meditations" element={<PrivateRoute><MeditationsPage /></PrivateRoute>} />
+              <Route path="/consent-forms" element={<PrivateRoute><ConsentForms /></PrivateRoute>} />
               
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin/notes" element={<AdminRoute><AdminNotesPage /></AdminRoute>} />
