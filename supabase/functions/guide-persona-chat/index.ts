@@ -25,9 +25,19 @@ serve(async (req) => {
     // Parse request body
     const { systemPrompt, userContext, messageHistory } = await req.json()
 
-    if (!systemPrompt || !messageHistory || messageHistory.length === 0) {
+    if (!systemPrompt || !messageHistory) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields: systemPrompt and messageHistory' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+    
+    if (!Array.isArray(messageHistory) || messageHistory.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'messageHistory must be a non-empty array' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

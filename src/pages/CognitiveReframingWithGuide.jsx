@@ -86,6 +86,11 @@ const CognitiveReframingWithGuide = () => {
       if (!analysisData) {
         throw new Error("Received an unexpected response from the AI.");
       }
+      
+      // Check if the response contains an error (2xx with error in body)
+      if (analysisData.error) {
+        throw new Error(analysisData.error);
+      }
 
       // 2. Store the CBT analysis in state
       setCbtAnalysis(analysisData);
