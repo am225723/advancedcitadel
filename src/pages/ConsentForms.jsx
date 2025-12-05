@@ -92,7 +92,7 @@ So yeah, I'll be the therapist. But I'll also be the guy who builds, explores, w
       type: 'section',
       title: 'Client Demographics',
       sections: [
-        { heading: 'Personal Information', content: 'Please provide: Name, Date of Birth, Gender, SSN (optional), Race, Ethnicity, Address, Phone, Email, and whether messaging is OK.' },
+        { heading: 'Personal Information', content: 'Name, DOB, Gender, SSN (optional), Race, Ethnicity, Address, Phone, Email, messaging consent' },
         { heading: 'Emergency Contact', content: 'Please provide emergency contact name, relationship, and phone number.' }
       ]
     },
@@ -100,11 +100,83 @@ So yeah, I'll be the therapist. But I'll also be the guy who builds, explores, w
       type: 'section',
       title: 'Social History',
       sections: [
-        { heading: 'Employment Status', content: 'Employed (Satisfied), Employed (Dissatisfied), Unemployed, Disabled, Student, Retired, or Other?' },
-        { heading: 'Relationships and Family', content: 'Please describe your current relationship status, living situation, and significant family relationships.' },
-        { heading: 'Substance Use', content: 'Please disclose any current or past use of alcohol, tobacco, or other substances.' },
-        { heading: 'Medical History', content: 'Please list any significant medical conditions, medications, hospitalizations, or surgeries.' }
+        { heading: 'Employment Status', content: 'Employed (Satisfied), Employed (Dissatisfied), Unemployed, Disabled, Student, Retired, or Other' },
+        { heading: 'Living Situation', content: 'Housing Adequate, Overcrowded, Dependent on others, Homeless, or Dysfunctional companions' },
+        { heading: 'Relationship Status', content: 'Single, Married, Divorced, Separated, Live-in Partner, or Engaged' }
       ]
+    },
+    {
+      type: 'section',
+      title: 'Clinical Intake',
+      sections: [
+        { heading: 'Primary Concern', content: 'Please describe the main concern(s) bringing you to therapy. Include duration and severity.' },
+        { heading: 'Recent Stressors', content: 'List any recent losses, job changes, major life transitions, or stressful events.' },
+        { heading: 'Treatment Goals', content: 'What are your goals for therapy? What would success look like?' },
+        { heading: 'Strengths', content: 'What are your key strengths, coping skills, or resources?' }
+      ]
+    },
+    {
+      type: 'section',
+      title: 'Medical History',
+      sections: [
+        { heading: 'Physical Health Rating', content: 'Rate overall physical health: Excellent, Good, Fair, or Poor' },
+        { heading: 'Conditions', content: 'Headaches/Migraines, High BP, Diabetes, Thyroid Disease, Heart Disease, or GI Issues' },
+        { heading: 'Chronic Pain', content: 'Do you have chronic pain? If yes, please describe location(s).' },
+        { heading: 'Allergies', content: 'List any medication allergies, food allergies, or other allergic reactions.' }
+      ]
+    },
+    {
+      type: 'section',
+      title: 'Medication History',
+      sections: [
+        { heading: 'Current Medications', content: 'List all current medications with name, dose, and reason for taking.' },
+        { heading: 'Past Psychiatric Medications', content: 'Check medication classes you have tried: SSRI/Antidepressant, Mood Stabilizer, Antipsychotic, Anxiety/Benzo, ADHD Stimulant, or Sleep Aid' },
+        { heading: 'Medication Response', content: 'Which medications were helpful? Any side effects or concerns?' }
+      ]
+    },
+    {
+      type: 'section',
+      title: 'PHQ-9 Depression Screen',
+      sections: [
+        { heading: 'Assessment', content: 'Over the last 2 weeks, rate how often bothered by:\n• Little interest/pleasure in activities\n• Feeling down, depressed, or hopeless\n• Trouble falling/staying asleep\n• Feeling tired or having little energy\n• Poor appetite or overeating\n• Feeling bad about yourself\n• Trouble concentrating\n• Moving or speaking slowly vs being fidgety\n• Thoughts of self-harm\n\nScale: Not at all (0), Several days (1), More than half days (2), Nearly every day (3)' }
+      ]
+    },
+    {
+      type: 'section',
+      title: 'Symptom Checklist',
+      sections: [
+        { heading: 'Check All That Apply', content: 'Aggression, Agitation, Anxiety/Panic, Appetite Disturbance, Depressed Mood, Elevated/Manic Mood, Fatigue, Grief/Guilt, Hallucinations, Hopelessness, Irritability, Memory Issues, Obsessions/Compulsions, Paranoia, Sleep Disturbance, Social Isolation, Trauma (Emotional/Physical), Worthlessness' }
+      ]
+    },
+    {
+      type: 'section',
+      title: 'Substance Use & Legal',
+      sections: [
+        { heading: 'Alcohol Use', content: 'Drinks per day:__, Years of use:__. Ever felt need to cut down?' },
+        { heading: 'History of Substance Use', content: 'Cannabis, Cocaine/Crack, Amphetamines, Opiates, Hallucinogens, Benzos/Sedatives' },
+        { heading: 'Legal History', content: 'Have you ever been arrested? If yes, please explain the circumstances.' }
+      ]
+    },
+    {
+      type: 'section',
+      title: 'Family History',
+      sections: [
+        { heading: 'Psychiatric History', content: 'Check if family member has history of: Alcohol/Substance Abuse, Anxiety, Depression, Bipolar Disorder, Schizophrenia, Suicide Attempts' },
+        { heading: 'Medical History', content: 'Check if family member has history of: Heart Disease, Diabetes, Cancer, High BP, Stroke, Alzheimer\'s/Dementia' }
+      ]
+    },
+    {
+      type: 'section',
+      title: 'Holistic Wellness & Final Sign Off',
+      sections: [
+        { heading: 'Wellness Practices', content: 'Sleep Habits: _____\nMovement/Exercise: _____\nNutrition: _____\nSpiritual/Energy Practice: _____' },
+        { heading: 'Master Signature', content: 'I certify that the information provided in this packet is accurate. I agree to the policies and consent to treatment.', hasSignature: true }
+      ]
+    },
+    {
+      type: 'back_cover',
+      title: 'Unleash Your Hue',
+      address: '45 S Main Street, Unit 111\nWest Hartford, CT 06107\nwww.unleashyourhue.com'
     }
   ];
 
@@ -162,13 +234,13 @@ So yeah, I'll be the therapist. But I'll also be the guy who builds, explores, w
     <>
       <Helmet>
         <title>Consent Forms - The Citadel</title>
-        <meta name="description" content="Therapeutic consent and agreement forms." />
+        <meta name="description" content="Comprehensive therapeutic consent and agreement forms." />
       </Helmet>
 
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold text-gradient-gold font-cinzel">Consent Forms & Agreements</h1>
-          <p className="text-slate-400 font-garamond">Page {currentPage + 1} of {pages.length} • Interactive workbook • Click fields to fill</p>
+          <p className="text-slate-400 font-garamond">Page {currentPage + 1} of {pages.length} • Interactive workbook</p>
         </div>
 
         <div className="bg-dark-steel/50 border border-slate-700 rounded-lg overflow-hidden">
@@ -177,6 +249,15 @@ So yeah, I'll be the therapist. But I'll also be the guy who builds, explores, w
               <div className="flex flex-col items-center justify-center h-[500px] text-center space-y-6">
                 <div className="text-6xl font-bold text-gradient-gold font-cinzel">{currentPageData.title}</div>
                 <div className="text-2xl text-slate-600 font-garamond">{currentPageData.subtitle}</div>
+              </div>
+            )}
+
+            {currentPageData.type === 'back_cover' && (
+              <div className="flex flex-col items-center justify-center h-[500px] text-center space-y-6 bg-slate-800 text-white">
+                <h1 className="text-5xl font-bold font-cinzel">{currentPageData.title}</h1>
+                <div className="text-lg font-garamond whitespace-pre-line text-slate-300">
+                  {currentPageData.address}
+                </div>
               </div>
             )}
 
@@ -259,10 +340,11 @@ So yeah, I'll be the therapist. But I'll also be the guy who builds, explores, w
         </div>
 
         <div className="bg-dark-steel/30 border border-slate-700 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gold-accent mb-3 font-cinzel">About These Forms</h3>
+          <h3 className="text-lg font-semibold text-gold-accent mb-3 font-cinzel">Complete Intake Workbook</h3>
           <p className="text-slate-400 font-garamond leading-relaxed">
-            These comprehensive forms document informed consent, financial agreements, privacy practices, and client information. 
-            Please review carefully and contact us with any questions. All information is kept confidential and secure.
+            This comprehensive 16-page workbook covers informed consent, financial agreements, privacy practices (HIPAA), 
+            telehealth consent, demographics, social history, clinical intake, medical & medication history, depression screening (PHQ-9), 
+            symptom assessment, substance use, family history, and wellness practices. All information is kept confidential and secure.
           </p>
         </div>
       </div>
