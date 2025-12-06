@@ -19,24 +19,22 @@ export const getAIGuideResponse = async (systemPrompt, messageHistory, userConte
       throw new Error('Message history is required (but can be empty).');
     }
 
-    // Use Supabase Edge Function
-    const { data, error } = await supabase.functions.invoke('guide-persona-chat', {
-      body: {
+    // Use Vercel API route
+    const response = await fetch('/api/guide-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         systemPrompt,
         userContext,
         messageHistory,
-      },
+      }),
     });
 
-    if (error) {
-      console.error('Supabase function error:', error);
-      throw new Error(`Error from AI Guide: ${error.message || 'Unknown error'}`);
-    }
+    const data = await response.json();
 
-    // Handle errors returned in the data object
-    if (data.error) {
-      console.error('Edge function runtime error:', data.error, data.details);
-      throw new Error(`Error from AI Guide: ${data.error}`);
+    if (!response.ok || data.error) {
+      console.error('API error:', data.error);
+      throw new Error(`Error from AI Guide: ${data.error || 'Unknown error'}`);
     }
 
     // Remove citation numbers like [3][1] from the response

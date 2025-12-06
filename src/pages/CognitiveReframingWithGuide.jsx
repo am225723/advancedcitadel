@@ -77,18 +77,18 @@ const CognitiveReframingWithGuide = () => {
     setGuideResponse(null);
 
     try {
-      // 1. Get Perplexity CBT analysis via Supabase Edge Function
-      const { data: analysisData, error: analysisError } = await supabase.functions.invoke('perplexity-reframe-forge', {
-        body: { negative_thought: thought, context },
+      // 1. Get Perplexity CBT analysis via API route
+      const reframeResponse = await fetch('/api/reframe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ negative_thought: thought, context }),
       });
 
-      if (analysisError) {
-        console.error('Supabase function error:', analysisError);
-        throw new Error(analysisError.message || 'Edge function failed');
-      }
-      
-      if (!analysisData || analysisData.error) {
-        throw new Error(analysisData?.error || "Received an unexpected response from the AI.");
+      const analysisData = await reframeResponse.json();
+
+      if (!reframeResponse.ok || analysisData.error) {
+        console.error('API error:', analysisData.error);
+        throw new Error(analysisData.error || 'AI analysis failed');
       }
 
       // 2. Store the CBT analysis in state
