@@ -1,43 +1,28 @@
-export const config = {
-  runtime: 'edge',
-};
-
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions';
 
-export default async function handler(req) {
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
   if (req.method === 'OPTIONS') {
-    return new Response('ok', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    });
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { systemPrompt, userContext, messageHistory } = await req.json();
+    const { systemPrompt, userContext, messageHistory } = req.body;
     const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
 
     if (!perplexityApiKey) {
-      return new Response(JSON.stringify({ error: 'PERPLEXITY_API_KEY is not configured' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return res.status(500).json({ error: 'PERPLEXITY_API_KEY is not configured' });
     }
 
     if (!systemPrompt || !messageHistory || !Array.isArray(messageHistory) || messageHistory.length === 0) {
-      return new Response(JSON.stringify({ error: 'Missing required fields: systemPrompt and messageHistory (non-empty array)' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return res.status(400).json({ error: 'Missing required fields: systemPrompt and messageHistory (non-empty array)' });
     }
 
     const messages = [
@@ -73,38 +58,23 @@ export default async function handler(req) {
     if (!response.ok) {
       const errorData = await response.text();
       console.error('Perplexity API error:', errorData);
-      return new Response(JSON.stringify({ error: `Perplexity API error: ${response.status}` }), {
-        status: response.status,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return res.status(response.status).json({ error: `Perplexity API error: ${response.status}` });
     }
 
     const data = await response.json();
     const aiResponse = data.choices?.[0]?.message?.content;
 
     if (!aiResponse) {
-      return new Response(JSON.stringify({ error: 'No response from Perplexity AI' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return res.status(500).json({ error: 'No response from Perplexity AI' });
     }
 
-    return new Response(JSON.stringify({
+    return res.status(200).json({
       response: aiResponse,
       model: data.model,
       usage: data.usage
-    }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
     });
   } catch (error) {
     console.error('Error in /api/guide-chat:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(500).json({ error: error.message });
   }
 }
