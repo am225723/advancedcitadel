@@ -222,12 +222,6 @@ export default defineConfig({
                         host: '127.0.0.1',
                         port: 5000,
                 },
-                proxy: {
-                        '/api': {
-                                target: 'http://localhost:3001',
-                                changeOrigin: true,
-                        },
-                },
         },
         resolve: {
                 extensions: ['.jsx', '.js', '.tsx', '.ts', '.json', ],

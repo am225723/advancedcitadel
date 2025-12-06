@@ -19,27 +19,23 @@ export const getAIGuideResponse = async (systemPrompt, messageHistory, userConte
       throw new Error('Message history is required (but can be empty).');
     }
 
-    // Use local API instead of Supabase Edge Function
-    const response = await fetch('/api/guide-chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    // Use Supabase Edge Function
+    const { data, error } = await supabase.functions.invoke('guide-persona-chat', {
+      body: {
         systemPrompt,
         userContext,
         messageHistory,
-      }),
+      },
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error('API error:', data.error);
-      throw new Error(`Error from AI Guide: ${data.error || 'Unknown error'}`);
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw new Error(`Error from AI Guide: ${error.message || 'Unknown error'}`);
     }
 
     // Handle errors returned in the data object
     if (data.error) {
-      console.error('API runtime error:', data.error);
+      console.error('Edge function runtime error:', data.error, data.details);
       throw new Error(`Error from AI Guide: ${data.error}`);
     }
 
