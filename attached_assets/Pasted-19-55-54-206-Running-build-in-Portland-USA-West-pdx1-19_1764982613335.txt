@@ -1,0 +1,34 @@
+19:55:54.206 Running build in Portland, USA (West) – pdx1
+19:55:54.206 Build machine configuration: 4 cores, 8 GB
+19:55:54.296 Cloning github.com/am225723/advancedcitadel (Branch: main, Commit: 9c04cea)
+19:55:56.398 Warning: Failed to fetch one or more git submodules
+19:55:56.398 Cloning completed: 2.102s
+19:55:56.493 Restored build cache from previous deployment (CPfmDQzRW5UdfvgRh97qYA4bhpfN)
+19:55:57.092 Running "vercel build"
+19:55:57.482 Vercel CLI 49.0.0
+19:55:58.005 > Installing Builder: @vercel/node@3.0.0
+19:56:03.533 Installing dependencies...
+19:56:04.511 
+19:56:04.511 up to date in 895ms
+19:56:04.512 
+19:56:04.512 171 packages are looking for funding
+19:56:04.512   run `npm fund` for details
+19:56:04.634 
+19:56:04.634 > therapeutic-garage@0.0.0 build
+19:56:04.634 > node tools/generate-llms.js || true && vite build
+19:56:04.634 
+19:56:05.182 [36mvite v7.2.2 [32mbuilding client environment for production...[36m[39m
+19:56:05.507 transforming...
+19:56:15.090 [32m✓[39m 3588 modules transformed.
+19:56:16.601 rendering chunks...
+19:56:16.662 computing gzip size...
+19:56:16.727 [2mdist/[22m[32mindex.html                                         [39m[1m[2m    8.52 kB[22m[1m[22m[2m │ gzip:   2.82 kB[22m
+19:56:16.727 [2mdist/[22m[2massets/[22m[32mcar_wheel_tire_close_c057e92a-DNY4MoID.jpg  [39m[1m[2m  152.18 kB[22m[1m[22m
+19:56:16.727 [2mdist/[22m[2massets/[22m[32mmitsubishi_lancer_ev_f75e5a81-DzI021QB.jpg  [39m[1m[2m  259.11 kB[22m[1m[22m
+19:56:16.727 [2mdist/[22m[2massets/[22m[32mmitsubishi_lancer_ev_3158e65e-1-MM5W9a.jpg  [39m[1m[2m  261.87 kB[22m[1m[22m
+19:56:16.727 [2mdist/[22m[2massets/[22m[32mcar_body_repair_dent_6160edf8-C1SOlpGS.jpg  [39m[1m[2m  321.95 kB[22m[1m[22m
+19:56:16.728 [2mdist/[22m[2massets/[22m[35mindex-oUnOhGmv.css                          [39m[1m[2m   76.81 kB[22m[1m[22m[2m │ gzip:  12.04 kB[22m
+19:56:16.728 [2mdist/[22m[2massets/[22m[36mindex-zbC2X3He.js                           [39m[1m[33m2,521.63 kB[39m[22m[2m │ gzip: 723.66 kB[22m
+19:56:16.728 [32m✓ built in 11.52s[39m
+19:56:16.848 Error: Found invalid Node.js Version: "22.x". Please set Node.js Version to 18.x in your Project Settings to use Node.js 18.
+19:56:16.848 Learn More: http://vercel.link/node-version
